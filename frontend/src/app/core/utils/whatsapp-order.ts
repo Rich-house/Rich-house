@@ -1,4 +1,4 @@
-import { CartItem, CartResponse } from '../../models/cart.models';
+import { CartItem, CartResponse } from '../../shared/models/cart.models';
 import { formatEgpPrice } from './price';
 
 const buildCartItemMessage = (item: CartItem, index: number): string => {

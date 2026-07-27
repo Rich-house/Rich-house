@@ -2,7 +2,7 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { Auth } from '../../Services/auth';
+import { Auth } from '../services/auth';
 import { apiConfig, isApiRequestUrl } from '../config/api.config';
 
 const shouldInvalidateSession = (requestUrl: string, status: number): boolean => {
