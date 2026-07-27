@@ -19,8 +19,6 @@ export const apiConfig = {
   categories: buildUrl(environment.api.endpoints.categories),
   reviews: buildUrl(environment.api.endpoints.reviews),
   cart: buildUrl(environment.api.endpoints.cart),
-  orders: buildUrl(environment.api.endpoints.orders),
-  paymentCheckout: buildUrl(environment.api.endpoints.paymentCheckout),
   currentUser: buildUrl(environment.api.endpoints.currentUser),
 };
 

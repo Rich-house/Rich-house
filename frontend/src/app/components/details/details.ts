@@ -5,8 +5,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../Services/auth';
 import Swal from 'sweetalert2';
+import { AddToCartRequest } from '../../models/cart.models';
 import { ProductCard, ProductDetails } from '../../models/product.models';
 import { SeoService } from '../../core/services/seo.service';
+import { richHouseUi } from '../../core/config/site-settings.config';
 import { WhatsAppButtonComponent } from '../../shared/components/whatsapp-button/whatsapp-button';
 import {
   productPlaceholderImage,
@@ -14,23 +16,31 @@ import {
   resolveImageUrl,
 } from '../../core/utils/image-url';
 import { ImageFallbackDirective } from '../../shared/directives/image-fallback.directive';
+import { EgpPricePipe } from '../../shared/pipes/egp-price.pipe';
 
 @Component({
   selector: 'app-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ImageFallbackDirective, WhatsAppButtonComponent],
-  templateUrl: './details.html'
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    ImageFallbackDirective,
+    WhatsAppButtonComponent,
+    EgpPricePipe,
+  ],
+  templateUrl: './details.html',
+  styleUrl: './details.css',
 })
 export class Details implements OnInit {
   product: ProductDetails | null = null;
   relatedProducts: ProductCard[] = [];
   reviews: any[] = [];
   loading = true;
-  loadingRelated = false;
 
   newReview = {
     rating: 5,
-    comment: ''
+    comment: '',
   };
   isSubmittingReview = false;
 
@@ -44,7 +54,7 @@ export class Details implements OnInit {
     2: 'Medium',
     3: 'Large',
     4: 'X-Large',
-    5: 'XX-Large'
+    5: 'XX-Large',
   };
 
   constructor(
@@ -53,11 +63,11 @@ export class Details implements OnInit {
     private productService: ProductsService,
     private cdr: ChangeDetectorRef,
     public authService: Auth,
-    private seoService: SeoService
-  ) { }
+    private seoService: SeoService,
+  ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug');
       const id = params.get('id');
       if (slug) {
@@ -76,7 +86,7 @@ export class Details implements OnInit {
         this.reviews = data;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error loading reviews', err)
+      error: () => undefined,
     });
   }
 
@@ -95,7 +105,7 @@ export class Details implements OnInit {
     const reviewData = {
       productId: product.id,
       rating: Number(this.newReview.rating),
-      comment: this.newReview.comment
+      comment: this.newReview.comment,
     };
 
     this.productService.addReview(reviewData).subscribe({
@@ -106,17 +116,17 @@ export class Details implements OnInit {
           title: 'Review Submitted',
           text: 'Thank you for your feedback!',
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         this.loadReviews(product.id);
-        this.newReview = { rating: 5, comment: '' }; 
+        this.newReview = { rating: 5, comment: '' };
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: () => {
         this.isSubmittingReview = false;
         Swal.fire('Error', 'Failed to post review. Please make sure you are logged in.', 'error');
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -124,9 +134,9 @@ export class Details implements OnInit {
     return Array(rating).fill(0);
   }
 
-  getSizeLabel(size: any): string {
+  getSizeLabel(size: string | number): string {
     const numSize = Number(size);
-    return this.sizeLabels[numSize] || size;
+    return this.sizeLabels[numSize] || String(size);
   }
 
   loadProduct(id: string) {
@@ -135,10 +145,10 @@ export class Details implements OnInit {
       next: (res) => {
         this.handleLoadedProduct(res);
       },
-      error: (err) => {
+      error: () => {
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -148,38 +158,32 @@ export class Details implements OnInit {
       next: (res) => {
         this.handleLoadedProduct(res);
       },
-      error: (err) => {
+      error: () => {
         this.loading = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
   loadRelated(catId: number, currentId: number) {
-    this.loadingRelated = true;
     this.productService.getProductsByCategoryId(catId).subscribe({
       next: (res: ProductCard[]) => {
         this.relatedProducts = res.filter((product) => product.id !== currentId);
-        this.loadingRelated = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        this.loadingRelated = false;
-      }
+      error: () => undefined,
     });
   }
 
   get galleryImages(): string[] {
     const images = this.product?.imageUrls ?? [];
-    return images.length > 0 ? images.map((imageUrl) => resolveImageUrl(imageUrl)) : [this.fallbackImage];
+    return images.length > 0
+      ? images.map((imageUrl) => resolveImageUrl(imageUrl))
+      : [this.fallbackImage];
   }
 
   resolveRelatedProductImage(product: ProductCard): string {
     return resolveCatalogThumbnailUrl(product.imageUrls[0]);
-  }
-
-  get productWhatsAppLabel(): string {
-    return this.product ? `Ask about ${this.product.name}` : 'Ask on WhatsApp';
   }
 
   addToCart() {
@@ -188,43 +192,29 @@ export class Details implements OnInit {
       return;
     }
 
-    if (!this.authService.hasValidSession()) {
-      Swal.fire({
-        title: 'Login Required',
-        text: 'Please login first to add items to your bag!',
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonColor: '#0d6efd',
-        confirmButtonText: 'Go to Login',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
-        }
-      });
-      return;
-    }
-
     if (product.sizes.length > 0 && !this.selectedSize) {
       Swal.fire({
         title: 'Select Size',
         text: 'Please choose a size before adding to cart',
         icon: 'warning',
-        confirmButtonColor: '#0d6efd',
-        confirmButtonText: 'Got it!'
+        confirmButtonColor: richHouseUi.modalConfirmColor,
+        confirmButtonText: 'Got it!',
       });
       return;
     }
 
     this.isAdding = true;
-    const cartPayload = {
+    const cartPayload: AddToCartRequest = {
       productId: product.id,
       quantity: this.quantity,
-      selectedSize: this.selectedSize
+      productImage: product.imageUrls[0] ?? '',
+      productName: product.name,
+      selectedSize: this.selectedSize || '',
+      unitPrice: product.price,
     };
 
     this.productService.addToCart(cartPayload).subscribe({
-      next: (res) => {
+      next: () => {
         this.isAdding = false;
         Swal.fire({
           position: 'top-end',
@@ -232,11 +222,11 @@ export class Details implements OnInit {
           title: 'Added to cart!',
           showConfirmButton: false,
           timer: 1500,
-          toast: true
+          toast: true,
         });
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: () => {
         this.isAdding = false;
         Swal.fire({
           icon: 'error',
@@ -244,7 +234,7 @@ export class Details implements OnInit {
           text: 'Failed to add item to cart. Please try again.',
         });
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 

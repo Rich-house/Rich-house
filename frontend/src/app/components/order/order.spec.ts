@@ -1,18 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { ProductsService } from '../../Services/product';
 
-import { Order } from './order';
+import { OrderComponent } from './order';
 
-describe('Order', () => {
-  let component: Order;
-  let fixture: ComponentFixture<Order>;
+describe('OrderComponent', () => {
+  let component: OrderComponent;
+  let fixture: ComponentFixture<OrderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Order]
-    })
-    .compileComponents();
+      imports: [OrderComponent],
+      providers: [
+        {
+          provide: ProductsService,
+          useValue: {
+            getCart: () => of({ cartId: 0, items: [], totalPrice: 0, totalCount: 0 }),
+          },
+        },
+      ],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(Order);
+    fixture = TestBed.createComponent(OrderComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

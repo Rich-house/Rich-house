@@ -34,7 +34,14 @@ public static class RichHouseCatalogManifest
             "Formal footwear selected to finish tailored looks with a polished profile.",
             40,
             "Men's Shoes | Rich House",
-            "Formal men's shoes from Rich House designed to complement suits and occasionwear.")
+            "Formal men's shoes from Rich House designed to complement suits and occasionwear."),
+        new(
+            "Belts",
+            "belts",
+            "Leather belts and dress-ready finishing pieces selected to complete formal looks.",
+            50,
+            "Men's Belts | Rich House",
+            "Premium men's belts from Rich House designed to complete tailoring and occasionwear.")
     ];
 
     public static IReadOnlyList<RichHouseProductSeedDefinition> Products { get; } =

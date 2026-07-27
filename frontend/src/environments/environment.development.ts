@@ -10,8 +10,6 @@ export const environment = {
       categories: 'api/Category',
       reviews: 'api/Review',
       cart: 'api/Cart',
-      orders: 'api/Order',
-      paymentCheckout: 'api/Payment/checkout',
       currentUser: 'api/Auth/me',
     },
   },

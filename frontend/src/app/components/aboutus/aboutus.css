@@ -44,6 +44,10 @@
   margin-top: var(--rh-space-8);
 }
 
+.about-page__stores {
+  margin-top: var(--rh-space-8);
+}
+
 .about-page__principles {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

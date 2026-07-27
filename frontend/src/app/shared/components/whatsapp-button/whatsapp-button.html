@@ -1,8 +1,10 @@
 <a
   *ngIf="href"
   class="rh-whatsapp-button"
+  [class.rh-whatsapp-button--compact]="size === 'compact'"
   [class.rh-whatsapp-button--block]="block"
   [class.rh-whatsapp-button--floating]="variant === 'floating'"
+  [class.rh-whatsapp-button--subtle]="appearance === 'subtle'"
   [href]="href"
   target="_blank"
   rel="noopener noreferrer"

@@ -40,7 +40,7 @@ export class Dashboard implements OnInit {
         this.categories = data;
         this.cdr.detectChanges();
       },
-      error: (err) => console.log(err)
+      error: () => undefined,
     });
   }
 
@@ -126,7 +126,7 @@ deleteProduct(id: number) {
         this.users = data;
         this.cdr.detectChanges();
       },
-      error: (err) => console.log(err)
+      error: () => undefined,
     });
   }
 

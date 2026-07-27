@@ -1,27 +1,28 @@
-<div class="container py-5" style="min-height: 80vh">
+<div class="container py-5 cart-page">
   <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
     <div>
       <h2 class="fw-bold m-0 text-uppercase tracking-tight">Shopping Bag</h2>
       <p class="text-muted small mb-0" *ngIf="cartData?.items?.length">
-        You have {{ cartData.totalCount }} items in your cart
+        You have {{ cartData?.totalCount }} items in your cart
       </p>
     </div>
-    <a routerLink="/shop" class="btn btn-link text-dark text-decoration-none fw-bold p-0">
+    <a routerLink="/shop" class="rh-link fw-bold p-0">
       <i class="bi bi-arrow-left me-1"></i> Continue Shopping
     </a>
   </div>
 
   <div *ngIf="loading; else content" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem"></div>
+    <div class="spinner-border cart-page__spinner" role="status" style="width: 3rem; height: 3rem"></div>
     <p class="mt-3 text-muted fw-medium">Processing...</p>
   </div>
 
   <ng-template #content>
-    <div class="row g-4" *ngIf="cartData?.items?.length > 0; else emptyCart">
+    <div class="row g-4" *ngIf="cartData as cart; else emptyCart">
       <div class="col-lg-8">
         <div
           class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden"
-          *ngFor="let item of cartData.items">
+          *ngFor="let item of cart.items; trackBy: trackByCartItem"
+        >
           <div class="card-body p-0">
             <div class="row g-0 align-items-center">
               <div class="col-3 col-md-2">
@@ -33,45 +34,48 @@
                 />
               </div>
 
-    <div class="col-5 col-md-4 ps-3 ps-md-4">
-  <h6 class="fw-bold mb-1 text-truncate">{{ item.productName }}</h6>
-  
-  <p class="text-muted small mb-2">
-    Size: 
-    <span class="badge rounded-pill bg-dark text-white px-2" style="font-size: 0.7rem;">
-      {{ getSizeName(item.sizeId) }}
-    </span>
-  </p>
+              <div class="col-5 col-md-4 ps-3 ps-md-4">
+                <h6 class="fw-bold mb-1 text-truncate">{{ item.productName }}</h6>
 
-  <div class="fw-bold text-primary">{{ item.unitPrice | number }} EGP</div>
-</div>
+                <p class="text-muted small mb-2" *ngIf="item.size">
+                  Size:
+                  <span
+                    class="badge rounded-pill bg-dark text-white px-2"
+                    style="font-size: 0.7rem"
+                  >
+                    {{ item.size }}
+                  </span>
+                </p>
+
+                <div class="fw-bold cart-page__price">{{ item.unitPrice | egpPrice }}</div>
+              </div>
               <div class="col-2 text-center">
                 <span class="text-muted d-block small mb-2">Qty</span>
                 <div class="d-flex align-items-center justify-content-center gap-2">
-                  <button 
-                    class="btn btn-dark btn-sm d-flex align-items-center justify-content-center p-0"
-                    style="width: 28px; height: 28px; background-color: black; border: none; border-radius: 6px;"
-                    (click)="changeQuantity(item.productId, item.quantity, -1)"
-                    [disabled]="item.quantity <= 1">
-                    <i class="bi bi-dash-lg text-white" style="font-size: 0.8rem;"></i>
+                  <button
+                    class="cart-page__qty-button"
+                    (click)="changeQuantity(item.productId, item.quantity, -1, item.size, item.color)"
+                    [disabled]="item.quantity <= 1"
+                  >
+                    <i class="bi bi-dash-lg"></i>
                   </button>
 
-                  <span class="fw-bold fs-5" style="min-width: 25px;">{{ item.quantity }}</span>
+                  <span class="fw-bold fs-5" style="min-width: 25px">{{ item.quantity }}</span>
 
-                  <button 
-                    class="btn btn-dark btn-sm d-flex align-items-center justify-content-center p-0"
-                    style="width: 28px; height: 28px; background-color: black; border: none; border-radius: 6px;"
-                    (click)="changeQuantity(item.productId, item.quantity, 1)">
-                    <i class="bi bi-plus-lg text-white" style="font-size: 0.8rem;"></i>
+                  <button
+                    class="cart-page__qty-button"
+                    (click)="changeQuantity(item.productId, item.quantity, 1, item.size, item.color)"
+                  >
+                    <i class="bi bi-plus-lg"></i>
                   </button>
                 </div>
               </div>
 
               <div class="col-2 text-center">
                 <button
-                  class="btn btn-primary "
+                  class="cart-page__remove"
                   title="Remove Item"
-                  (click)="deleteItem(item.productId)"
+                  (click)="deleteItem(item.productId, item.size, item.color)"
                 >
                   <i class="bi bi-trash3 fs-5"></i>
                 </button>
@@ -87,12 +91,12 @@
 
           <div class="d-flex justify-content-between mb-3">
             <span class="text-muted">Subtotal</span>
-            <span class="fw-bold text-dark">{{ cartData.totalPrice | number }} EGP</span>
+            <span class="fw-bold text-dark">{{ cart.totalPrice | egpPrice }}</span>
           </div>
 
           <div class="d-flex justify-content-between mb-3">
-            <span class="text-muted">Shipping</span>
-            <span class="text-success fw-medium">Calculated at checkout</span>
+            <span class="text-muted">Next step</span>
+            <span class="fw-medium text-dark">Review your order</span>
           </div>
 
           <hr class="my-4 opacity-10" />
@@ -100,29 +104,19 @@
           <div class="d-flex justify-content-between mb-4">
             <span class="fs-4 fw-bold">Total</span>
             <div class="text-end">
-              <span class="fs-4 fw-bold text-primary d-block"
-                >{{ cartData.totalPrice | number }} EGP</span
-              >
-              <small class="text-muted">VAT Included</small>
+              <span class="fs-4 fw-bold cart-page__price d-block">{{
+                cart.totalPrice | egpPrice
+              }}</span>
+              <small class="text-muted">Continue on WhatsApp from the next step</small>
             </div>
           </div>
 
-          <button
-            class="btn btn-primary btn-lg w-100 fw-bold py-3 shadow rounded-3 mb-2"
+          <a
+            class="rh-button rh-button--primary cart-page__checkout"
             [routerLink]="['/create-order']"
           >
             PROCEED TO CHECKOUT
-          </button>
-
-          <div class="text-center mt-3">
-            <img
-              src="assets/payment-methods.jpg"
-              alt="Payment Methods"
-              class="img-fluid opacity-75"
-              style="max-height: 30px"
-              (error)="$any($event.target).style.display='none'"
-            />
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -135,9 +129,9 @@
       </div>
       <h3 class="fw-bold">Your bag is empty</h3>
       <p class="text-muted mb-4">Looks like you haven't added anything to your bag yet.</p>
-      <button class="btn btn-dark btn-lg px-5 py-3 rounded-pill fw-bold" routerLink="/shop">
+      <a class="rh-button rh-button--primary cart-page__checkout" routerLink="/shop">
         START SHOPPING
-      </button>
+      </a>
     </div>
   </ng-template>
 </div>

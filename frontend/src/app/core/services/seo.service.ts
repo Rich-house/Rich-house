@@ -24,9 +24,8 @@ interface SeoConfig {
   providedIn: 'root',
 })
 export class SeoService {
-  readonly defaultTitle = 'Rich House | Premium Menswear';
-  readonly defaultDescription =
-    'Premium menswear, suits, shirts and formalwear from Rich House.';
+  readonly defaultTitle = richHouseBrand.browserTitle;
+  readonly defaultDescription = 'Premium menswear, suits, shirts and formalwear from Rich House.';
 
   constructor(
     @Inject(DOCUMENT) private readonly document: Document,
@@ -55,12 +54,12 @@ export class SeoService {
   }
 
   setProductSeo(product: ProductDetails, url?: string): void {
-    const title = product.seoTitle?.trim() || `${product.name} | Rich House`;
+    const title = richHouseBrand.browserTitle;
     const description =
-      product.seoDescription?.trim()
-      || product.shortDescription?.trim()
-      || product.description?.trim()
-      || this.defaultDescription;
+      product.seoDescription?.trim() ||
+      product.shortDescription?.trim() ||
+      product.description?.trim() ||
+      this.defaultDescription;
     const primaryImage = resolveImageUrl(product.imageUrls[0]);
     const productUrl = this.resolvePageUrl(url);
 
@@ -86,18 +85,23 @@ export class SeoService {
           '@type': 'Offer',
           priceCurrency: 'EGP',
           price: product.offerPrice ?? product.price,
-          availability: product.stockQuantity > 0
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
+          availability:
+            product.stockQuantity > 0
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
           url: productUrl,
         },
       },
     });
   }
 
-  private setSeo(config: Required<Pick<SeoConfig, 'title' | 'description' | 'type'>> & SeoConfig): void {
+  private setSeo(
+    config: Required<Pick<SeoConfig, 'title' | 'description' | 'type'>> & SeoConfig,
+  ): void {
     const pageUrl = this.resolvePageUrl(config.url);
-    const imageUrl = config.image ? resolveImageUrl(config.image) : this.resolvePageUrl('/android-chrome-512x512.png');
+    const imageUrl = config.image
+      ? resolveImageUrl(config.image)
+      : this.resolvePageUrl('/android-chrome-512x512.png');
 
     this.title.setTitle(config.title);
     this.updateNamedMeta('description', config.description);
@@ -140,9 +144,10 @@ export class SeoService {
 
   private updateStructuredData(data: Record<string, unknown>): void {
     const existingScript = this.document.getElementById('rich-house-structured-data');
-    const script = existingScript instanceof HTMLScriptElement
-      ? existingScript
-      : this.document.createElement('script');
+    const script =
+      existingScript instanceof HTMLScriptElement
+        ? existingScript
+        : this.document.createElement('script');
 
     script.id = 'rich-house-structured-data';
     script.type = 'application/ld+json';

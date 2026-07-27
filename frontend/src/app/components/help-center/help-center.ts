@@ -5,6 +5,7 @@ import {
   buildWhatsAppUrl,
   publicSiteSettings,
   richHouseBrand,
+  richHouseStoreLocations,
 } from '../../core/config/site-settings.config';
 
 @Component({
@@ -17,6 +18,7 @@ import {
 export class HelpCenter {
   readonly brand = richHouseBrand;
   readonly publicSiteSettings = publicSiteSettings;
+  readonly storeLocations = richHouseStoreLocations;
   readonly whatsAppUrl = buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber);
 
   readonly channels = [

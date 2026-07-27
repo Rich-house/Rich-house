@@ -1,12 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ProductsService } from '../../Services/product';
 import { SeoService } from '../../core/services/seo.service';
-import { richHouseBrand } from '../../core/config/site-settings.config';
+import { richHouseBrand, richHouseStoreLocations } from '../../core/config/site-settings.config';
 import {
   productPlaceholderImage,
   resolveCatalogThumbnailUrl,
@@ -31,6 +37,7 @@ export class Aboutus {
 
   readonly brand = richHouseBrand;
   readonly fallbackImage = productPlaceholderImage;
+  readonly storeLocations = richHouseStoreLocations;
   readonly principles = [
     'Timeless menswear with a modern point of view.',
     'Clearer shopping journeys built around fit, occasion, and confidence.',
@@ -40,18 +47,15 @@ export class Aboutus {
   readonly storySections = [
     {
       title: 'Timeless, not theatrical',
-      copy:
-        'Rich House focuses on menswear that feels composed across work, ceremony, and elevated everyday dressing. The emphasis is on balance, material presence, and confidence rather than excess.',
+      copy: 'Rich House focuses on menswear that feels composed across work, ceremony, and elevated everyday dressing. The emphasis is on balance, material presence, and confidence rather than excess.',
     },
     {
       title: 'Built for real wardrobes',
-      copy:
-        'The catalog is organized to help customers discover tailoring, layering, and refined essentials without the clutter of a broad generic marketplace.',
+      copy: 'The catalog is organized to help customers discover tailoring, layering, and refined essentials without the clutter of a broad generic marketplace.',
     },
     {
       title: 'Ready to evolve',
-      copy:
-        'This brand story is intentionally structured so the Rich House team can refine it later from site settings or the admin experience without reworking the page layout.',
+      copy: 'This brand story is intentionally structured so the Rich House team can refine it later from site settings or the admin experience without reworking the page layout.',
     },
   ] as const;
 
@@ -71,7 +75,7 @@ export class Aboutus {
           this.heroProduct = data.heroProduct;
           this.featuredCategories = data.categories.slice(0, 3);
           this.seoService.applyRouteSeo({
-            title: 'About | Rich House',
+            title: richHouseBrand.browserTitle,
             description:
               'Learn about the Rich House menswear brand, its visual direction, and its approach to modern formalwear.',
           });

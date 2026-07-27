@@ -3,12 +3,14 @@
     <div class="contact-page__hero rh-surface-card">
       <div class="contact-page__copy">
         <span class="rh-eyebrow">Contact Rich House</span>
-        <h1>Reach Rich House through the official social channels currently configured for the brand.</h1>
+        <h1>Visit our stores or reach Rich House through the official channels below.</h1>
         <p>
-          The contact experience is intentionally clean and honest: no placeholder phone numbers, no fake address, and no invented email account.
+          Use WhatsApp or social messaging for product questions, or visit one of the Rich House
+          branches in person.
         </p>
         <p>
-          For questions about sizing, availability, or a specific product, include the product name or route when you message the team.
+          For questions about sizing, availability, or a specific product, include the product name
+          or route when you message the team.
         </p>
       </div>
 
@@ -26,7 +28,8 @@
         *ngFor="let channel of channels"
         [href]="channel.url"
         target="_blank"
-        rel="noreferrer noopener">
+        rel="noreferrer noopener"
+      >
         <div class="contact-page__channel-icon">
           <i class="bi" [ngClass]="channel.icon"></i>
         </div>
@@ -41,7 +44,8 @@
         *ngIf="whatsAppUrl"
         [href]="whatsAppUrl"
         target="_blank"
-        rel="noreferrer noopener">
+        rel="noreferrer noopener"
+      >
         <div class="contact-page__channel-icon">
           <i class="bi bi-whatsapp"></i>
         </div>
@@ -51,6 +55,31 @@
         </div>
       </a>
     </div>
+
+    <section class="contact-page__stores">
+      <div class="rh-section-heading">
+        <span class="rh-eyebrow">Our Stores</span>
+        <h2>Visit Rich House in person.</h2>
+      </div>
+
+      <div class="rh-location-grid">
+        <article class="rh-location-card rh-surface-card" *ngFor="let location of storeLocations">
+          <div>
+            <h3>{{ location.name }}</h3>
+            <p>{{ location.address }}</p>
+          </div>
+
+          <a
+            class="rh-button rh-button--secondary"
+            [href]="location.directionsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get Directions
+          </a>
+        </article>
+      </div>
+    </section>
 
     <div class="contact-page__support rh-surface-card">
       <div class="rh-section-heading">

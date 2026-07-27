@@ -14,11 +14,13 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WhatsAppButtonComponent {
+  @Input() appearance: 'primary' | 'subtle' = 'primary';
   @Input() ariaLabel?: string;
   @Input() block = false;
   @Input() label = 'Chat on WhatsApp';
   @Input() message?: string;
   @Input() productName?: string | null;
+  @Input() size: 'default' | 'compact' = 'default';
   @Input() variant: 'floating' | 'inline' = 'inline';
 
   get href(): string | null {

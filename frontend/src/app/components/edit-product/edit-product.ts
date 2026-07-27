@@ -52,9 +52,7 @@ export class EditProductComponent implements OnInit {
         });
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.log(err);
-      }
+      error: () => undefined,
     });
   }
 
@@ -99,8 +97,7 @@ export class EditProductComponent implements OnInit {
         this.cdr.detectChanges();
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
-        console.log(err);
+      error: () => {
         this.cdr.detectChanges();
       }
     });

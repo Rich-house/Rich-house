@@ -1,18 +1,90 @@
-.btn-check:checked + .btn-outline-primary {
-  background-color: #008ecc !important;
-  color: white !important;
-  border-color: #008ecc !important;
-  box-shadow: 0 4px 8px rgba(0, 142, 204, 0.3);
+.details-page {
+  background: var(--rh-color-ivory-50);
 }
 
-.btn-outline-primary {
-  border-color: #e0e0e0;
-  color: #333;
-  transition: all 0.2s ease;
+.details-breadcrumb {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border: 1px solid var(--rh-color-border);
 }
 
-.btn-outline-primary:hover {
-  border-color: #008ecc;
-  background-color: transparent;
-  color: #008ecc;
+.details-breadcrumb__link {
+  color: var(--rh-color-text-muted);
+  text-decoration: none;
+}
+
+.details-breadcrumb__link:hover {
+  color: var(--rh-color-charcoal-950);
+}
+
+.details-breadcrumb__current {
+  color: var(--rh-color-charcoal-950) !important;
+}
+
+.details-category-badge {
+  letter-spacing: 0.12em;
+}
+
+.details-price,
+.details-related-price,
+.details-accent-text {
+  color: var(--rh-color-gold-500);
+}
+
+.details-link {
+  color: var(--rh-color-gold-500);
+  cursor: pointer;
+}
+
+.details-size-option {
+  min-width: 5rem;
+  padding: 0.7rem 1.05rem;
+  border: 1px solid var(--rh-color-border);
+  border-radius: 0.85rem;
+  background: var(--rh-color-surface);
+  color: var(--rh-color-text);
+  font-weight: 700;
+  transition:
+    border-color var(--rh-transition-fast),
+    background-color var(--rh-transition-fast),
+    color var(--rh-transition-fast),
+    box-shadow var(--rh-transition-fast);
+}
+
+.details-size-option:hover {
+  border-color: rgba(176, 138, 68, 0.55);
+  color: var(--rh-color-charcoal-950);
+}
+
+.btn-check:checked + .details-size-option {
+  background: var(--rh-color-charcoal-950);
+  border-color: var(--rh-color-charcoal-950);
+  color: var(--rh-color-ivory-50);
+  box-shadow: 0 10px 24px rgba(18, 18, 18, 0.14);
+}
+
+.details-primary-action,
+.details-secondary-action {
+  width: 100%;
+  min-height: 3.5rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.details-secondary-action {
+  border-color: var(--rh-color-border-strong);
+  background: var(--rh-color-surface);
+}
+
+.details-review-button {
+  min-width: 10rem;
+}
+
+.details-review-count {
+  background: rgba(176, 138, 68, 0.14);
+  color: var(--rh-color-charcoal-950);
+}
+
+.details-loading-spinner {
+  color: var(--rh-color-charcoal-950);
 }
