@@ -4,18 +4,27 @@ export interface RichHousePublicSiteSettings {
   WhatsAppNumber: string;
 }
 
-export const defaultWhatsAppMessage =
-  'Hello Rich House, I would like to ask about your products.';
+export interface RichHouseStoreLocation {
+  address: string;
+  directionsUrl: string;
+  name: string;
+}
+
+export const defaultWhatsAppMessage = 'Hello Rich House, I would like to ask about your products.';
 
 export const richHouseBrand = {
   name: 'Rich House',
-  eyebrow: 'Premium Menswear',
-  tagline: 'Tailored confidence for modern occasions.',
+  browserTitle: 'Rich House',
+  eyebrow: 'Rich House',
+  fallbackProductName: 'Rich House product',
   shortDescription:
     'Rich House is a premium menswear destination created for men who value elegance, confidence, and attention to detail.',
-  heroHeading: 'Modern menswear, tailored for every important entrance.',
-  heroCopy:
-    'Discover refined tailoring, elevated essentials, and occasion-ready pieces shaped for work, celebration, and everyday confidence.',
+  heroHeading: 'Where Style Begins.',
+  heroCopy: 'Discover suits, shirts and essentials crafted to elevate every look.',
+} as const;
+
+export const richHouseUi = {
+  modalConfirmColor: '#1e1e1e',
 } as const;
 
 export const publicSiteSettings: RichHousePublicSiteSettings = {
@@ -24,6 +33,22 @@ export const publicSiteSettings: RichHousePublicSiteSettings = {
     'https://www.instagram.com/rich.house01?igsh=MWhwZzF6ZGw2dnp2cA%3D%3D&utm_source=qr',
   WhatsAppNumber: '201024682081',
 };
+
+export const buildGoogleMapsSearchUrl = (address: string): string =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+export const richHouseStoreLocations: RichHouseStoreLocation[] = [
+  {
+    name: 'Nasr City Branch',
+    address: '23 Abbas El Akkad Street, Nasr City, Cairo, Egypt',
+    directionsUrl: buildGoogleMapsSearchUrl('23 Abbas El Akkad Street, Nasr City, Cairo, Egypt'),
+  },
+  {
+    name: 'Mohandessin Branch',
+    address: '41 Shehab Street, Mohandessin, Giza, Egypt',
+    directionsUrl: buildGoogleMapsSearchUrl('41 Shehab Street, Mohandessin, Giza, Egypt'),
+  },
+];
 
 export const footerInformationLinks = [
   { label: 'About', route: '/about' },
@@ -54,6 +79,3 @@ export const buildProductInquiryMessage = (productName?: string | null): string 
   productName?.trim()
     ? `Hello Rich House, I would like to ask about ${productName.trim()}.`
     : defaultWhatsAppMessage;
-
-export const buildProductWhatsAppUrl = (productName?: string | null): string | null =>
-  buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber, buildProductInquiryMessage(productName));

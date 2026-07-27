@@ -41,14 +41,12 @@ export class EditCategory implements OnInit {
  loadCategoryData() {
   this.productService.getCategoryById(this.categoryId).subscribe({
     next: (data) => {
-      console.log('Category Data:', data); 
       this.categoryForm.patchValue({
         name: data.name 
       });
       this.isLoading = false;
     },
-    error: (err) => {
-      console.error(err);
+    error: () => {
       Swal.fire('Error', 'Could not load category data', 'error');
       this.router.navigate(['/dashboard']);
     }

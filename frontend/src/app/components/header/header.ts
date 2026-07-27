@@ -15,7 +15,6 @@ import { Auth } from '../../Services/auth';
 import { ProductsService } from '../../Services/product';
 import {
   primaryNavigationLinks,
-  publicSiteSettings,
   richHouseBrand,
 } from '../../core/config/site-settings.config';
 import { CategoryItem } from '../../models/category.models';
@@ -36,7 +35,6 @@ export class Header {
   readonly navigationLinks = primaryNavigationLinks;
   readonly authService = inject(Auth);
   readonly productService = inject(ProductsService);
-  readonly publicSiteSettings = publicSiteSettings;
 
   categories: CategoryItem[] = [];
   cartCount = 0;
@@ -125,8 +123,6 @@ export class Header {
 
   submitSearch(): void {
     const query = this.searchText.trim();
-    this.productService.setSearchQuery(query);
-
     this.router.navigate(['/shop'], {
       queryParams: query ? { search: query } : {},
     });
@@ -135,6 +131,7 @@ export class Header {
   logout(): void {
     this.closeAllMenus();
     this.authService.logout();
+    this.productService.updateCartCount();
   }
 
   trackByCategoryId(_index: number, category: CategoryItem): number {

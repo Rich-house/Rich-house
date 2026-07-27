@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 import { ContentPageData } from './components/content-page/content-page';
+import { richHouseBrand } from './core/config/site-settings.config';
 import { authGuard } from './guards/auth-guard';
 
-const defaultStoreDescription =
-  'Premium menswear, suits, shirts and formalwear from Rich House.';
+const defaultStoreDescription = 'Premium menswear, suits, shirts and formalwear from Rich House.';
+const browserTitle = richHouseBrand.browserTitle;
 
 const sizeGuideContent: ContentPageData = {
   eyebrow: 'Size Guide',
@@ -118,7 +119,7 @@ const termsContent: ContentPageData = {
 export const routes: Routes = [
   {
     path: '',
-    title: 'Rich House | Premium Menswear',
+    title: browserTitle,
     data: {
       seo: {
         description: defaultStoreDescription,
@@ -130,7 +131,7 @@ export const routes: Routes = [
   { path: 'home', redirectTo: '', pathMatch: 'full' },
   {
     path: 'shop',
-    title: 'Shop | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -141,7 +142,7 @@ export const routes: Routes = [
   },
   {
     path: 'shop/:categorySlug',
-    title: 'Shop | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -152,7 +153,7 @@ export const routes: Routes = [
   },
   {
     path: 'offers',
-    title: 'Offers | Rich House',
+    title: browserTitle,
     data: {
       offersOnly: true,
       seo: {
@@ -164,7 +165,7 @@ export const routes: Routes = [
   },
   {
     path: 'product/:slug',
-    title: 'Product Details | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -177,10 +178,11 @@ export const routes: Routes = [
   { path: 'product', redirectTo: 'shop', pathMatch: 'full' },
   {
     path: 'dashboard',
-    title: 'Dashboard | Rich House',
+    title: browserTitle,
     data: {
       seo: {
-        description: 'Manage the Rich House catalog, categories, and users from the admin dashboard.',
+        description:
+          'Manage the Rich House catalog, categories, and users from the admin dashboard.',
       },
     },
     loadComponent: () => import('./components/dashboard/dashboard').then((m) => m.Dashboard),
@@ -188,39 +190,41 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/add-product',
-    title: 'Add Product | Rich House',
-    loadComponent: () => import('./components/add-product/add-product').then((m) => m.AddProductComponent),
+    title: browserTitle,
+    loadComponent: () =>
+      import('./components/add-product/add-product').then((m) => m.AddProductComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/edit-product/:id',
-    title: 'Edit Product | Rich House',
+    title: browserTitle,
     loadComponent: () =>
       import('./components/edit-product/edit-product').then((m) => m.EditProductComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/add-category',
-    title: 'Add Category | Rich House',
+    title: browserTitle,
     loadComponent: () =>
       import('./components/add-category/add-category').then((m) => m.AddCategoryComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/edit-category/:id',
-    title: 'Edit Category | Rich House',
-    loadComponent: () => import('./components/edit-category/edit-category').then((m) => m.EditCategory),
+    title: browserTitle,
+    loadComponent: () =>
+      import('./components/edit-category/edit-category').then((m) => m.EditCategory),
     canActivate: [authGuard],
   },
   {
     path: 'profile',
-    title: 'Account | Rich House',
+    title: browserTitle,
     loadComponent: () => import('./components/profile/profile').then((m) => m.Profile),
     canActivate: [authGuard],
   },
   {
     path: 'details/:id',
-    title: 'Product Details | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -232,13 +236,12 @@ export const routes: Routes = [
   },
   {
     path: 'cart',
-    title: 'Cart | Rich House',
+    title: browserTitle,
     loadComponent: () => import('./components/cart/cart').then((m) => m.Cart),
-    canActivate: [authGuard],
   },
   {
     path: 'contact',
-    title: 'Contact | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -250,13 +253,12 @@ export const routes: Routes = [
   { path: 'helpcenter', redirectTo: 'contact', pathMatch: 'full' },
   {
     path: 'create-order',
-    title: 'Checkout | Rich House',
-    loadComponent: () => import('./components/order/order').then((m) => m.orderComponent),
-    canActivate: [authGuard],
+    title: browserTitle,
+    loadComponent: () => import('./components/order/order').then((m) => m.OrderComponent),
   },
   {
     path: 'about',
-    title: 'About | Rich House',
+    title: browserTitle,
     data: {
       seo: {
         description:
@@ -269,7 +271,7 @@ export const routes: Routes = [
   { path: 'about/values', redirectTo: 'about', pathMatch: 'full' },
   {
     path: 'size-guide',
-    title: 'Size Guide | Rich House',
+    title: browserTitle,
     data: {
       content: sizeGuideContent,
       seo: {
@@ -277,11 +279,12 @@ export const routes: Routes = [
           'Use the Rich House size guide for tailoring, shirts, and knitwear across current catalog sizing.',
       },
     },
-    loadComponent: () => import('./components/content-page/content-page').then((m) => m.ContentPage),
+    loadComponent: () =>
+      import('./components/content-page/content-page').then((m) => m.ContentPage),
   },
   {
     path: 'returns',
-    title: 'Returns | Rich House',
+    title: browserTitle,
     data: {
       content: returnsContent,
       seo: {
@@ -289,11 +292,12 @@ export const routes: Routes = [
           'Review the current Rich House returns and exchanges guidance for menswear orders.',
       },
     },
-    loadComponent: () => import('./components/content-page/content-page').then((m) => m.ContentPage),
+    loadComponent: () =>
+      import('./components/content-page/content-page').then((m) => m.ContentPage),
   },
   {
     path: 'privacy',
-    title: 'Privacy | Rich House',
+    title: browserTitle,
     data: {
       content: privacyContent,
       seo: {
@@ -301,44 +305,45 @@ export const routes: Routes = [
           'Read the current Rich House privacy overview for account, order, and storefront information handling.',
       },
     },
-    loadComponent: () => import('./components/content-page/content-page').then((m) => m.ContentPage),
+    loadComponent: () =>
+      import('./components/content-page/content-page').then((m) => m.ContentPage),
   },
   {
     path: 'terms',
-    title: 'Terms | Rich House',
+    title: browserTitle,
     data: {
       content: termsContent,
       seo: {
-        description:
-          'Review the current Rich House storefront terms and ordering guidance.',
+        description: 'Review the current Rich House storefront terms and ordering guidance.',
       },
     },
-    loadComponent: () => import('./components/content-page/content-page').then((m) => m.ContentPage),
+    loadComponent: () =>
+      import('./components/content-page/content-page').then((m) => m.ContentPage),
   },
   {
     path: 'login',
-    title: 'Login | Rich House',
+    title: browserTitle,
     data: {
       seo: {
-        description:
-          'Sign in to your Rich House account or access the Rich House admin dashboard.',
+        description: 'Sign in to your Rich House account or access the Rich House admin dashboard.',
       },
     },
     loadComponent: () => import('./components/login/login').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
-    title: 'Register | Rich House',
+    title: browserTitle,
     loadComponent: () => import('./components/register/register').then((m) => m.RegisterComponent),
   },
   {
     path: 'confirmemail',
-    title: 'Confirm Email | Rich House',
-    loadComponent: () => import('./components/confirmemail/confirmemail').then((m) => m.ConfirmEmailComponent),
+    title: browserTitle,
+    loadComponent: () =>
+      import('./components/confirmemail/confirmemail').then((m) => m.ConfirmEmailComponent),
   },
   {
     path: '**',
-    title: 'Page Not Found | Rich House',
+    title: browserTitle,
     loadComponent: () => import('./components/not-found/not-found').then((m) => m.NotFound),
   },
 ];

@@ -1,9 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, shareReplay, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, shareReplay, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Auth } from './auth';
 import { apiConfig } from '../core/config/api.config';
+import {
+  AddToCartRequest,
+  CartItem,
+  CartResponse,
+  isSameCartItem,
+} from '../models/cart.models';
+import { richHouseBrand } from '../core/config/site-settings.config';
 import { CategoryItem } from '../models/category.models';
 import {
   CatalogQuery,
@@ -13,37 +20,30 @@ import {
 } from '../models/product.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductsService {
-  private http = inject(HttpClient); 
+  private readonly guestCartStorageKey = 'rich_house_guest_cart';
+  private http = inject(HttpClient);
   private authService = inject(Auth);
   private categoriesCache$?: Observable<CategoryItem[]>;
 
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
 
-  private searchQuerySubject = new BehaviorSubject<string>('');
-  searchQuery$ = this.searchQuerySubject.asObservable();
-
   constructor() {
-    if (this.authService.hasValidSession()) {
-      this.updateCartCount();
-    }
+    this.updateCartCount();
   }
 
-  
   getCategories(forceRefresh = false): Observable<CategoryItem[]> {
     if (!this.categoriesCache$ || forceRefresh) {
-      this.categoriesCache$ = this.http
-        .get<CategoryItem[]>(apiConfig.categories)
-        .pipe(
-          shareReplay({ bufferSize: 1, refCount: false }),
-          catchError((error) => {
-            this.categoriesCache$ = undefined;
-            return throwError(() => error);
-          }),
-        );
+      this.categoriesCache$ = this.http.get<CategoryItem[]>(apiConfig.categories).pipe(
+        shareReplay({ bufferSize: 1, refCount: false }),
+        catchError((error) => {
+          this.categoriesCache$ = undefined;
+          return throwError(() => error);
+        }),
+      );
     }
 
     return this.categoriesCache$;
@@ -99,25 +99,15 @@ export class ProductsService {
       categoryId: id,
       page: 1,
       pageSize: 48,
-      sort: 'featured'
+      sort: 'featured',
     }).pipe(map((response) => response.items));
   }
-
-  getProductsByCategorySlug(slug: string): Observable<ProductCard[]> {
-    return this.getCatalog({
-      categorySlug: slug,
-      page: 1,
-      pageSize: 48,
-      sort: 'featured'
-    }).pipe(map((response) => response.items));
-  }
-
 
   getProducts(): Observable<ProductCard[]> {
     return this.getCatalog({
       page: 1,
       pageSize: 48,
-      sort: 'featured'
+      sort: 'featured',
     }).pipe(map((response) => response.items));
   }
 
@@ -133,62 +123,111 @@ export class ProductsService {
     return this.http.post<any>(apiConfig.products, productData);
   }
 
-deleteProduct(id: number): Observable<any> {
-  return this.http.delete(`${apiConfig.products}/${id}`);
-}
+  deleteProduct(id: number): Observable<any> {
+    return this.http.delete(`${apiConfig.products}/${id}`);
+  }
 
   updateProduct(id: number, productData: FormData): Observable<any> {
     return this.http.put<any>(`${apiConfig.products}/${id}`, productData);
   }
 
-  searchProducts(query: string): Observable<ProductCard[]> {
-    return this.getCatalog({
-      search: query,
-      page: 1,
-      pageSize: 48,
-      sort: 'featured'
-    }).pipe(map((response) => response.items));
-  }
-
-  setSearchQuery(query: string) {
-    this.searchQuerySubject.next(query);
-  }
-
-
   updateCartCount() {
-    if (!this.authService.hasValidSession()) {
-      this.cartCountSubject.next(0);
-      return;
-    }
-
     this.getCart().subscribe({
       next: (res) => {
-        const items = res.data?.items || res.items || [];
-        this.cartCountSubject.next(items.length);
+        this.cartCountSubject.next(res.totalCount);
       },
-      error: () => this.cartCountSubject.next(0)
+      error: () => this.cartCountSubject.next(0),
     });
   }
 
-  getCart(): Observable<any> {
-    return this.http.get(`${apiConfig.cart}/GetCart`);
+  getCart(): Observable<CartResponse> {
+    if (!this.authService.hasValidSession()) {
+      return of(this.readGuestCart());
+    }
+
+    return this.http.get<CartResponse>(`${apiConfig.cart}/GetCart`);
   }
 
-  addToCart(cartItem: any): Observable<any> {
-    return this.http.post(`${apiConfig.cart}/Add-To-Cart`, cartItem)
+  addToCart(cartItem: AddToCartRequest): Observable<{ message: string }> {
+    if (!this.authService.hasValidSession()) {
+      const cart = this.readGuestCart();
+      const normalizedSize = cartItem.selectedSize || '';
+      const normalizedColor = cartItem.color ?? null;
+      const existingItem = cart.items.find((item) =>
+        isSameCartItem(item, cartItem.productId, normalizedSize, normalizedColor),
+      );
+
+      if (existingItem) {
+        existingItem.quantity += cartItem.quantity;
+        existingItem.totalItemPrice = existingItem.unitPrice * existingItem.quantity;
+      } else {
+        const unitPrice = cartItem.unitPrice ?? 0;
+        cart.items.push({
+          productId: cartItem.productId,
+          productName: cartItem.productName?.trim() || richHouseBrand.fallbackProductName,
+          productImage: cartItem.productImage ?? '',
+          unitPrice,
+          quantity: cartItem.quantity,
+          size: normalizedSize,
+          color: normalizedColor,
+          totalItemPrice: unitPrice * cartItem.quantity,
+        });
+      }
+
+      this.persistGuestCart(cart.items);
+      return of({ message: 'Product added to cart' });
+    }
+
+    return this.http
+      .post<{ message: string }>(`${apiConfig.cart}/Add-To-Cart`, {
+        productId: cartItem.productId,
+        quantity: cartItem.quantity,
+        selectedSize: cartItem.selectedSize,
+      })
       .pipe(tap(() => this.updateCartCount()));
   }
 
-  updateQuantity(productId: number, newQuantity: number): Observable<any> {
+  updateQuantity(
+    productId: number,
+    newQuantity: number,
+    selectedSize = '',
+    color: string | null = null,
+  ): Observable<any> {
+    if (!this.authService.hasValidSession()) {
+      const cart = this.readGuestCart();
+      const updatedItems = cart.items.map((item) =>
+        isSameCartItem(item, productId, selectedSize, color)
+          ? {
+              ...item,
+              quantity: newQuantity,
+              totalItemPrice: item.unitPrice * newQuantity,
+            }
+          : item,
+      );
+
+      this.persistGuestCart(updatedItems);
+      return of({ message: 'Cart updated' });
+    }
+
     const body = { productId, newQuantity };
-    return this.http.put(`${apiConfig.cart}/update-quantity`, body);
+    return this.http.put(`${apiConfig.cart}/update-quantity`, body).pipe(tap(() => this.updateCartCount()));
   }
 
-  removeItem(productId: number): Observable<any> {
-    return this.http.delete(`${apiConfig.cart}/removeItem/${productId}`)
+  removeItem(productId: number, selectedSize = '', color: string | null = null): Observable<any> {
+    if (!this.authService.hasValidSession()) {
+      const cart = this.readGuestCart();
+      const updatedItems = cart.items.filter(
+        (item) => !isSameCartItem(item, productId, selectedSize, color),
+      );
+
+      this.persistGuestCart(updatedItems);
+      return of({ message: 'Item removed' });
+    }
+
+    return this.http
+      .delete(`${apiConfig.cart}/removeItem/${productId}`)
       .pipe(tap(() => this.updateCartCount()));
   }
-
 
   getProductReviews(productId: number | string): Observable<any[]> {
     return this.http.get<any[]>(`${apiConfig.reviews}/product/${productId}`);
@@ -198,7 +237,61 @@ deleteProduct(id: number): Observable<any> {
     return this.http.post(apiConfig.reviews, reviewData);
   }
 
-  submitOrder(orderData: any): Observable<any> {
-    return this.http.post(`${apiConfig.orders}/checkout`, orderData);
+  private readGuestCart(): CartResponse {
+    const storedCart = localStorage.getItem(this.guestCartStorageKey);
+
+    if (!storedCart) {
+      return this.buildCartResponse([]);
+    }
+
+    try {
+      const parsedCart = JSON.parse(storedCart) as Partial<CartResponse>;
+      const items = Array.isArray(parsedCart.items)
+        ? parsedCart.items
+            .map((item) => this.normalizeGuestCartItem(item as Partial<CartItem>))
+            .filter((item): item is CartItem => item !== null)
+        : [];
+
+      return this.buildCartResponse(items);
+    } catch {
+      localStorage.removeItem(this.guestCartStorageKey);
+      return this.buildCartResponse([]);
+    }
+  }
+
+  private persistGuestCart(items: CartItem[]): void {
+    const guestCart = this.buildCartResponse(items);
+    localStorage.setItem(this.guestCartStorageKey, JSON.stringify(guestCart));
+    this.cartCountSubject.next(guestCart.totalCount);
+  }
+
+  private buildCartResponse(items: CartItem[]): CartResponse {
+    return {
+      cartId: 0,
+      items,
+      totalPrice: items.reduce((sum, item) => sum + item.totalItemPrice, 0),
+      totalCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    };
+  }
+
+  private normalizeGuestCartItem(item: Partial<CartItem> | null | undefined): CartItem | null {
+    const productId = Number(item?.productId);
+    const quantity = Math.max(1, Number(item?.quantity) || 1);
+    const unitPrice = Number(item?.unitPrice) || 0;
+
+    if (!Number.isFinite(productId) || productId <= 0) {
+      return null;
+    }
+
+    return {
+      productId,
+      productName: item?.productName?.trim() || richHouseBrand.fallbackProductName,
+      productImage: item?.productImage ?? '',
+      unitPrice,
+      quantity,
+      size: item?.size ?? '',
+      color: item?.color ?? null,
+      totalItemPrice: unitPrice * quantity,
+    };
   }
 }

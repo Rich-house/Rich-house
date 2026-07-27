@@ -11,22 +11,15 @@
             <a class="rh-button rh-button--primary" routerLink="/shop">Shop Now</a>
             <a class="rh-button rh-button--secondary" routerLink="/about">About Rich House</a>
           </div>
-
-          <div class="home-hero__meta" *ngIf="heroProduct">
-            <span>{{ heroProduct.categoryName || 'Rich House Collection' }}</span>
-            <strong>{{ heroProduct.name }}</strong>
-            <a [routerLink]="heroProduct.slug ? ['/product', heroProduct.slug] : ['/details', heroProduct.id]">
-              View the piece
-            </a>
-          </div>
         </div>
 
-        <div class="home-hero__media rh-surface-card" *ngIf="heroProduct">
+        <div class="home-hero__media rh-surface-card">
           <img
             [src]="heroImageUrl"
-            [alt]="heroProduct.name + ' by Rich House'"
+            alt="Rich House menswear hero"
             decoding="async"
-            [appImageFallback]="fallbackImage" />
+            [appImageFallback]="fallbackImage"
+          />
         </div>
       </div>
     </section>
@@ -36,14 +29,18 @@
         <div class="rh-section-heading">
           <span class="rh-eyebrow">Categories</span>
           <h2>Build a stronger wardrobe by occasion, not clutter.</h2>
-          <p>Explore the Rich House edit through the categories already available in the live catalog.</p>
+          <p>
+            Explore the Rich House edit through the categories already available in the live
+            catalog.
+          </p>
         </div>
 
         <div class="home-categories">
           <a
             class="home-categories__card rh-surface-card"
             *ngFor="let category of featuredCategories; trackBy: trackById; let index = index"
-            [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+            [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']"
+          >
             <div class="home-categories__image-wrap">
               <img
                 [src]="resolveCategoryImage(category.imageUrl)"
@@ -51,7 +48,8 @@
                 loading="eager"
                 [attr.fetchpriority]="index < 2 ? 'high' : 'auto'"
                 decoding="async"
-                [appImageFallback]="fallbackImage" />
+                [appImageFallback]="fallbackImage"
+              />
             </div>
             <div class="home-categories__content">
               <h3>{{ category.name }}</h3>
@@ -67,17 +65,25 @@
         <div class="rh-section-heading">
           <span class="rh-eyebrow">New Arrivals</span>
           <h2>Fresh additions for sharper everyday dressing.</h2>
-          <p>These pieces are surfaced from real Rich House catalog flags, not placeholder content.</p>
+          <p>
+            These pieces are surfaced from real Rich House catalog flags, not placeholder content.
+          </p>
         </div>
 
         <div class="home-products-grid" *ngIf="newArrivals.length > 0; else noNewArrivals">
-          <app-product-card *ngFor="let product of newArrivals; trackBy: trackById; let first = first" [product]="product" [priority]="first"></app-product-card>
+          <app-product-card
+            *ngFor="let product of newArrivals; trackBy: trackById; let first = first"
+            [product]="product"
+            [priority]="first"
+          ></app-product-card>
         </div>
 
         <ng-template #noNewArrivals>
           <div class="rh-empty-state">
             <h3>New arrivals will appear here soon.</h3>
-            <p>The section is ready, but there are no products currently flagged as new arrivals.</p>
+            <p>
+              The section is ready, but there are no products currently flagged as new arrivals.
+            </p>
           </div>
         </ng-template>
       </div>
@@ -92,7 +98,10 @@
         </div>
 
         <div class="home-products-grid">
-          <app-product-card *ngFor="let product of bestSellers; trackBy: trackById" [product]="product"></app-product-card>
+          <app-product-card
+            *ngFor="let product of bestSellers; trackBy: trackById"
+            [product]="product"
+          ></app-product-card>
         </div>
       </div>
     </section>
@@ -102,13 +111,18 @@
         <div class="rh-section-heading home-offers__heading">
           <div>
             <span class="rh-eyebrow">Current Offers</span>
-            <h2>Selected reductions, presented with the same restraint as the rest of the store.</h2>
+            <h2>
+              Selected reductions, presented with the same restraint as the rest of the store.
+            </h2>
           </div>
           <a class="rh-button rh-button--secondary" routerLink="/offers">View all offers</a>
         </div>
 
         <div class="home-products-grid">
-          <app-product-card *ngFor="let product of offers; trackBy: trackById" [product]="product"></app-product-card>
+          <app-product-card
+            *ngFor="let product of offers; trackBy: trackById"
+            [product]="product"
+          ></app-product-card>
         </div>
       </div>
     </section>
@@ -118,11 +132,17 @@
         <div class="rh-section-heading">
           <span class="rh-eyebrow">Featured Products</span>
           <h2>A focused edit of tailoring, layering, and occasion-ready essentials.</h2>
-          <p>Built from the live catalog so the homepage never drifts away from what Rich House can actually sell.</p>
+          <p>
+            Built from the live catalog so the homepage never drifts away from what Rich House can
+            actually sell.
+          </p>
         </div>
 
         <div class="home-products-grid">
-          <app-product-card *ngFor="let product of featuredProducts; trackBy: trackById" [product]="product"></app-product-card>
+          <app-product-card
+            *ngFor="let product of featuredProducts; trackBy: trackById"
+            [product]="product"
+          ></app-product-card>
         </div>
       </div>
     </section>
@@ -134,10 +154,12 @@
             <span class="rh-eyebrow">Editorial Direction</span>
             <h2>Rich House curates menswear for men who want clarity, confidence, and presence.</h2>
             <p>
-              From structured tailoring to cleaner day-to-day essentials, the Rich House approach is grounded in proportion, texture, and restraint rather than noise.
+              From structured tailoring to cleaner day-to-day essentials, the Rich House approach is
+              grounded in proportion, texture, and restraint rather than noise.
             </p>
             <p>
-              The result is a wardrobe that feels composed for the office, the ceremony, and every setting in between.
+              The result is a wardrobe that feels composed for the office, the ceremony, and every
+              setting in between.
             </p>
             <a class="rh-button rh-button--primary" routerLink="/shop">Explore the collection</a>
           </div>
@@ -148,7 +170,8 @@
               [alt]="editorialProduct.name + ' editorial image'"
               loading="lazy"
               decoding="async"
-              [appImageFallback]="fallbackImage" />
+              [appImageFallback]="fallbackImage"
+            />
           </div>
         </div>
       </div>
@@ -179,7 +202,10 @@
           <div class="home-social__copy">
             <span class="rh-eyebrow">Follow Rich House</span>
             <h2>Stay close to the latest arrivals and styling direction.</h2>
-            <p>Social touchpoints are centralized, production-safe, and ready to move into site settings later without rewriting the UI.</p>
+            <p>
+              Social touchpoints are centralized, production-safe, and ready to move into site
+              settings later without rewriting the UI.
+            </p>
           </div>
 
           <div class="home-social__cards">
@@ -188,7 +214,8 @@
               class="home-social__card"
               [href]="social.url"
               target="_blank"
-              rel="noreferrer noopener">
+              rel="noreferrer noopener"
+            >
               <i class="bi" [ngClass]="social.icon"></i>
               <div>
                 <strong>{{ social.label }}</strong>
@@ -196,7 +223,13 @@
               </div>
             </a>
 
-            <a class="home-social__card" *ngIf="whatsAppUrl" [href]="whatsAppUrl" target="_blank" rel="noreferrer noopener">
+            <a
+              class="home-social__card"
+              *ngIf="whatsAppUrl"
+              [href]="whatsAppUrl"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
               <i class="bi bi-whatsapp"></i>
               <div>
                 <strong>WhatsApp</strong>
@@ -224,7 +257,9 @@
         <div class="rh-error-state">
           <h2>{{ errorTitle || 'We could not load the Rich House homepage.' }}</h2>
           <p>{{ errorMessage }}</p>
-          <button class="rh-button rh-button--primary" type="button" (click)="retry()">{{ errorActionLabel }}</button>
+          <button class="rh-button rh-button--primary" type="button" (click)="retry()">
+            {{ errorActionLabel }}
+          </button>
         </div>
       </div>
     </ng-template>

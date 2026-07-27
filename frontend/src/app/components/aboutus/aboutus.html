@@ -5,10 +5,12 @@
         <span class="rh-eyebrow">About Rich House</span>
         <h1>{{ brand.shortDescription }}</h1>
         <p>
-          Rich House brings together timeless tailoring and modern style for men who want every outfit to feel deliberate, refined, and easy to wear.
+          Rich House brings together timeless tailoring and modern style for men who want every
+          outfit to feel deliberate, refined, and easy to wear.
         </p>
         <p>
-          We focus on cleaner presentation, sharper curation, and a customer journey that helps men shop by occasion and confidence instead of scrolling through noise.
+          We focus on cleaner presentation, sharper curation, and a customer journey that helps men
+          shop by occasion and confidence instead of scrolling through noise.
         </p>
 
         <div class="about-page__actions">
@@ -22,7 +24,8 @@
           [src]="heroImageUrl"
           [alt]="heroProduct.name + ' by Rich House'"
           decoding="async"
-          [appImageFallback]="fallbackImage" />
+          [appImageFallback]="fallbackImage"
+        />
       </div>
     </div>
 
@@ -40,6 +43,31 @@
       </article>
     </div>
 
+    <section class="about-page__stores">
+      <div class="rh-section-heading">
+        <span class="rh-eyebrow">Our Stores</span>
+        <h2>Visit Rich House in Cairo and Giza.</h2>
+      </div>
+
+      <div class="rh-location-grid">
+        <article class="rh-location-card rh-surface-card" *ngFor="let location of storeLocations">
+          <div>
+            <h3>{{ location.name }}</h3>
+            <p>{{ location.address }}</p>
+          </div>
+
+          <a
+            class="rh-button rh-button--secondary"
+            [href]="location.directionsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Get Directions
+          </a>
+        </article>
+      </div>
+    </section>
+
     <div class="about-page__categories" *ngIf="featuredCategories.length > 0">
       <div class="rh-section-heading">
         <span class="rh-eyebrow">Shop by Category</span>
@@ -50,13 +78,15 @@
         <a
           class="about-page__category-card rh-surface-card"
           *ngFor="let category of featuredCategories; trackBy: trackById"
-          [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+          [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']"
+        >
           <img
             [src]="resolveCategoryImage(category.imageUrl)"
             [alt]="category.name + ' category image'"
             loading="lazy"
             decoding="async"
-            [appImageFallback]="fallbackImage" />
+            [appImageFallback]="fallbackImage"
+          />
           <div>
             <h3>{{ category.name }}</h3>
             <span>Explore the category</span>

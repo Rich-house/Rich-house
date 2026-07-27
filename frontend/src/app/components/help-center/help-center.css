@@ -69,6 +69,10 @@
   margin-top: var(--rh-space-8);
 }
 
+.contact-page__stores {
+  margin-top: var(--rh-space-8);
+}
+
 .contact-page__actions {
   display: flex;
   flex-wrap: wrap;

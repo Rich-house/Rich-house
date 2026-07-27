@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -39,6 +45,7 @@ export class Home {
 
   readonly brand = richHouseBrand;
   readonly fallbackImage = productPlaceholderImage;
+  readonly heroImageUrl = 'assets/hero/rich-house-hero.webp';
   readonly publicSiteSettings = publicSiteSettings;
   readonly whatsAppUrl = buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber);
   readonly benefits = [
@@ -85,7 +92,6 @@ export class Home {
   errorTitle = '';
   errorMessage = '';
   categories: CategoryItem[] = [];
-  heroProduct: ProductCard | null = null;
   editorialProduct: ProductCard | null = null;
   newArrivals: ProductCard[] = [];
   bestSellers: ProductCard[] = [];
@@ -98,10 +104,6 @@ export class Home {
 
   get featuredCategories(): CategoryItem[] {
     return this.categories.slice(0, 4);
-  }
-
-  get heroImageUrl(): string {
-    return resolveImageUrl(this.heroProduct?.imageUrls[0]);
   }
 
   get editorialImageUrl(): string {
@@ -173,31 +175,31 @@ export class Home {
           }
 
           this.categories = data.categories;
-          this.featuredProducts = data.featuredProducts.length > 0 ? data.featuredProducts : data.fallbackProducts;
+          this.featuredProducts =
+            data.featuredProducts.length > 0 ? data.featuredProducts : data.fallbackProducts;
           this.newArrivals = data.newArrivals;
           this.bestSellers = data.bestSellers;
           this.offers = data.offers;
-          this.heroProduct =
+          const leadProduct =
             data.featuredProducts[0] ??
             data.bestSellers[0] ??
             data.newArrivals[0] ??
             data.offers[0] ??
             data.fallbackProducts[0] ??
             null;
-          this.editorialProduct = data.featuredProducts[1] ?? data.fallbackProducts[1] ?? this.heroProduct;
+          this.editorialProduct =
+            data.featuredProducts[1] ?? data.fallbackProducts[1] ?? leadProduct;
           this.loading = false;
           this.seoService.applyRouteSeo({
-            title: 'Rich House | Premium Menswear',
-            description:
-              'Premium menswear, suits, shirts and formalwear from Rich House.',
+            title: richHouseBrand.browserTitle,
+            description: 'Premium menswear, suits, shirts and formalwear from Rich House.',
             type: 'website',
           });
           this.cdr.markForCheck();
         },
         error: (error) => {
           const apiError = describeApiError(error, {
-            unavailable:
-              `The Rich House backend is not running on ${apiConfig.baseUrl} right now. Start it, then retry the homepage.`,
+            unavailable: `The Rich House backend is not running on ${apiConfig.baseUrl} right now. Start it, then retry the homepage.`,
             unauthorized:
               'Your session is no longer authorized for this request. Please sign in again.',
             server:
@@ -225,12 +227,12 @@ export class Home {
     offers: ProductCard[];
   }): boolean {
     return (
-      data.categories.length > 0
-      || data.featuredProducts.length > 0
-      || data.newArrivals.length > 0
-      || data.bestSellers.length > 0
-      || data.offers.length > 0
-      || data.fallbackProducts.length > 0
+      data.categories.length > 0 ||
+      data.featuredProducts.length > 0 ||
+      data.newArrivals.length > 0 ||
+      data.bestSellers.length > 0 ||
+      data.offers.length > 0 ||
+      data.fallbackProducts.length > 0
     );
   }
 }

@@ -1,172 +1,127 @@
-<div class="checkout-wrapper bg-light min-vh-100 py-4">
-  <div class="container">
-    
-    <!-- Success Message Overlay -->
-    <div *ngIf="showSuccess" class="success-overlay animate__animated animate__fadeIn">
-      <div class="card border-0 shadow-lg text-center success-card">
-        <div class="success-icon mb-4">
-          <i class="bi bi-check-all display-1 text-success"></i>
-        </div>
-        <h2 class="fw-bold text-dark">Order Placed!</h2>
-        <p class="text-muted px-4">Thank you for choosing Rich House. Your order has been successfully placed and is now being prepared.</p>
-        <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm" routerLink="/shop">
-          Back to Store
-        </button>
-      </div>
+<section class="review-order-page rh-page-section">
+  <div class="rh-container rh-container--wide">
+    <nav aria-label="breadcrumb" class="review-order__breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a routerLink="/cart" class="text-decoration-none text-muted">Cart</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Review Your Order</li>
+      </ol>
+    </nav>
+
+    <div *ngIf="loading" class="review-order__loading rh-surface-card">
+      <div class="spinner-border text-dark" role="status" aria-hidden="true"></div>
+      <p>Loading your order review...</p>
     </div>
 
-    <!-- Checkout Content Form -->
-    <div class="row g-4 justify-content-center" *ngIf="!showSuccess">
-      
-      <div class="col-12 mb-2">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb mb-2">
-            <li class="breadcrumb-item"><a routerLink="/cart" class="text-decoration-none text-muted small">Cart</a></li>
-            <li class="breadcrumb-item active small fw-bold text-primary">Checkout</li>
-          </ol>
-        </nav>
-        <h3 class="fw-bold text-dark">Shipping Information</h3>
-      </div>
+    <ng-container *ngIf="!loading">
+      <div class="review-order__layout" *ngIf="hasItems; else emptyOrder">
+        <section class="review-order__items rh-surface-card">
+          <header class="review-order__header">
+            <span class="rh-eyebrow">Checkout</span>
+            <h1>Review Your Order</h1>
+            <p>
+              Confirm your cart items, then continue the conversation with Rich House on WhatsApp.
+            </p>
+          </header>
 
-      <!-- Left Column: Shipping Form + New Checkboxes (UI Only) -->
-      <div class="col-lg-7">
-        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
-          <div class="row g-3">
-            
-            <!-- City Input -->
-            <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary text-uppercase mb-2">City</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-0"><i class="bi bi-geo-alt text-muted"></i></span>
-                <input type="text" class="form-control border-0 bg-light py-2 fs-6" 
-                       [(ngModel)]="orderInfo.city" placeholder="e.g. Cairo">
-              </div>
+          <article
+            class="review-order__item"
+            *ngFor="let item of cartData?.items; trackBy: trackByCartItem"
+          >
+            <div class="review-order__image-wrap">
+              <img
+                [src]="resolveImage(item.productImage)"
+                [alt]="item.productName"
+                [appImageFallback]="fallbackImage"
+              />
             </div>
 
-            <!-- Phone Number Input -->
-            <div class="col-md-6">
-              <label class="form-label small fw-bold text-secondary text-uppercase mb-2">Phone Number</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-0"><i class="bi bi-telephone text-muted"></i></span>
-                <input type="text" class="form-control border-0 bg-light py-2 fs-6" 
-                       [(ngModel)]="orderInfo.phone" placeholder="01xxxxxxxxx">
-              </div>
-            </div>
+            <div class="review-order__item-copy">
+              <h2>{{ item.productName }}</h2>
 
-            <!-- Detailed Address Input -->
-            <div class="col-12">
-              <label class="form-label small fw-bold text-secondary text-uppercase mb-2">Detailed Address</label>
-              <textarea class="form-control border-0 bg-light p-3 fs-6" rows="3" 
-                        [(ngModel)]="orderInfo.shippingAddress" 
-                        placeholder="Street name, Building No, Apartment No..."></textarea>
-            </div>
-            
-            <!-- ================= Pure UI English Checkboxes Section ================= -->
-            <div class="col-12 mt-4">
-              <div class="d-flex flex-column gap-3 border-top pt-3">
-                
-                <!-- Checkbox 1: Save Info (UI Only) -->
-                <div class="form-check form-check-inline m-0 custom-checkout-check d-flex align-items-center">
-                  <input class="form-check-input shadow-none border-2 style-pointer" 
-                         type="checkbox" 
-                         id="saveInfo">
-                  <label class="form-check-label small text-dark fw-medium style-pointer ms-2" for="saveInfo">
-                    Save this shipping information for my next purchase.
-                  </label>
+              <dl class="review-order__details">
+                <div *ngIf="item.size">
+                  <dt>Selected size</dt>
+                  <dd>{{ item.size }}</dd>
                 </div>
-
-                <!-- Checkbox 2: Express Shipping Option (UI Only) -->
-                <div class="form-check form-check-inline m-0 custom-checkout-check d-flex align-items-center">
-                  <input class="form-check-input shadow-none border-2 style-pointer" 
-                         type="checkbox" 
-                         id="expressDelivery">
-                  <label class="form-check-label small text-dark fw-medium style-pointer ms-2" for="expressDelivery">
-                    Ship via <span class="fw-bold text-primary">Express Delivery</span> (Gets delivered within 24 hours).
-                  </label>
+                <div *ngIf="item.color">
+                  <dt>Selected color</dt>
+                  <dd>{{ item.color }}</dd>
                 </div>
-
-                <!-- Checkbox 3: Digital Invoice (UI Only) -->
-                <div class="form-check form-check-inline m-0 custom-checkout-check d-flex align-items-center">
-                  <input class="form-check-input shadow-none border-2 style-pointer" 
-                         type="checkbox" 
-                         id="subscribeNewsletter">
-                  <label class="form-check-label small text-dark fw-medium style-pointer ms-2" for="subscribeNewsletter">
-                    Send a digital invoice and order updates directly to my email address.
-                  </label>
+                <div>
+                  <dt>Quantity</dt>
+                  <dd>{{ item.quantity }}</dd>
                 </div>
-
-              </div>
+                <div>
+                  <dt>Unit price</dt>
+                  <dd>{{ item.unitPrice | egpPrice }}</dd>
+                </div>
+                <div>
+                  <dt>Item subtotal</dt>
+                  <dd>{{ item.totalItemPrice | egpPrice }}</dd>
+                </div>
+              </dl>
             </div>
-            <!-- ===================================================================== -->
+          </article>
+        </section>
 
+        <aside class="review-order__summary rh-surface-card">
+          <h2>Order Summary</h2>
+
+          <div class="review-order__summary-row">
+            <span>Items</span>
+            <strong>{{ cartData?.totalCount }}</strong>
           </div>
-          
-          <!-- Info Alert Box -->
-          <div class="mt-4 p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-10 d-flex align-items-center">
-             <i class="bi bi-info-circle text-primary me-3 fs-4"></i>
-             <p class="small text-dark mb-0">Our team will call you to confirm the delivery time once the order is ready.</p>
+
+          <div class="review-order__summary-row">
+            <span>Order total</span>
+            <strong>{{ cartData?.totalPrice | egpPrice }}</strong>
           </div>
-        </div>
+
+          <label class="review-order__notes-label" for="orderNotes">Order notes (optional)</label>
+          <textarea
+            id="orderNotes"
+            class="rh-textarea review-order__notes"
+            name="orderNotes"
+            rows="4"
+            [(ngModel)]="notes"
+            placeholder="Add any detail you want Rich House to see in your WhatsApp message."
+          ></textarea>
+
+          <p class="review-order__notes-copy">
+            Your message will include the current cart items and total exactly as shown here.
+          </p>
+
+          <app-whatsapp-button
+            *ngIf="whatsAppMessage as message"
+            [block]="true"
+            [message]="message"
+            label="Continue on WhatsApp"
+            ariaLabel="Continue your Rich House order on WhatsApp"
+          >
+          </app-whatsapp-button>
+
+          <a class="rh-button rh-button--secondary review-order__back-link" routerLink="/cart">
+            Back to cart
+          </a>
+        </aside>
       </div>
-
-      <!-- Right Column: Order Summary & Smart Payment Logos -->
-      <div class="col-lg-4">
-        <div class="card border-0 shadow-sm p-4 rounded-4 bg-white sticky-top" style="top: 100px;">
-          <h5 class="fw-bold mb-4 text-dark">Order Summary</h5>
-          
-          <div class="d-flex justify-content-between mb-3">
-            <span class="text-muted small">Subtotal</span>
-            <span class="fw-bold small text-dark">{{ cartData?.totalPrice | number }} EGP</span>
-          </div>
-          
-          <div class="d-flex justify-content-between mb-3">
-            <span class="text-muted small">Shipping Fees</span>
-            <span class="text-success small fw-bold">FREE SHIPPING</span>
-          </div>
-
-          <hr class="my-4 opacity-50">
-
-          <div class="d-flex justify-content-between align-items-end mb-4">
-            <div>
-              <span class="d-block fw-bold text-dark fs-5">Grand Total</span>
-              <small class="text-muted">VAT Included</small>
-            </div>
-            <span class="fw-bold text-primary fs-4">{{ cartData?.totalPrice | number }} EGP</span>
-          </div>
-
-          <!-- Confirm Order Button -->
-          <button (click)="confirmOrder()" [disabled]="isSubmitting" 
-                  class="btn btn-primary btn-lg w-100 py-3 fw-bold rounded-3 shadow-sm d-flex justify-content-center align-items-center">
-            <span *ngIf="!isSubmitting">CONFIRM ORDER</span>
-            <div *ngIf="isSubmitting" class="spinner-border spinner-border-sm text-light"></div>
-          </button>
-          
-          <!-- Payment Gateways Section -->
-          <div class="mt-4 text-center border-top pt-4">
-             <p class="text-uppercase text-muted fw-bolder tracking-wider mb-3" style="font-size: 11px; letter-spacing: 1px;">
-               <i class="bi bi-lock-fill text-success me-1"></i> Secure Checkout Guaranteed
-             </p>
-             
-             <div class="d-flex align-items-center justify-content-center gap-3 payment-logos-container">
-               <div class="payment-badge shadow-2xs rounded-2 px-2 py-1 bg-white border border-light d-flex align-items-center justify-content-center" style="width: 55px; height: 32px;">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" class="img-fluid" style="max-height: 14px;">
-               </div>
-               <div class="payment-badge shadow-2xs rounded-2 px-2 py-1 bg-white border border-light d-flex align-items-center justify-content-center" style="width: 55px; height: 32px;">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg" alt="Mastercard" class="img-fluid" style="max-height: 20px;">
-               </div>
-               <div class="payment-badge shadow-2xs rounded-2 px-2 py-1 bg-white border border-light d-flex align-items-center justify-content-center" style="width: 55px; height: 32px;">
-                 <img src="https://docs.paymob.com/img/logo.svg" alt="Paymob" class="img-fluid" style="max-height: 16px;">
-               </div>
-               <div class="payment-badge shadow-2xs rounded-2 px-2 py-1 bg-white border border-light d-flex align-items-center justify-content-center" style="width: 55px; height: 32px;">
-                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c2/Vodafone_2017_logo.svg" alt="Vodafone Cash" class="img-fluid" style="max-height: 18px;">
-               </div>
-             </div>
-             <small class="text-muted d-block mt-2" style="font-size: 10px;">Supported by local & international networks</small>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
+    </ng-container>
   </div>
-</div>
+</section>
+
+<ng-template #emptyOrder>
+  <section class="review-order__empty rh-surface-card">
+    <span class="rh-eyebrow">Checkout</span>
+    <h1>Review Your Order</h1>
+    <p>
+      Your cart is empty right now. Add a product to your bag, then return here to continue on
+      WhatsApp.
+    </p>
+    <div class="review-order__empty-actions">
+      <a class="rh-button rh-button--primary" routerLink="/shop">Browse the collection</a>
+      <a class="rh-button rh-button--secondary" routerLink="/cart">Back to cart</a>
+    </div>
+  </section>
+</ng-template>

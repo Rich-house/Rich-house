@@ -1,16 +1,16 @@
 :root {
   color-scheme: light;
-  --rh-color-charcoal-950: #121212;
-  --rh-color-charcoal-900: #1a1a1a;
+  --rh-color-charcoal-950: #1e1e1e;
+  --rh-color-charcoal-900: #262626;
   --rh-color-charcoal-800: #252525;
   --rh-color-stone-700: #615a53;
   --rh-color-stone-500: #8e877f;
   --rh-color-stone-300: #c8c0b8;
   --rh-color-stone-200: #ddd5cc;
   --rh-color-stone-100: #f0ebe5;
-  --rh-color-ivory-100: #faf7f2;
-  --rh-color-ivory-50: #fdfbf8;
-  --rh-color-gold-500: #b08d57;
+  --rh-color-ivory-100: #fbf8f3;
+  --rh-color-ivory-50: #f8f6f2;
+  --rh-color-gold-500: #b08a44;
   --rh-color-gold-400: #c8a972;
   --rh-color-danger: #9b3d39;
   --rh-color-success: #2f6b53;
@@ -23,8 +23,8 @@
   --rh-color-surface-soft: #f7f2ec;
   --rh-color-surface-strong: #ebe4dc;
   --rh-color-overlay: rgba(18, 18, 18, 0.55);
-  --rh-font-sans: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --rh-font-serif: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --rh-font-sans: 'Segoe UI', 'Helvetica Neue', Arial, system-ui, sans-serif;
+  --rh-font-serif: 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
   --rh-font-size-xs: 0.75rem;
   --rh-font-size-sm: 0.875rem;
   --rh-font-size-md: 1rem;
@@ -164,7 +164,7 @@ main {
 }
 
 .rh-eyebrow::before {
-  content: "";
+  content: '';
   width: 2.5rem;
   height: 1px;
   background: var(--rh-color-gold-500);
@@ -182,6 +182,22 @@ main {
 
 .rh-section-heading p {
   max-width: 40rem;
+  color: var(--rh-color-text-muted);
+}
+
+.rh-location-grid {
+  display: grid;
+  gap: var(--rh-space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rh-location-card {
+  display: grid;
+  gap: var(--rh-space-4);
+  padding: var(--rh-space-5);
+}
+
+.rh-location-card p {
   color: var(--rh-color-text-muted);
 }
 
@@ -384,6 +400,10 @@ main {
 }
 
 @media (max-width: 48rem) {
+  .rh-location-grid {
+    grid-template-columns: 1fr;
+  }
+
   .rh-page-section {
     padding-block: clamp(var(--rh-space-10), 10vw, var(--rh-space-16));
   }

@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { combineLatest, filter } from 'rxjs';
 import { ProductsService } from '../../Services/product';
+import { richHouseBrand } from '../../core/config/site-settings.config';
 import { SeoService } from '../../core/services/seo.service';
 import { CategoryItem } from '../../models/category.models';
 import { CatalogQuery, PaginationMeta, ProductCard } from '../../models/product.models';
@@ -43,7 +44,21 @@ export class Product {
     { value: 'bestSelling', label: 'Best selling' },
   ] as const;
 
-  readonly sizeOptions = ['46', '48', '50', '52', '54', '56', '58', '60', 'S', 'M', 'L', 'XL', 'XXL'];
+  readonly sizeOptions = [
+    '46',
+    '48',
+    '50',
+    '52',
+    '54',
+    '56',
+    '58',
+    '60',
+    'S',
+    'M',
+    'L',
+    'XL',
+    'XXL',
+  ];
 
   mode: CatalogMode = 'shop';
   categories: CategoryItem[] = [];
@@ -262,7 +277,7 @@ export class Product {
       page: this.filters.page,
       pageSize: 12,
       search: this.filters.search || undefined,
-      categorySlug: this.mode === 'shop' ? this.categorySlug ?? undefined : undefined,
+      categorySlug: this.mode === 'shop' ? (this.categorySlug ?? undefined) : undefined,
       size: this.filters.size || undefined,
       minPrice: this.filters.minPrice ? Number(this.filters.minPrice) : undefined,
       maxPrice: this.filters.maxPrice ? Number(this.filters.maxPrice) : undefined,
@@ -291,13 +306,13 @@ export class Product {
           'We could not load this part of the Rich House catalog. Please try again.';
         this.cdr.markForCheck();
       },
-      });
+    });
   }
 
   private updateCatalogSeo(): void {
     if (this.mode === 'offers') {
       this.seoService.setPageSeo({
-        title: 'Offers | Rich House',
+        title: richHouseBrand.browserTitle,
         description:
           'Discover current Rich House offers across premium menswear, suits, shirts, and formalwear.',
         url: this.router.url,
@@ -307,7 +322,7 @@ export class Product {
 
     if (this.selectedCategory) {
       this.seoService.setPageSeo({
-        title: `${this.selectedCategory.name} | Rich House`,
+        title: richHouseBrand.browserTitle,
         description: `Browse the Rich House ${this.selectedCategory.name} selection, curated for premium menswear and formalwear shopping.`,
         url: this.router.url,
       });
@@ -315,7 +330,7 @@ export class Product {
     }
 
     this.seoService.setPageSeo({
-      title: 'Shop | Rich House',
+      title: richHouseBrand.browserTitle,
       description:
         'Browse the Rich House menswear collection, including suits, shirts, elevated essentials, and formalwear.',
       url: this.router.url,
@@ -323,7 +338,12 @@ export class Product {
   }
 
   private navigateWithFilters(page: number): void {
-    const target = this.mode === 'offers' ? ['/offers'] : this.categorySlug ? ['/shop', this.categorySlug] : ['/shop'];
+    const target =
+      this.mode === 'offers'
+        ? ['/offers']
+        : this.categorySlug
+          ? ['/shop', this.categorySlug]
+          : ['/shop'];
     this.router.navigate(target, {
       queryParams: this.buildQueryParams(page),
     });

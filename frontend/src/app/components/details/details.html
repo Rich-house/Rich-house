@@ -1,20 +1,20 @@
-<div class="product-details-wrapper pt-0 pb-5 bg-white" *ngIf="!loading && product; else loadingTemplate">
+<div class="product-details-wrapper pt-0 pb-5 details-page" *ngIf="!loading && product; else loadingTemplate">
   <div class="container">
 
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb bg-light p-3 rounded-pill px-4">
+      <ol class="breadcrumb bg-light p-3 rounded-pill px-4 details-breadcrumb">
         <li class="breadcrumb-item">
-          <a [routerLink]="['/shop']" class="text-decoration-none text-muted">Store</a>
+          <a [routerLink]="['/shop']" class="details-breadcrumb__link">Store</a>
         </li>
         <li class="breadcrumb-item">
           <a
             [routerLink]="product.categorySlug ? ['/shop', product.categorySlug] : ['/shop']"
-            class="text-decoration-none text-muted">
+            class="details-breadcrumb__link">
             {{ product.categoryName }}
           </a>
         </li>
-        <li class="breadcrumb-item active fw-bold text-primary">
+        <li class="breadcrumb-item active fw-bold details-breadcrumb__current">
           {{ product.name }}
         </li>
       </ol>
@@ -49,12 +49,12 @@
       <!-- Product Info -->
       <div class="col-lg-5">
         <div class="ps-lg-3">
-          <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill small fw-bold">
+          <span class="rh-badge details-category-badge">
             {{ product.categoryName }}
           </span>
 
           <h1 class="fw-bold mt-3">{{ product.name }}</h1>
-          <h3 class="text-primary fw-bold mb-3">{{ product.price | number }} EGP</h3>
+          <h3 class="details-price fw-bold mb-3">{{ product.price | egpPrice }}</h3>
           <p class="text-muted lh-lg">{{ product.description }}</p>
 
           <hr class="my-4">
@@ -63,7 +63,7 @@
           <div class="mb-4" *ngIf="product.sizes && product.sizes.length > 0">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h6 class="fw-bold mb-0">Select Size</h6>
-              <span class="text-muted small" style="cursor: pointer;">Size Guide</span>
+              <span class="details-link small">Size Guide</span>
             </div>
             <div class="d-flex flex-wrap gap-2">
               <div *ngFor="let size of product.sizes">
@@ -73,7 +73,7 @@
                        [id]="'size-' + size" 
                        [value]="size" 
                        [(ngModel)]="selectedSize">
-                <label class="btn btn-outline-primary px-3 py-2 rounded-3 fw-bold" [for]="'size-' + size">
+                <label class="btn details-size-option" [for]="'size-' + size">
                   {{ getSizeLabel(size) }}
                 </label>
               </div>
@@ -90,7 +90,7 @@
           </div>
 
           <div class="d-grid gap-3">
-            <button class="btn btn-primary btn-lg py-3 fw-bold shadow-sm rounded-3" [disabled]="product.stockQuantity <= 0 || isAdding" (click)="addToCart()">
+            <button class="rh-button rh-button--primary details-primary-action" [disabled]="product.stockQuantity <= 0 || isAdding" (click)="addToCart()">
               <span *ngIf="isAdding" class="spinner-border spinner-border-sm me-2"></span>
               <i *ngIf="!isAdding" class="bi bi-bag-plus-fill me-2"></i>
               {{ isAdding ? 'Adding to Bag...' : 'Add to Cart' }}
@@ -98,14 +98,16 @@
             <div class="row g-2">
               <div class="col-6">
                 <app-whatsapp-button
+                  appearance="subtle"
                   [block]="true"
-                  [label]="productWhatsAppLabel"
+                  label="Ask on WhatsApp"
                   [productName]="product.name"
+                  size="compact"
                   [ariaLabel]="'Ask Rich House about ' + product.name + ' on WhatsApp'">
                 </app-whatsapp-button>
               </div>
               <div class="col-6">
-                <button class="btn btn-outline-dark w-100 py-3 fw-bold rounded-3" routerLink="/cart">VIEW CART</button>
+                <button class="rh-button rh-button--secondary details-secondary-action" routerLink="/cart">View Cart</button>
               </div>
             </div>
           </div>
@@ -116,7 +118,7 @@
     <div class="add-review-container mt-5 pt-4" *ngIf="authService.isLoggedIn()">
       <hr class="mb-5 opacity-25">
       <div class="card border-0 shadow-sm rounded-4 p-4 bg-light bg-opacity-75">
-        <h4 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2 text-primary"></i>Write a Review</h4>
+        <h4 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2 details-accent-text"></i>Write a Review</h4>
         
         <div class="row g-3">
           <div class="col-md-4">
@@ -139,8 +141,8 @@
           </div>
 
           <div class="col-12 text-end">
-            <button class="btn btn-primary px-5 py-2 rounded-pill fw-bold shadow-sm" 
-                    (click)="submitReview()" 
+            <button class="rh-button rh-button--primary details-review-button"
+                    (click)="submitReview()"
                     [disabled]="isSubmittingReview">
               <span *ngIf="isSubmittingReview" class="spinner-border spinner-border-sm me-2"></span>
               {{ isSubmittingReview ? 'Posting...' : 'Post Review' }}
@@ -151,13 +153,13 @@
     </div>
 
     <div class="mt-5 text-center p-4 bg-light rounded-4 border" *ngIf="!authService.isLoggedIn()">
-      <p class="mb-0 text-muted">Please <a routerLink="/login" class="text-primary fw-bold text-decoration-none">Login</a> to write a review and share your feedback.</p>
+      <p class="mb-0 text-muted">Please <a routerLink="/login" class="details-link fw-bold text-decoration-none">Login</a> to write a review and share your feedback.</p>
     </div>
 
     <div class="reviews-section mt-5" id="reviews-list">
       <div class="d-flex align-items-center mb-4" *ngIf="reviews && reviews.length > 0">
         <h4 class="fw-bold mb-0">Customer Reviews</h4>
-        <span class="badge bg-primary bg-opacity-10 text-primary ms-3 rounded-pill px-3">{{ reviews.length }}</span>
+        <span class="badge details-review-count ms-3 rounded-pill px-3">{{ reviews.length }}</span>
       </div>
       
       <div class="row g-4" *ngIf="reviews && reviews.length > 0; else noReviews">
@@ -210,8 +212,8 @@
             <div class="card-body p-3">
               <h6 class="fw-bold mb-2 text-truncate" style="font-size: 0.9rem;">{{ item.name }}</h6>
               <div class="d-flex justify-content-between align-items-center mt-2">
-                <span class="text-primary fw-bold small">{{ item.price | number }} EGP</span>
-                <i class="bi bi-arrow-right-circle text-primary"></i>
+                <span class="details-related-price fw-bold small">{{ item.price | egpPrice }}</span>
+                <i class="bi bi-arrow-right-circle details-accent-text"></i>
               </div>
             </div>
           </div>
@@ -224,8 +226,8 @@
 
 <!-- Loading Template -->
 <ng-template #loadingTemplate>
-  <div class="vh-100 d-flex flex-column justify-content-center align-items-center bg-white">
-    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+  <div class="vh-100 d-flex flex-column justify-content-center align-items-center details-page">
+    <div class="spinner-border details-loading-spinner mb-3" style="width: 3rem; height: 3rem;"></div>
     <h5 class="fw-bold text-muted">Fetching Product Details...</h5>
   </div>
 </ng-template>

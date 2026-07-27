@@ -19,7 +19,10 @@
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
-    filter 180ms ease;
+    filter 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
 }
 
 .rh-whatsapp-button:hover,
@@ -32,6 +35,31 @@
 
 .rh-whatsapp-button i {
   font-size: 1.25rem;
+}
+
+.rh-whatsapp-button--subtle {
+  border-color: rgba(31, 106, 70, 0.16);
+  background: rgba(37, 211, 102, 0.1);
+  color: #1f6a46;
+  box-shadow: none;
+}
+
+.rh-whatsapp-button--subtle:hover,
+.rh-whatsapp-button--subtle:focus-visible {
+  color: #184f35;
+  box-shadow: none;
+}
+
+.rh-whatsapp-button--compact {
+  min-height: 2.875rem;
+  padding: 0.7rem 1rem;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  box-shadow: none;
+}
+
+.rh-whatsapp-button--compact i {
+  font-size: 1.05rem;
 }
 
 .rh-whatsapp-button--block {

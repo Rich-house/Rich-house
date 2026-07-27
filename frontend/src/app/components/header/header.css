@@ -59,19 +59,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--rh-color-charcoal-900), #302d28);
-  color: var(--rh-color-ivory-50);
-  font-family: var(--rh-font-serif);
-  font-size: 1.05rem;
-  letter-spacing: 0.12em;
+  width: 3.15rem;
+  height: 3.15rem;
+  flex-shrink: 0;
+}
+
+.site-header__brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .site-header__brand-copy {
   display: grid;
-  gap: 0.2rem;
 }
 
 .site-header__brand-copy strong {
@@ -80,13 +80,6 @@
   font-weight: var(--rh-font-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.site-header__brand-copy small {
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--rh-color-text-muted);
 }
 
 .site-header__nav {
@@ -113,7 +106,7 @@
 }
 
 .site-header__nav-link::after {
-  content: "";
+  content: '';
   position: absolute;
   inset-inline: 0;
   bottom: 0.3rem;
@@ -281,6 +274,12 @@
   gap: var(--rh-space-4);
 }
 
+.site-header__drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--rh-space-3);
+}
+
 .site-header__drawer-search {
   display: grid;
   gap: var(--rh-space-3);
@@ -362,7 +361,6 @@
     min-height: 4.75rem;
   }
 
-  .site-header__brand-copy small,
   .site-header__action span,
   .site-header__signout {
     display: none;
