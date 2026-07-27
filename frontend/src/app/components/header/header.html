@@ -1,0 +1,145 @@
+<header class="site-header">
+  <div class="site-header__notice">
+    <div class="rh-container rh-container--wide site-header__notice-inner">
+      <p>Premium menswear for work, celebration, and every well-dressed entrance.</p>
+      <a class="site-header__notice-link" routerLink="/offers">View current offers</a>
+    </div>
+  </div>
+
+  <div class="site-header__frame">
+    <div class="rh-container rh-container--wide site-header__inner">
+      <div class="site-header__leading">
+        <button
+          class="site-header__icon-button site-header__mobile-toggle"
+          type="button"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen"
+          aria-controls="mobile-menu"
+          aria-label="Open navigation menu">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <a class="site-header__brand" routerLink="/" aria-label="Rich House home">
+          <span class="site-header__brand-mark">RH</span>
+          <span class="site-header__brand-copy">
+            <strong>{{ brand.name }}</strong>
+            <small>{{ brand.eyebrow }}</small>
+          </span>
+        </a>
+      </div>
+
+      <nav class="site-header__nav" aria-label="Primary navigation">
+        <a
+          *ngFor="let link of navigationLinks"
+          class="site-header__nav-link"
+          [class.is-active]="isRouteActive(link.route)"
+          [routerLink]="link.route">
+          {{ link.label }}
+        </a>
+
+        <div class="site-header__categories" *ngIf="hasCategories">
+          <button
+            class="site-header__nav-link site-header__category-trigger"
+            type="button"
+            [class.is-active]="isRouteActive('/shop')"
+            [attr.aria-expanded]="categoriesMenuOpen"
+            aria-controls="header-category-menu"
+            (click)="toggleCategoriesMenu()">
+            Categories
+            <i class="bi" [ngClass]="categoriesMenuOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </button>
+
+          <div class="site-header__category-menu rh-surface-card" id="header-category-menu" *ngIf="categoriesMenuOpen">
+            <a
+              *ngFor="let category of desktopCategories; trackBy: trackByCategoryId"
+              class="site-header__category-link"
+              [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+              <span>{{ category.name }}</span>
+              <i class="bi bi-arrow-up-right"></i>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <form class="site-header__search" (ngSubmit)="submitSearch()">
+        <label class="rh-visually-hidden" for="header-search">Search the Rich House collection</label>
+        <input
+          id="header-search"
+          class="rh-input site-header__search-input"
+          type="search"
+          name="headerSearch"
+          [(ngModel)]="searchText"
+          placeholder="Search tailoring, shirts, and more" />
+        <button class="site-header__icon-button site-header__search-button" type="submit" aria-label="Search">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+
+      <div class="site-header__actions">
+        <a class="site-header__action" [routerLink]="accountRoute" [class.is-active]="isRouteActive('/profile') || isRouteActive('/login')">
+          <i class="bi bi-person"></i>
+          <span>Account</span>
+        </a>
+
+        <a class="site-header__action site-header__action--cart" routerLink="/cart" [class.is-active]="isRouteActive('/cart')">
+          <i class="bi bi-bag"></i>
+          <span>Cart</span>
+          <span class="site-header__count" *ngIf="isLoggedIn && cartCount > 0">{{ cartCount }}</span>
+        </a>
+
+        <button class="site-header__signout" type="button" *ngIf="isLoggedIn" (click)="logout()">Sign out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-header__backdrop" *ngIf="mobileMenuOpen" (click)="closeMobileMenu()"></div>
+
+  <aside class="site-header__drawer" id="mobile-menu" [class.is-open]="mobileMenuOpen" aria-label="Mobile navigation">
+    <div class="site-header__drawer-header">
+      <div class="site-header__brand-copy">
+        <strong>{{ brand.name }}</strong>
+        <small>{{ brand.eyebrow }}</small>
+      </div>
+
+      <button class="site-header__icon-button" type="button" (click)="closeMobileMenu()" aria-label="Close navigation menu">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <form class="site-header__drawer-search" (ngSubmit)="submitSearch()">
+      <label class="rh-visually-hidden" for="mobile-header-search">Search the Rich House collection</label>
+      <input
+        id="mobile-header-search"
+        class="rh-input"
+        type="search"
+        name="mobileHeaderSearch"
+        [(ngModel)]="searchText"
+        placeholder="Search the collection" />
+      <button class="rh-button rh-button--primary" type="submit">Search</button>
+    </form>
+
+    <nav class="site-header__drawer-nav" aria-label="Mobile primary navigation">
+      <a *ngFor="let link of navigationLinks" class="site-header__drawer-link" [routerLink]="link.route">
+        {{ link.label }}
+      </a>
+
+      <div class="site-header__drawer-group" *ngIf="hasCategories">
+        <span class="site-header__drawer-label">Categories</span>
+        <a
+          *ngFor="let category of mobileCategories; trackBy: trackByCategoryId"
+          class="site-header__drawer-link site-header__drawer-link--category"
+          [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+          {{ category.name }}
+        </a>
+      </div>
+
+      <div class="site-header__drawer-group">
+        <span class="site-header__drawer-label">Account</span>
+        <a class="site-header__drawer-link" [routerLink]="accountRoute">{{ isLoggedIn ? 'My Profile' : 'Sign In' }}</a>
+        <button class="site-header__drawer-link site-header__drawer-link--button" type="button" *ngIf="isLoggedIn" (click)="logout()">
+          Sign out
+        </button>
+      </div>
+    </nav>
+  </aside>
+</header>

@@ -1,0 +1,67 @@
+.add-product-container {
+  padding: 50px 20px;
+  background: linear-gradient(180deg, #f0f4f8 0%, #ffffff 100%);
+  min-height: 100vh;
+}
+
+/* Header Gradient - لون مختلف قليلاً عن التعديل للتمييز */
+.card-header-gradient {
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+}
+
+.step-num {
+  background: #4e54c8;
+  color: white;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.logistics-box {
+  transition: 0.3s;
+  border: 2px solid transparent;
+}
+
+.logistics-box:focus-within {
+  border-color: #4e54c8;
+  background: white !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* Dropzone Overlay */
+.dropzone-area {
+  cursor: pointer;
+  border: 2px dashed #cbd5e0;
+  transition: 0.3s;
+}
+
+.dropzone-area:hover {
+  border-color: #4e54c8;
+  background: #f8faff !important;
+}
+
+.file-input-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.btn-save-gradient {
+  background: linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%);
+  border: none;
+  color: white;
+  transition: 0.4s;
+}
+
+.btn-save-gradient:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 15px 30px rgba(78, 84, 200, 0.3);
+}
+
+.extra-small { font-size: 0.7rem; }

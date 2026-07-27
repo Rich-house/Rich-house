@@ -1,0 +1,36 @@
+/* تغيير شكل الـ Inputs لتبدو ألطف */
+.form-control, .input-group-text {
+    border-color: #f1f1f1;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #0d6efd;
+    background-color: #fff !important;
+}
+
+/* تحسين شكل الـ Invalid Feedback */
+.invalid-feedback {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* تأثير عند عمل Hover على الزرار */
+.btn-primary {
+    transition: transform 0.2s;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* أنيميشن بسيط لظهور الأخطاء (اختياري لو مش عايز تحمل مكتبة animate.css) */
+.animate__fadeIn {
+    animation: fadeIn 0.4s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

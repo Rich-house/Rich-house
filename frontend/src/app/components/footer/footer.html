@@ -1,0 +1,75 @@
+<footer class="site-footer">
+  <div class="rh-container rh-container--wide">
+    <div class="site-footer__grid">
+      <section class="site-footer__brand">
+        <span class="rh-eyebrow">{{ brand.eyebrow }}</span>
+        <h2>{{ brand.name }}</h2>
+        <p>{{ brand.shortDescription }}</p>
+
+        <div class="site-footer__socials">
+          <a
+            class="site-footer__social"
+            [href]="publicSiteSettings.FacebookUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Follow Rich House on Facebook">
+            <i class="bi bi-facebook"></i>
+            <span>Facebook</span>
+          </a>
+
+          <a
+            class="site-footer__social"
+            [href]="publicSiteSettings.InstagramUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Follow Rich House on Instagram">
+            <i class="bi bi-instagram"></i>
+            <span>Instagram</span>
+          </a>
+
+          <a
+            class="site-footer__social"
+            *ngIf="whatsAppUrl"
+            [href]="whatsAppUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Message Rich House on WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+            <span>WhatsApp</span>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <h3>Explore</h3>
+        <nav class="site-footer__links" aria-label="Footer primary navigation">
+          <a *ngFor="let link of navigationLinks" [routerLink]="link.route">{{ link.label }}</a>
+        </nav>
+      </section>
+
+      <section>
+        <h3>Categories</h3>
+        <div class="site-footer__links">
+          <a
+            *ngFor="let category of categories; trackBy: trackByCategoryId"
+            [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+            {{ category.name }}
+          </a>
+          <a routerLink="/shop" *ngIf="categories.length === 0">Shop All</a>
+        </div>
+      </section>
+
+      <section>
+        <h3>Customer Care</h3>
+        <div class="site-footer__links">
+          <a *ngFor="let link of informationLinks" [routerLink]="link.route">{{ link.label }}</a>
+        </div>
+      </section>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p>© {{ currentYear }} {{ brand.name }}. All rights reserved.</p>
+      <p>Crafted for modern tailoring, occasionwear, and everyday polish.</p>
+    </div>
+  </div>
+</footer>

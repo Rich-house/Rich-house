@@ -1,0 +1,12 @@
+<a
+  *ngIf="href"
+  class="rh-whatsapp-button"
+  [class.rh-whatsapp-button--block]="block"
+  [class.rh-whatsapp-button--floating]="variant === 'floating'"
+  [href]="href"
+  target="_blank"
+  rel="noopener noreferrer"
+  [attr.aria-label]="resolvedAriaLabel">
+  <i class="bi bi-whatsapp" aria-hidden="true"></i>
+  <span>{{ label }}</span>
+</a>

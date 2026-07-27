@@ -1,0 +1,36 @@
+.not-found-page {
+  display: grid;
+  align-items: center;
+  min-height: 70vh;
+}
+
+.not-found-page__card {
+  display: grid;
+  justify-items: start;
+  gap: var(--rh-space-4);
+  padding: clamp(var(--rh-space-8), 5vw, var(--rh-space-12));
+}
+
+.not-found-page__code {
+  margin: 0;
+  font-family: var(--rh-font-serif);
+  font-size: clamp(4rem, 9vw, 7rem);
+  line-height: 1;
+  color: var(--rh-color-gold-500);
+}
+
+.not-found-page__card h1 {
+  max-width: 15ch;
+  font-size: var(--rh-font-size-2xl);
+}
+
+.not-found-page__card p:last-of-type {
+  max-width: 38rem;
+  color: var(--rh-color-text-muted);
+}
+
+.not-found-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rh-space-3);
+}

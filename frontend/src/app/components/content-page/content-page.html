@@ -1,0 +1,20 @@
+<section class="content-page rh-page-section">
+  <div class="rh-container">
+    <div class="content-page__hero rh-surface-card">
+      <span class="rh-eyebrow">{{ content.eyebrow }}</span>
+      <h1>{{ content.title }}</h1>
+      <p>{{ content.intro }}</p>
+      <a class="rh-button rh-button--secondary" routerLink="/shop">Explore the collection</a>
+    </div>
+
+    <div class="content-page__grid">
+      <article class="content-page__section rh-surface-card" *ngFor="let section of content.sections">
+        <h2>{{ section.title }}</h2>
+        <p *ngFor="let paragraph of section.paragraphs">{{ paragraph }}</p>
+        <ul *ngIf="section.bullets?.length">
+          <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>

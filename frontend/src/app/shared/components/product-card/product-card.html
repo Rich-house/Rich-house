@@ -1,0 +1,52 @@
+<article class="product-card rh-surface-card">
+  <a class="product-card__link" [routerLink]="productRoute" [attr.aria-label]="'View ' + product.name">
+    <div class="product-card__media">
+      <div class="product-card__badges" *ngIf="product.isOnOffer || product.isNewArrival || product.isBestSeller || product.isFeatured">
+        <span class="product-card__badge product-card__badge--offer" *ngIf="product.isOnOffer">
+          <ng-container *ngIf="discountPercent; else offerLabel">-{{ discountPercent }}%</ng-container>
+          <ng-template #offerLabel>Offer</ng-template>
+        </span>
+        <span class="product-card__badge" *ngIf="product.isNewArrival">New</span>
+        <span class="product-card__badge" *ngIf="product.isBestSeller">Best Seller</span>
+        <span class="product-card__badge" *ngIf="product.isFeatured">Featured</span>
+      </div>
+
+      <img
+        class="product-card__image"
+        [src]="primaryImage"
+        [alt]="altText"
+        [loading]="priority ? 'eager' : 'lazy'"
+        [attr.fetchpriority]="priority ? 'high' : 'auto'"
+        decoding="async"
+        [appImageFallback]="fallbackImage" />
+
+      <img
+        *ngIf="secondaryImage"
+        class="product-card__image product-card__image--secondary"
+        [src]="secondaryImage"
+        [alt]="altText"
+        loading="lazy"
+        decoding="async"
+        [appImageFallback]="fallbackImage" />
+    </div>
+
+    <div class="product-card__content">
+      <p class="product-card__category">{{ categoryLabel }}</p>
+      <h3 class="product-card__title">{{ product.name }}</h3>
+      <p class="product-card__description" *ngIf="product.shortDescription">{{ product.shortDescription }}</p>
+
+      <div class="product-card__meta">
+        <div class="product-card__pricing">
+          <span class="product-card__price">{{ product.price | egpPrice }}</span>
+          <span class="product-card__compare-at" *ngIf="hasCompareAtPrice">
+            {{ product.compareAtPrice | egpPrice }}
+          </span>
+        </div>
+
+        <span class="product-card__sizes" *ngIf="product.sizes.length > 0">
+          {{ product.sizes.slice(0, 3).join(' · ') }}
+        </span>
+      </div>
+    </div>
+  </a>
+</article>

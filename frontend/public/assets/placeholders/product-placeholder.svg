@@ -1,0 +1,42 @@
+<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" fill="#F6F0E9"/>
+  <rect x="88" y="88" width="784" height="1024" rx="48" fill="#FFFDF9" stroke="#D9D0C6" stroke-width="8"/>
+  <circle cx="480" cy="350" r="120" fill="#121212"/>
+  <circle cx="480" cy="350" r="112" stroke="#C8A972" stroke-width="4"/>
+  <text
+    x="480"
+    y="392"
+    text-anchor="middle"
+    fill="#F7F1E8"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="112"
+    font-weight="700"
+    letter-spacing="-6">
+    RH
+  </text>
+  <path d="M308 520H652C673.8 520 692 538.2 692 560V812C692 833.8 673.8 852 652 852H308C286.2 852 268 833.8 268 812V560C268 538.2 286.2 520 308 520Z" fill="#E9E1D7"/>
+  <path d="M346 570H614" stroke="#C8A972" stroke-width="12" stroke-linecap="round"/>
+  <path d="M346 632H614" stroke="#D0C2B2" stroke-width="12" stroke-linecap="round"/>
+  <path d="M346 694H560" stroke="#D0C2B2" stroke-width="12" stroke-linecap="round"/>
+  <path d="M346 756H520" stroke="#D0C2B2" stroke-width="12" stroke-linecap="round"/>
+  <text
+    x="480"
+    y="984"
+    text-anchor="middle"
+    fill="#3A352F"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="52"
+    letter-spacing="8">
+    RICH HOUSE
+  </text>
+  <text
+    x="480"
+    y="1044"
+    text-anchor="middle"
+    fill="#655F58"
+    font-family="'Segoe UI', Arial, sans-serif"
+    font-size="28"
+    letter-spacing="4">
+    PRODUCT IMAGE COMING SOON
+  </text>
+</svg>

@@ -1,0 +1,161 @@
+<section class="catalog-page rh-page-section">
+  <div class="rh-container rh-container--wide">
+    <div class="catalog-page__hero rh-surface-card">
+      <div class="catalog-page__hero-copy">
+        <span class="rh-eyebrow">{{ mode === 'offers' ? 'Offers' : 'Shop' }}</span>
+        <h1>{{ heading }}</h1>
+        <p>{{ subheading }}</p>
+      </div>
+
+      <div class="catalog-page__hero-meta">
+        <div>
+          <span>Results</span>
+          <strong>{{ meta.totalItems }}</strong>
+        </div>
+        <div>
+          <span>Page</span>
+          <strong>{{ meta.page }} / {{ meta.totalPages || 1 }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="catalog-page__category-strip" *ngIf="mode === 'shop' && categoryLinks.length > 0">
+      <button class="rh-chip" type="button" [class.rh-chip--active]="!categorySlug" (click)="changeCategory(null)">
+        All Categories
+      </button>
+
+      <button
+        class="rh-chip"
+        type="button"
+        *ngFor="let category of categoryLinks; trackBy: trackById"
+        [class.rh-chip--active]="category.slug === categorySlug"
+        (click)="changeCategory(category.slug)">
+        {{ category.name }}
+      </button>
+    </div>
+
+    <div class="catalog-page__toolbar">
+      <div class="catalog-page__toolbar-copy">
+        <strong>{{ meta.totalItems }} products</strong>
+        <span *ngIf="activeChips.length === 0">Browse the currently visible Rich House catalog.</span>
+      </div>
+
+      <div class="catalog-page__toolbar-actions">
+        <div class="catalog-page__sort">
+          <label class="rh-visually-hidden" for="catalog-sort">Sort products</label>
+          <select id="catalog-sort" class="rh-select" [(ngModel)]="filters.sort" (change)="applyFilters()">
+            <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <button class="rh-button rh-button--secondary catalog-page__filter-toggle" type="button" (click)="toggleMobileFilters()">
+          <i class="bi bi-sliders2"></i>
+          Filters
+        </button>
+      </div>
+    </div>
+
+    <div class="catalog-page__chips" *ngIf="activeChips.length > 0">
+      <span class="rh-chip rh-chip--active" *ngFor="let chip of activeChips">{{ chip }}</span>
+      <button class="catalog-page__clear-link" type="button" (click)="clearFilters()">Clear filters</button>
+    </div>
+
+    <div class="catalog-page__layout">
+      <div class="catalog-page__backdrop" *ngIf="mobileFiltersOpen" (click)="toggleMobileFilters()"></div>
+
+      <aside class="catalog-page__filters rh-surface-card" [class.is-open]="mobileFiltersOpen" aria-label="Catalog filters">
+        <div class="catalog-page__filters-header">
+          <h2>Filters</h2>
+          <button class="catalog-page__filters-close" type="button" (click)="toggleMobileFilters()" aria-label="Close filters">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+
+        <div class="catalog-page__filter-group">
+          <label for="catalog-search">Search</label>
+          <input
+            id="catalog-search"
+            class="rh-input"
+            type="search"
+            [(ngModel)]="filters.search"
+            placeholder="Search the collection" />
+        </div>
+
+        <div class="catalog-page__filter-group">
+          <label for="catalog-size">Size</label>
+          <select id="catalog-size" class="rh-select" [(ngModel)]="filters.size">
+            <option value="">All sizes</option>
+            <option *ngFor="let size of sizeOptions" [value]="size">{{ size }}</option>
+          </select>
+        </div>
+
+        <div class="catalog-page__filter-group">
+          <label>Price Range</label>
+          <div class="catalog-page__price-range">
+            <input class="rh-input" type="number" [(ngModel)]="filters.minPrice" placeholder="Min EGP" min="0" />
+            <input class="rh-input" type="number" [(ngModel)]="filters.maxPrice" placeholder="Max EGP" min="0" />
+          </div>
+        </div>
+
+        <label class="catalog-page__check">
+          <input type="checkbox" [(ngModel)]="filters.inStock" />
+          <span>In stock only</span>
+        </label>
+
+        <label class="catalog-page__check" *ngIf="mode !== 'offers'">
+          <input type="checkbox" [(ngModel)]="filters.onOffer" />
+          <span>Offers only</span>
+        </label>
+
+        <div class="catalog-page__filter-actions">
+          <button class="rh-button rh-button--primary" type="button" (click)="applyFilters()">Apply filters</button>
+          <button class="rh-button rh-button--secondary" type="button" (click)="clearFilters()">Reset</button>
+        </div>
+      </aside>
+
+      <div class="catalog-page__content">
+        <div class="catalog-page__results" *ngIf="loading">
+          <div class="catalog-page__skeleton rh-skeleton" *ngFor="let item of [1, 2, 3, 4, 5, 6]"></div>
+        </div>
+
+        <div class="rh-error-state" *ngIf="!loading && errorMessage">
+          <h2>Catalog unavailable</h2>
+          <p>{{ errorMessage }}</p>
+          <button class="rh-button rh-button--primary" type="button" (click)="retry()">Try again</button>
+        </div>
+
+        <div class="catalog-page__results" *ngIf="!loading && !errorMessage && products.length > 0">
+          <app-product-card
+            *ngFor="let product of products; trackBy: trackById; let index = index"
+            [product]="product"
+            [priority]="index < 4"></app-product-card>
+        </div>
+
+        <div class="rh-empty-state" *ngIf="!loading && !errorMessage && products.length === 0">
+          <h2>No products matched these filters.</h2>
+          <p>Try broadening your search, clearing the price range, or viewing the full collection.</p>
+          <button class="rh-button rh-button--primary" type="button" (click)="clearFilters()">Show all products</button>
+        </div>
+
+        <nav class="catalog-page__pagination" *ngIf="!loading && !errorMessage && showPagination" aria-label="Pagination">
+          <button class="rh-button rh-button--secondary" type="button" [disabled]="!meta.hasPreviousPage" (click)="goToPage(meta.page - 1)">
+            Previous
+          </button>
+
+          <button
+            class="catalog-page__page-button"
+            type="button"
+            *ngFor="let page of pageNumbers"
+            [class.is-active]="page === meta.page"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <button class="rh-button rh-button--secondary" type="button" [disabled]="!meta.hasNextPage" (click)="goToPage(meta.page + 1)">
+            Next
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>

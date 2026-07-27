@@ -1,0 +1,112 @@
+<div class="container-fluid vh-100 p-0 overflow-hidden">
+  <div class="row g-0 h-100">
+    
+    <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center bg-dark text-white p-5">
+      <div class="text-center">
+        <i class="bi bi-person-plus display-1 mb-4"></i>
+        <h1 class="display-5 fw-bold">Create Account</h1>
+        <p class="lead opacity-75">Create your Rich House account for a smoother menswear shopping experience.</p>
+      </div>
+    </div>
+
+    <div class="col-md-7 d-flex align-items-center justify-content-center bg-white p-4 scrollable-area" style="overflow-y: auto;">
+      <div class="w-100 px-lg-5" style="max-width: 650px;">
+        
+        <div class="mb-4">
+          <h2 class="fw-bold text-dark">Register</h2>
+          <p class="text-muted small">Please fill in the information below</p>
+        </div>
+
+        <form #regForm="ngForm" novalidate>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-secondary">First Name</label>
+              <input class="form-control bg-light" placeholder="First Name" name="firstName"
+                     required #firstName="ngModel" [(ngModel)]="registerData.firstName"
+                     [class.is-invalid]="firstName.invalid && firstName.touched">
+              <div class="invalid-feedback">First name is required.</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-secondary">Last Name</label>
+              <input class="form-control bg-light" placeholder="Last Name" name="lastName"
+                     required #lastName="ngModel" [(ngModel)]="registerData.lastName"
+                     [class.is-invalid]="lastName.invalid && lastName.touched">
+              <div class="invalid-feedback">Last name is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary">Email Address</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+              <input class="form-control bg-light border-start-0" placeholder="name@example.com" type="email" name="email"
+                     required email #email="ngModel" [(ngModel)]="registerData.email"
+                     [class.is-invalid]="email.invalid && email.touched">
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary">Address</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-geo-alt"></i></span>
+              <input class="form-control bg-light border-start-0" placeholder="City, Country" name="address"
+                     required #address="ngModel" [(ngModel)]="registerData.address"
+                     [class.is-invalid]="address.invalid && address.touched">
+              <div class="invalid-feedback">Address is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary">Phone Number</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone"></i></span>
+              <input class="form-control bg-light border-start-0" placeholder="01012345678" name="phoneNumber"
+                     required #phone="ngModel" [(ngModel)]="registerData.phoneNumber"
+                     [class.is-invalid]="phone.invalid && phone.touched">
+              <div class="invalid-feedback">Phone number is required.</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-secondary">Password</label>
+              <input class="form-control bg-light" placeholder="••••••••" type="password" name="password"
+                     required minlength="8" #password="ngModel" [(ngModel)]="registerData.password"
+                     [class.is-invalid]="password.invalid && password.touched">
+              <div class="invalid-feedback">Min 8 characters.</div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label small fw-bold text-secondary">Confirm Password</label>
+              <input class="form-control bg-light" placeholder="••••••••" type="password" name="confirmPassword"
+                     required #confirmPwd="ngModel" [(ngModel)]="confirmPassword"
+                     [class.is-invalid]="confirmPwd.touched && confirmPassword !== registerData.password">
+              <div class="invalid-feedback">Passwords do not match.</div>
+            </div>
+          </div>
+
+          <div class="alert alert-danger py-2 small border-0" *ngIf="errorMessage">
+            <i class="bi bi-x-circle me-2"></i> {{ errorMessage }}
+          </div>
+          <div class="alert alert-success py-2 small border-0" *ngIf="successMessage">
+            <i class="bi bi-check-circle me-2"></i> {{ successMessage }}
+          </div>
+
+          <button class="btn btn-primary w-100 py-3 fw-bold shadow-sm mt-3" 
+                  [disabled]="regForm.invalid || (confirmPassword !== registerData.password)"
+                  (click)="register()">
+            Create Account
+          </button>
+
+          <p class="text-center mt-4 small text-muted">
+            Already have an account? <a routerLink="/login" class="fw-bold text-decoration-none">Login</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

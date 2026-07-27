@@ -1,0 +1,71 @@
+<section class="contact-page rh-page-section">
+  <div class="rh-container rh-container--wide">
+    <div class="contact-page__hero rh-surface-card">
+      <div class="contact-page__copy">
+        <span class="rh-eyebrow">Contact Rich House</span>
+        <h1>Reach Rich House through the official social channels currently configured for the brand.</h1>
+        <p>
+          The contact experience is intentionally clean and honest: no placeholder phone numbers, no fake address, and no invented email account.
+        </p>
+        <p>
+          For questions about sizing, availability, or a specific product, include the product name or route when you message the team.
+        </p>
+      </div>
+
+      <div class="contact-page__guidance">
+        <h2>Helpful details to include</h2>
+        <ul>
+          <li *ngFor="let note of contactNotes">{{ note }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contact-page__grid">
+      <a
+        class="contact-page__channel rh-surface-card"
+        *ngFor="let channel of channels"
+        [href]="channel.url"
+        target="_blank"
+        rel="noreferrer noopener">
+        <div class="contact-page__channel-icon">
+          <i class="bi" [ngClass]="channel.icon"></i>
+        </div>
+        <div>
+          <h2>{{ channel.label }}</h2>
+          <p>{{ channel.copy }}</p>
+        </div>
+      </a>
+
+      <a
+        class="contact-page__channel rh-surface-card"
+        *ngIf="whatsAppUrl"
+        [href]="whatsAppUrl"
+        target="_blank"
+        rel="noreferrer noopener">
+        <div class="contact-page__channel-icon">
+          <i class="bi bi-whatsapp"></i>
+        </div>
+        <div>
+          <h2>WhatsApp</h2>
+          <p>Message Rich House directly through the configured WhatsApp number.</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="contact-page__support rh-surface-card">
+      <div class="rh-section-heading">
+        <span class="rh-eyebrow">Customer Support Focus</span>
+        <h2>What Rich House can help with through these channels.</h2>
+      </div>
+
+      <ul>
+        <li *ngFor="let topic of helpTopics">{{ topic }}</li>
+      </ul>
+
+      <div class="contact-page__actions">
+        <a class="rh-button rh-button--primary" routerLink="/shop">Browse the collection</a>
+        <a class="rh-button rh-button--secondary" routerLink="/about">Read the brand story</a>
+      </div>
+    </div>
+  </div>
+</section>

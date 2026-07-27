@@ -1,0 +1,133 @@
+<div class="add-product-container animate-fade">
+  <div class="card custom-form-card shadow-lg border-0 mx-auto">
+    
+    <!-- Header مع تدرج لوني "Fresh" -->
+    <div class="card-header-gradient p-4 text-white rounded-top-4">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <div class="icon-box bg-white text-success rounded-3 p-2">
+            <i class="bi bi-plus-circle-dotted fs-4"></i>
+          </div>
+          <div>
+            <h3 class="fw-bold m-0">Create New Product</h3>
+            <p class="text-white-50 small m-0">Fill in the details to list a new item in your inventory</p>
+          </div>
+        </div>
+        <span class="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold shadow-sm">New Entry</span>
+      </div>
+    </div>
+    
+    <div class="card-body p-4 p-md-5">
+      <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Step 1: Identity -->
+        <div class="form-step-wrapper mb-5">
+          <div class="step-header d-flex align-items-center gap-2 mb-4">
+            <span class="step-num">01</span>
+            <h5 class="fw-bold m-0 text-dark">Identity & Classification</h5>
+          </div>
+          
+          <div class="row g-4">
+            <div class="col-md-7">
+              <div class="form-floating custom-input">
+                <input type="text" id="name" class="form-control border-0 bg-light" formControlName="name" placeholder="Name">
+                <label for="name">Product Name</label>
+              </div>
+            </div>
+            
+            <div class="col-md-5">
+              <div class="form-floating custom-input">
+                <input type="number" id="categoryId" class="form-control border-0 bg-light" formControlName="categoryId" placeholder="Category">
+                <label for="categoryId">Category ID</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-floating custom-input">
+                <textarea id="description" class="form-control border-0 bg-light" formControlName="description" placeholder="Desc" style="height: 100px"></textarea>
+                <label for="description">Product Story / Description</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Logistics -->
+        <div class="form-step-wrapper mb-5">
+          <div class="step-header d-flex align-items-center gap-2 mb-4">
+            <span class="step-num">02</span>
+            <h5 class="fw-bold m-0 text-dark">Logistics & Pricing</h5>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-4">
+              <div class="logistics-box p-3 bg-light rounded-4 text-center">
+                <i class="bi bi-currency-dollar text-primary mb-1"></i>
+                <label class="d-block text-muted extra-small fw-bold mb-2">SALE PRICE</label>
+                <input type="number" class="form-control border-0 bg-transparent text-center fs-5 fw-bold" formControlName="price" placeholder="0.00">
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="logistics-box p-3 bg-light rounded-4 text-center">
+                <i class="bi bi-box-seam text-primary mb-1"></i>
+                <label class="d-block text-muted extra-small fw-bold mb-2">INITIAL STOCK</label>
+                <input type="number" class="form-control border-0 bg-transparent text-center fs-5 fw-bold" formControlName="stockQuantity" placeholder="0">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="logistics-box p-3 bg-light rounded-4 text-center">
+                <i class="bi bi-rulers text-primary mb-1"></i>
+                <label class="d-block text-muted extra-small fw-bold mb-2">SIZE IDs</label>
+                <input type="text" class="form-control border-0 bg-transparent text-center fs-5 fw-bold" formControlName="selectedSizeIds" placeholder="1, 2, 3">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Media -->
+        <div class="form-step-wrapper mb-5">
+          <div class="step-header d-flex align-items-center gap-2 mb-4">
+            <span class="step-num">03</span>
+            <h5 class="fw-bold m-0 text-dark">Visual Representation</h5>
+          </div>
+
+          <div class="row g-4 align-items-center">
+            <div class="col-md-8">
+              <div class="dropzone-area p-4 border-dashed rounded-4 bg-light position-relative overflow-hidden">
+                <div class="text-center py-2">
+                  <i class="bi bi-images fs-2 text-primary mb-2"></i>
+                  <h6 class="fw-bold m-0">Upload Product Gallery</h6>
+                  <p class="text-muted small">Supports JPG, PNG, WEBP</p>
+                </div>
+                <input type="file" id="images" class="file-input-overlay" multiple (change)="onFilesSelected($event)">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-floating custom-input shadow-sm">
+                <input type="number" id="mainImageIndex" class="form-control border-0" formControlName="mainImageIndex" placeholder="Main">
+                <label for="mainImageIndex">Primary Image #</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+          <button type="button" class="btn btn-link text-decoration-none text-muted fw-bold" (click)="onCancel()">
+             <i class="bi bi-arrow-left"></i> Back to Dashboard
+          </button>
+          
+          <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-save-gradient px-5 py-3 rounded-pill fw-bold shadow" 
+                    [disabled]="productForm.invalid || selectedFiles.length === 0">
+              Launch Product <i class="bi bi-rocket-takeoff ms-2"></i>
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

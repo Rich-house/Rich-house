@@ -1,0 +1,100 @@
+<div class="container-fluid vh-100 p-0 overflow-hidden">
+  <div class="row g-0 h-100">
+    
+    <div class="col-md-6 d-none d-md-flex flex-column align-items-center justify-content-center bg-dark text-white p-5">
+      <div class="text-center">
+        <i class="bi bi-suit-club display-1 mb-4"></i>
+        <h1 class="display-4 fw-bold">Rich House</h1>
+        <p class="lead opacity-75">Sign in to continue browsing premium menswear and your saved account details.</p>
+      </div>
+    </div>
+
+    <!-- Right Side: Form View -->
+    <div class="col-md-6 d-flex align-items-center justify-content-center bg-white p-4">
+      <div class="w-100" style="max-width: 450px;">
+        
+        <div class="mb-5">
+          <h2 class="fw-bold text-dark">Welcome Back</h2>
+          <p class="text-muted">Login with your credentials</p>
+        </div>
+
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm" novalidate>
+          
+          <!-- Email Input -->
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-secondary text-uppercase">Email</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+              <input 
+                type="email"
+                name="Email"
+                [(ngModel)]="loginData.Email"
+                #email="ngModel"
+                required
+                pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
+                class="form-control bg-light border-start-0"
+                placeholder="name@example.com"
+                [class.is-invalid]="email.invalid && (email.dirty || email.touched)"
+                [class.is-valid]="email.valid && (email.dirty || email.touched)"
+              >
+              <div class="invalid-feedback animate-slide">
+                <span *ngIf="email.errors?.['required']">Email address is required.</span>
+                <span *ngIf="email.errors?.['pattern']">Please enter a valid email format.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Input -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between">
+              <label class="form-label small fw-bold text-secondary text-uppercase">Password</label>
+              <a routerLink="/contact" class="small text-decoration-none fw-bold">Need help?</a>
+            </div>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
+              <input 
+                type="password"
+                name="Password"
+                [(ngModel)]="loginData.Password"
+                #password="ngModel"
+                required
+                minlength="6"
+                class="form-control bg-light border-start-0"
+                placeholder="••••••••"
+                [class.is-invalid]="password.invalid && (password.dirty || password.touched)"
+                [class.is-valid]="password.valid && (password.dirty || password.touched)"
+              >
+              <div class="invalid-feedback animate-slide">
+                <span *ngIf="password.errors?.['required']">Password cannot be empty.</span>
+                <span *ngIf="password.errors?.['minlength']">Must be at least 6 characters.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- General Server Errors -->
+          <div *ngIf="generalError" class="alert alert-danger d-flex align-items-center py-2 mb-4 border-0 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <div class="small">{{ generalError }}</div>
+          </div>
+
+          <!-- Submit Button -->
+          <button 
+            type="submit"
+            class="btn btn-primary w-100 py-3 fw-bold shadow-sm rounded-3 mt-2"
+            [disabled]="loginForm.invalid || isLoading">
+            <span *ngIf="!isLoading">Sign In</span>
+            <div *ngIf="isLoading" class="spinner-border spinner-border-sm text-light"></div>
+          </button>
+
+          <!-- Register Navigation -->
+          <p class="text-center mt-5 text-muted small">
+            Don't have an account? 
+            <a routerLink="/register" class="fw-bold text-decoration-none">Create One</a>
+          </p>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

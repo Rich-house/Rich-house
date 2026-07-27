@@ -1,0 +1,37 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/test-results/
+frontend/.cache/
+
+# Backend
+backend/bin/
+backend/obj/
+backend/Logs/
+
+# Runtime
+logs/
+.logs/
+.pids/
+*.pid
+*.log
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.swp

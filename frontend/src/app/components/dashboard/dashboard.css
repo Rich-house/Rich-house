@@ -1,0 +1,163 @@
+/* خلفية الصفحة العامة */
+:host {
+  --sidebar-bg: #1e1e2d;
+  --primary-color: #5d5be5;
+  --accent-color: #f3f6f9;
+}
+
+.dashboard-wrapper {
+  background-color: #f5f7fa;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  background: var(--sidebar-bg);
+  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+  transition: all 0.4s ease;
+}
+
+.nav-link-custom {
+  color: #a2a3b7;
+  border-radius: 12px;
+  margin: 5px 15px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  transition: 0.3s;
+  border: none;
+  background: transparent;
+  width: calc(100% - 30px);
+}
+
+.nav-link-custom:hover {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+}
+
+.nav-link-custom.active {
+  background: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(93, 91, 229, 0.4);
+}
+
+/* Table & Cards */
+.custom-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  background: #fff;
+}
+
+.table thead th {
+  background-color: var(--accent-color);
+  color: #5e6278;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 1.5rem 1rem;
+  border: none;
+}
+
+.table tbody td {
+  padding: 1.2rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f3f9;
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: var(--primary-color);
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(93, 91, 229, 0.2);
+  transition: 0.3s;
+}
+
+.btn-primary-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(93, 91, 229, 0.3);
+}
+
+/* Badges */
+.badge-soft {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.bg-soft-success { background: #e8fff3; color: #50cd89; }
+.bg-soft-primary { background: #f1faff; color: #009ef7; }
+.sidebar {
+  transition: all 0.3s;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+}
+
+.nav-link-custom {
+  background: transparent;
+  border: none;
+  color: #a2a2c1;
+  padding: 15px 30px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.nav-link-custom:hover {
+  color: white;
+  background: rgba(255,255,255,0.05);
+}
+
+.nav-link-custom.active {
+  color: white;
+  background: #5d5be5;
+  border-left: 4px solid #fff;
+}
+
+.custom-card {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bg-soft-success {
+  background-color: #e8f5e9;
+}
+
+.bg-soft-primary {
+  background-color: #e8eaf6;
+}
+
+.extra-small {
+  font-size: 0.75rem;
+}
+
+.btn-primary-custom {
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.btn-primary-custom:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}

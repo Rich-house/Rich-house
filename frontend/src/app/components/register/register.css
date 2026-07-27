@@ -1,0 +1,38 @@
+.scrollable-area {
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.form-control {
+    border: 1px solid transparent;
+    padding: 0.6rem 1rem;
+    transition: all 0.3s;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    background-color: #fff !important;
+    box-shadow: none;
+}
+
+.input-group-text {
+    border-color: transparent;
+    color: #6c757d;
+}
+
+/* Validation Magic */
+.is-invalid ~ .invalid-feedback {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+    font-size: 0.75rem;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #0d6efd, #0056b3);
+    border: none;
+}

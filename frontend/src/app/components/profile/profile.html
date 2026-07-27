@@ -1,0 +1,85 @@
+<div class="container my-5">
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && userData" class="row g-4">
+    
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+        <div class="profile-avatar-wrapper mb-3">
+          <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+               style="width: 120px; height: 120px;">
+            <i class="bi bi-person-fill display-2"></i>
+          </div>
+        </div>
+        <h4 class="fw-bold mb-1">{{ userData.firstName }} {{ userData.lastName }}</h4>
+        <p class="text-muted small mb-3">Verified Customer</p>
+        <div class="d-flex justify-content-center gap-2">
+           <span class="badge bg-primary-subtle text-primary rounded-pill px-3">Active Member</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 h-100">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+          <h5 class="fw-bold mb-0">Account Details</h5>
+          <hr class="mt-3 mb-0 text-muted opacity-25">
+        </div>
+        
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+              <tbody>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold" style="width: 30%;">First Name</th>
+                  <td class="fw-medium text-dark">{{ userData.firstName }}</td>
+                </tr>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold">Last Name</th>
+                  <td class="fw-medium text-dark">{{ userData.lastName }}</td>
+                </tr>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold">Email Address</th>
+                  <td class="fw-medium">
+                    <span class="text-dark">{{ userData.email }}</span>
+                    <i class="bi bi-patch-check-fill text-success ms-2 small" title="Verified"></i>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold">Phone Number</th>
+                  <td class="fw-medium text-dark">
+                    {{ userData.phoneNumber || '—' }}
+                    <span *ngIf="!userData.phoneNumber" class="text-muted fst-italic ms-2 small">(Not Provided)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold">Shipping Address</th>
+                  <td class="fw-medium text-dark">
+                    {{ userData.address || '—' }}
+                    <span *ngIf="!userData.address" class="text-muted fst-italic ms-2 small">(No address on file)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th class="ps-0 text-muted fw-semibold">Member ID</th>
+                  <td class="text-muted small font-monospace">{{ userData.id }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger border-0 shadow-sm rounded-4 text-center mt-4 p-4">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong class="d-block mb-2">{{ errorTitle }}</strong>
+    <p class="mb-3">{{ errorMessage }}</p>
+    <button class="btn btn-outline-danger rounded-pill px-4" type="button" (click)="retry()">Try again</button>
+  </div>
+</div>

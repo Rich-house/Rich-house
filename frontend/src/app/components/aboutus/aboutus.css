@@ -1,0 +1,111 @@
+.about-page__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: var(--rh-space-8);
+  align-items: center;
+  padding: clamp(var(--rh-space-6), 5vw, var(--rh-space-10));
+}
+
+.about-page__copy {
+  display: grid;
+  gap: var(--rh-space-4);
+}
+
+.about-page__copy h1 {
+  font-size: var(--rh-font-size-2xl);
+  max-width: 16ch;
+}
+
+.about-page__copy p,
+.about-page__principle p,
+.about-page__story-card p {
+  color: var(--rh-color-text-muted);
+}
+
+.about-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rh-space-3);
+}
+
+.about-page__visual img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: calc(var(--rh-radius-lg) - 0.35rem);
+}
+
+.about-page__principles,
+.about-page__story,
+.about-page__category-grid {
+  display: grid;
+  gap: var(--rh-space-5);
+  margin-top: var(--rh-space-8);
+}
+
+.about-page__principles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-page__principle,
+.about-page__story-card {
+  display: grid;
+  gap: var(--rh-space-3);
+  padding: var(--rh-space-5);
+}
+
+.about-page__principle i {
+  font-size: 1.35rem;
+  color: var(--rh-color-gold-500);
+}
+
+.about-page__story {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-page__story-card h2 {
+  font-size: 1.3rem;
+}
+
+.about-page__category-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.about-page__category-card {
+  display: grid;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+
+.about-page__category-card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.about-page__category-card div {
+  display: grid;
+  gap: var(--rh-space-2);
+  padding: var(--rh-space-4);
+}
+
+.about-page__category-card span {
+  color: var(--rh-color-text-muted);
+  font-size: var(--rh-font-size-sm);
+}
+
+@media (max-width: 80rem) {
+  .about-page__story,
+  .about-page__principles,
+  .about-page__category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 64rem) {
+  .about-page__hero {
+    grid-template-columns: 1fr;
+  }
+}

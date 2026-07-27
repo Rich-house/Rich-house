@@ -1,0 +1,68 @@
+<section class="about-page rh-page-section">
+  <div class="rh-container rh-container--wide">
+    <div class="about-page__hero rh-surface-card">
+      <div class="about-page__copy">
+        <span class="rh-eyebrow">About Rich House</span>
+        <h1>{{ brand.shortDescription }}</h1>
+        <p>
+          Rich House brings together timeless tailoring and modern style for men who want every outfit to feel deliberate, refined, and easy to wear.
+        </p>
+        <p>
+          We focus on cleaner presentation, sharper curation, and a customer journey that helps men shop by occasion and confidence instead of scrolling through noise.
+        </p>
+
+        <div class="about-page__actions">
+          <a class="rh-button rh-button--primary" routerLink="/shop">Shop the collection</a>
+          <a class="rh-button rh-button--secondary" routerLink="/contact">Get in touch</a>
+        </div>
+      </div>
+
+      <div class="about-page__visual" *ngIf="heroProduct">
+        <img
+          [src]="heroImageUrl"
+          [alt]="heroProduct.name + ' by Rich House'"
+          decoding="async"
+          [appImageFallback]="fallbackImage" />
+      </div>
+    </div>
+
+    <div class="about-page__principles">
+      <article class="about-page__principle rh-surface-card" *ngFor="let principle of principles">
+        <i class="bi bi-check2-circle"></i>
+        <p>{{ principle }}</p>
+      </article>
+    </div>
+
+    <div class="about-page__story">
+      <article class="about-page__story-card rh-surface-card" *ngFor="let section of storySections">
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.copy }}</p>
+      </article>
+    </div>
+
+    <div class="about-page__categories" *ngIf="featuredCategories.length > 0">
+      <div class="rh-section-heading">
+        <span class="rh-eyebrow">Shop by Category</span>
+        <h2>Tailoring, layering, and essentials arranged around real catalog structure.</h2>
+      </div>
+
+      <div class="about-page__category-grid">
+        <a
+          class="about-page__category-card rh-surface-card"
+          *ngFor="let category of featuredCategories; trackBy: trackById"
+          [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+          <img
+            [src]="resolveCategoryImage(category.imageUrl)"
+            [alt]="category.name + ' category image'"
+            loading="lazy"
+            decoding="async"
+            [appImageFallback]="fallbackImage" />
+          <div>
+            <h3>{{ category.name }}</h3>
+            <span>Explore the category</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

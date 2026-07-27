@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            direction: ltr;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+            text-align: center;
+            color: #333;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .code-box {
+            background-color: #f1f4f8;
+            border: 2px dashed #3498db;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            color: #2980b9;
+        }
+
+        .footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #eee;
+        }
+
+        .team-credit {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Marketufy-Team</h1>
+        </div>
+        <div class="content">
+            <div class="user-name">Welcome, {{name}}! 👋</div>
+            <p>Thank you for joining us. Please use the verification code below to confirm your account:</p>
+
+            <div class="code-box">
+                {{code}}
+            </div>
+
+            <p style="font-size: 14px; color: #666;">This code is valid for 15 minutes. Do not share this code with anyone.</p>
+        </div>
+        <div class="footer">
+            <p>If you didn't request this email, please ignore it.</p>
+            <div class="team-credit">
+                Developed by <span style="color: #e74c3c;">Amr Eldeeb Team</span> & <span style="color: #3498db;">Maritufyb Team</span>
+            </div>
+            <p>&copy;  Marketufy-Team. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

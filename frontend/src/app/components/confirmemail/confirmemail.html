@@ -1,0 +1,52 @@
+<div class="container-fluid vh-100 p-0 overflow-hidden bg-light">
+  <div class="row g-0 h-100 justify-content-center align-items-center">
+    
+    <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+      <div class="card border-0 shadow-lg p-4 p-lg-5 text-center rounded-4">
+        
+        <div class="mb-4">
+          <div class="bg-primary bg-opacity-10 text-primary d-inline-block p-4 rounded-circle">
+            <i class="bi bi-shield-lock display-4"></i>
+          </div>
+        </div>
+
+        <h2 class="fw-bold text-dark mb-2">Email Verification</h2>
+        <p class="text-muted mb-4 small">
+          We sent a code to:<br>
+          <span class="fw-bold text-primary">{{ email }}</span>
+        </p>
+
+        <div class="mb-4 text-start">
+          <label class="form-label small fw-bold text-secondary text-uppercase ms-1">Enter Code</label>
+          <input
+            type="text"
+            class="form-control form-control-lg text-center fw-bold letter-spacing-lg bg-light border-0 shadow-sm"
+            [(ngModel)]="code"
+            placeholder="Enter verification code"
+          />
+          
+          <div class="text-danger small mt-2 px-1 animate__animated animate__fadeIn" *ngIf="error">
+            <i class="bi bi-exclamation-circle me-1"></i> {{ error }}
+          </div>
+        </div>
+
+        <div *ngIf="message" class="alert alert-success border-0 py-2 small mb-4 animate__animated animate__fadeIn">
+          <i class="bi bi-check-circle-fill me-2"></i> {{ message }}
+        </div>
+
+        <button 
+          class="btn btn-primary w-100 py-3 fw-bold shadow-sm mb-3" 
+          (click)="confirm()">
+          Confirm Email
+        </button>
+
+        <p class="text-center small text-muted mb-0">
+          Didn't receive the code? 
+          <a href="javascript:void(0)" class="text-decoration-none fw-bold">Resend Code</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
