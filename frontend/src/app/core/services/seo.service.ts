@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { ProductDetails } from '../../models/product.models';
+import { ProductDetails } from '../../shared/models/product.models';
 import { richHouseBrand } from '../config/site-settings.config';
 import { resolveImageUrl } from '../utils/image-url';
 

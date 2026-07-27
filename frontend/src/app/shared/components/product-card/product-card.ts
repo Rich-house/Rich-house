@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { resolveCatalogThumbnailUrl, productPlaceholderImage } from '../../../core/utils/image-url';
-import { ProductCard as CatalogProductCard } from '../../../models/product.models';
+import { ProductCard as CatalogProductCard } from '../../models/product.models';
 import { ImageFallbackDirective } from '../../directives/image-fallback.directive';
 import { EgpPricePipe } from '../../pipes/egp-price.pipe';
 
