@@ -29,7 +29,11 @@ export class App {
   );
 
   readonly showCustomerChrome = computed(
-    () => !/^\/(?:dashboard|login|register|confirmemail)(?:\/|$)/.test(this.currentUrl()),
+    () => !/^\/(?:admin|dashboard|login|register|confirmemail)(?:\/|$)/.test(this.currentUrl()),
+  );
+  readonly showFloatingWhatsApp = computed(
+    () =>
+      this.showCustomerChrome() && !/^\/(?:product|details)(?:\/|$)/.test(this.currentUrl()),
   );
 
   constructor() {

@@ -4,15 +4,34 @@
     {
         public static string GenerateEmailBody(string template, Dictionary<string, string> templateModel)
         {
-            var temlatePath = $"{Directory.GetCurrentDirectory()}/TemplateEmails/{template}.html";
-            var streamReader = new StreamReader(temlatePath);
-            var body = streamReader.ReadToEnd();
-            streamReader.Close();
+            var templatePath = ResolveTemplatePath(template);
+            var body = File.ReadAllText(templatePath);
+
             foreach (var item in templateModel)
             {
                 body = body.Replace(item.Key, item.Value);
             }
+
             return body;
+        }
+
+        private static string ResolveTemplatePath(string template)
+        {
+            var fileName = $"{template}.html";
+            var candidates = new[]
+            {
+                Path.Combine(AppContext.BaseDirectory, "TemplateEmails", fileName),
+                Path.Combine(Directory.GetCurrentDirectory(), "TemplateEmails", fileName),
+            };
+
+            var templatePath = candidates.FirstOrDefault(File.Exists);
+            if (templatePath is not null)
+            {
+                return templatePath;
+            }
+
+            throw new FileNotFoundException(
+                $"The email template '{fileName}' could not be found in the application content directories.");
         }
     }
 }

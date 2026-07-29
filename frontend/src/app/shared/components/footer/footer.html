@@ -2,11 +2,35 @@
   <div class="rh-container rh-container--wide">
     <div class="site-footer__grid">
       <section class="site-footer__brand">
-        <span class="rh-eyebrow">{{ brand.eyebrow }}</span>
-        <h2>{{ brand.name }}</h2>
-        <p>{{ brand.shortDescription }}</p>
+        <a class="site-footer__brand-link rh-brand-lockup" routerLink="/" aria-label="Rich House home">
+          <picture>
+            <source srcset="assets/brand/rich-house-logo.webp" type="image/webp" />
+            <img
+              class="rh-brand-logo rh-brand-logo--footer"
+              src="assets/brand/rich-house-logo-transparent.png"
+              alt="Rich House"
+              width="949"
+              height="960" />
+          </picture>
+          <span class="site-footer__brand-name">Rich House</span>
+        </a>
+        <p class="site-footer__brand-statement">
+          Premium menswear shaped around refined tailoring, elevated essentials, and a calmer
+          approach to occasion dressing.
+        </p>
 
         <div class="site-footer__socials">
+          <a
+            class="site-footer__social"
+            *ngIf="whatsAppUrl"
+            [href]="whatsAppUrl"
+            target="_blank"
+            rel="noreferrer noopener"
+            aria-label="Message Rich House on WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+            <span>WhatsApp</span>
+          </a>
+
           <a
             class="site-footer__social"
             [href]="publicSiteSettings.FacebookUrl"
@@ -26,28 +50,19 @@
             <i class="bi bi-instagram"></i>
             <span>Instagram</span>
           </a>
-
-          <a
-            class="site-footer__social"
-            *ngIf="whatsAppUrl"
-            [href]="whatsAppUrl"
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Message Rich House on WhatsApp">
-            <i class="bi bi-whatsapp"></i>
-            <span>WhatsApp</span>
-          </a>
         </div>
       </section>
 
-      <section>
+      <section class="site-footer__column">
+        <span class="site-footer__eyebrow">Quick Links</span>
         <h3>Explore</h3>
         <nav class="site-footer__links" aria-label="Footer primary navigation">
           <a *ngFor="let link of navigationLinks" [routerLink]="link.route">{{ link.label }}</a>
         </nav>
       </section>
 
-      <section>
+      <section class="site-footer__column">
+        <span class="site-footer__eyebrow">Collection</span>
         <h3>Categories</h3>
         <div class="site-footer__links">
           <a
@@ -59,10 +74,24 @@
         </div>
       </section>
 
-      <section>
-        <h3>Customer Care</h3>
-        <div class="site-footer__links">
+      <section class="site-footer__column">
+        <span class="site-footer__eyebrow">Customer Care</span>
+        <h3>Contact</h3>
+        <div class="site-footer__links site-footer__links--contact">
+          <a routerLink="/contact">Visit the contact page</a>
           <a *ngFor="let link of informationLinks" [routerLink]="link.route">{{ link.label }}</a>
+        </div>
+
+        <div class="site-footer__locations">
+          <a
+            class="site-footer__location"
+            *ngFor="let location of storeLocations"
+            [href]="location.directionsUrl"
+            target="_blank"
+            rel="noreferrer noopener">
+            <strong>{{ location.name }}</strong>
+            <span>{{ location.address }}</span>
+          </a>
         </div>
       </section>
     </div>

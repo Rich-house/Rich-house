@@ -43,3 +43,8 @@ backend/appsettings.Local.json
 # Local backend configuration
 backend/appsettings.Development.json
 backend/appsettings.Local.json
+
+# Local publish and migration backup artifacts
+backend/publish/
+backend/*.bak*
+richhouse-production-audit.txt

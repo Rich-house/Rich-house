@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter } from 'rxjs';
-import { Auth } from '../../../core/services/auth';
 import { ProductsService } from '../../../core/services/product';
 import {
   primaryNavigationLinks,
@@ -33,8 +32,12 @@ export class Header {
 
   readonly brand = richHouseBrand;
   readonly navigationLinks = primaryNavigationLinks;
-  readonly authService = inject(Auth);
   readonly productService = inject(ProductsService);
+  readonly announcementMessages = [
+    'PREMIUM TAILORING FOR EVERY OCCASION',
+    'NEW COLLECTION AVAILABLE',
+    'BOOK YOUR FITTING THROUGH WHATSAPP',
+  ] as const;
 
   categories: CategoryItem[] = [];
   cartCount = 0;
@@ -81,14 +84,6 @@ export class Header {
     return this.categories.length > 0;
   }
 
-  get isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
-  }
-
-  get accountRoute(): string {
-    return this.isLoggedIn ? '/profile' : '/login';
-  }
-
   get desktopCategories(): CategoryItem[] {
     return this.categories.slice(0, 6);
   }
@@ -126,12 +121,6 @@ export class Header {
     this.router.navigate(['/shop'], {
       queryParams: query ? { search: query } : {},
     });
-  }
-
-  logout(): void {
-    this.closeAllMenus();
-    this.authService.logout();
-    this.productService.updateCartCount();
   }
 
   trackByCategoryId(_index: number, category: CategoryItem): number {

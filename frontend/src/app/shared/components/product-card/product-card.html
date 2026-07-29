@@ -1,5 +1,5 @@
 <article class="product-card rh-surface-card">
-  <a class="product-card__link" [routerLink]="productRoute" [attr.aria-label]="'View ' + product.name">
+  <a class="product-card__link" [routerLink]="productRoute">
     <div class="product-card__media">
       <div class="product-card__badges" *ngIf="product.isOnOffer || product.isNewArrival || product.isBestSeller || product.isFeatured">
         <span class="product-card__badge product-card__badge--offer" *ngIf="product.isOnOffer">

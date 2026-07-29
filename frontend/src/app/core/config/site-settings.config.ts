@@ -14,13 +14,21 @@ export const defaultWhatsAppMessage = 'Hello Rich House, I would like to ask abo
 
 export const richHouseBrand = {
   name: 'Rich House',
+  adminTitle: 'Rich House Admin',
   browserTitle: 'Rich House',
-  eyebrow: 'Rich House',
+  eyebrow: 'RICH HOUSE MENSWEAR',
   fallbackProductName: 'Rich House product',
+  homeTitle: 'Rich House',
+  logoAlt: 'Rich House',
+  logoPath: 'assets/brand/rich-house-logo-transparent.png',
+  logoWebpPath: 'assets/brand/rich-house-logo.webp',
+  logoSmallWebpPath: 'assets/brand/rich-house-logo-small.webp',
+  iconPath: 'assets/brand/rich-house-icon-512.png',
   shortDescription:
-    'Rich House is a premium menswear destination created for men who value elegance, confidence, and attention to detail.',
-  heroHeading: 'Where Style Begins.',
-  heroCopy: 'Discover suits, shirts and essentials crafted to elevate every look.',
+    'Rich House is a premium menswear destination shaped around refined tailoring, elevated essentials, and confident modern dressing.',
+  socialImagePath: 'assets/brand/rich-house-logo.webp',
+  heroHeading: 'Crafted for the Modern Gentleman',
+  heroCopy: 'Refined suits and timeless menswear for every defining moment.',
 } as const;
 
 export const richHouseUi = {
@@ -79,3 +87,17 @@ export const buildProductInquiryMessage = (productName?: string | null): string 
   productName?.trim()
     ? `Hello Rich House, I would like to ask about ${productName.trim()}.`
     : defaultWhatsAppMessage;
+
+export const buildProductTitle = (productName?: string | null): string =>
+  productName?.trim()
+    ? productName.includes(richHouseBrand.name)
+      ? productName.trim()
+      : `${productName.trim()} | ${richHouseBrand.name}`
+    : richHouseBrand.browserTitle;
+
+export const buildCategoryTitle = (categoryName?: string | null): string =>
+  categoryName?.trim()
+    ? categoryName.includes(richHouseBrand.name)
+      ? categoryName.trim()
+      : `${categoryName.trim()} | ${richHouseBrand.name}`
+    : richHouseBrand.browserTitle;

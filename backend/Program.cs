@@ -6,6 +6,7 @@ using Marketify.Date;
 using Marketify.PaymentServices;
 using Marketify.Roles;
 using Marketify.Settings;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,17 @@ builder.Services.AddCors(options =>
         });
 });
 
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto |
+        ForwardedHeaders.XForwardedHost;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var hangfireConnectionString = builder.Configuration.GetConnectionString("HangfireConnection")
     ?? throw new InvalidOperationException("Connection string 'HangfireConnection' was not found.");
 
@@ -86,8 +98,20 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<PaymobService>();
 
+
+var useHttpsRedirection = builder.Configuration.GetValue(
+    "Http:UseHttpsRedirection",
+    !builder.Environment.IsDevelopment());
+
 var app = builder.Build();
 var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+
+app.UseForwardedHeaders();
+
+if (useHttpsRedirection)
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseStaticFiles();
 
@@ -120,11 +144,6 @@ if (richHouseImportCommand.ShouldRun)
 
 app.UseRateLimiter();
 app.UseRouting();
-
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
 
 app.UseCors("AllowFrontendApp");
 app.UseAuthentication();
@@ -220,7 +239,16 @@ static async Task InitializeApplicationDatabasesOnceAsync(
     IHostEnvironment environment,
     CancellationToken cancellationToken)
 {
-    await EnsureApplicationDatabasesAsync(services, logger, cancellationToken);
+    if (environment.IsDevelopment())
+    {
+        await EnsureApplicationDatabasesAsync(services, logger, cancellationToken);
+    }
+    else
+    {
+        logger.LogInformation(
+            "Skipping SQL Server database creation outside Development. The production database must already exist.");
+    }
+
     await ApplyMigrationsAndSeedAsync(services, logger, environment, cancellationToken);
 }
 

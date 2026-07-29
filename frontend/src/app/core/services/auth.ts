@@ -20,6 +20,7 @@ interface JwtPayload {
 
 const authStorageKeys = ['token', 'firstName', 'lastName', 'email', 'Email'] as const;
 const invalidStoredValues = new Set(['', 'null', 'undefined']);
+const adminLoginRoute = '/admin/login';
 
 @Injectable({
   providedIn: 'root',
@@ -68,10 +69,12 @@ export class Auth {
 
     this.redirectInProgress = true;
     const normalizedReturnUrl =
-      returnUrl && returnUrl !== '/login' && returnUrl !== '/register' ? returnUrl : undefined;
+      returnUrl && !['/login', '/admin/login', '/register'].includes(returnUrl)
+        ? returnUrl
+        : undefined;
 
     void this.router
-      .navigate(['/login'], {
+      .navigate([adminLoginRoute], {
         queryParams: normalizedReturnUrl ? { returnUrl: normalizedReturnUrl } : undefined,
         replaceUrl: true,
       })

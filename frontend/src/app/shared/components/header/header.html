@@ -1,8 +1,20 @@
 <header class="site-header">
-  <div class="site-header__notice">
+  <div class="site-header__notice announcement-bar" aria-label="Store announcements">
     <div class="rh-container rh-container--wide site-header__notice-inner">
-      <p>Premium menswear for work, celebration, and every well-dressed entrance.</p>
-      <a class="site-header__notice-link" routerLink="/offers">View current offers</a>
+      <div class="site-header__notice-viewport announcement-bar__viewport">
+        <div class="site-header__notice-track announcement-track">
+          <div class="site-header__notice-group announcement-group">
+            <span class="site-header__notice-item" *ngFor="let message of announcementMessages">
+              {{ message }}
+            </span>
+          </div>
+          <div class="site-header__notice-group announcement-group" aria-hidden="true">
+            <span class="site-header__notice-item" *ngFor="let message of announcementMessages">
+              {{ message }}
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -20,19 +32,18 @@
           <i class="bi bi-list"></i>
         </button>
 
-        <a class="site-header__brand" routerLink="/" aria-label="Rich House home">
-          <span class="site-header__brand-mark" aria-hidden="true">
+        <a class="site-header__brand rh-brand-lockup" routerLink="/" aria-label="Rich House home">
+          <picture class="site-header__brand-mark">
+            <source srcset="assets/brand/rich-house-logo-small.webp" type="image/webp" />
             <img
-              class="site-header__brand-logo"
-              src="assets/brand/rich-house-mark.svg"
-              alt=""
-              width="56"
-              height="56"
+              class="site-header__brand-logo rh-brand-logo rh-brand-logo--header"
+              src="assets/brand/rich-house-logo-transparent.png"
+              alt="Rich House"
+              width="415"
+              height="420"
             />
-          </span>
-          <span class="site-header__brand-copy">
-            <strong>{{ brand.name }}</strong>
-          </span>
+          </picture>
+          <span class="site-header__brand-copy">Rich House</span>
         </a>
       </div>
 
@@ -76,50 +87,40 @@
         </div>
       </nav>
 
-      <form class="site-header__search" (ngSubmit)="submitSearch()">
-        <label class="rh-visually-hidden" for="header-search"
-          >Search the Rich House collection</label
-        >
-        <input
-          id="header-search"
-          class="rh-input site-header__search-input"
-          type="search"
-          name="headerSearch"
-          [(ngModel)]="searchText"
-          placeholder="Search tailoring, shirts, and more"
-        />
-        <button
-          class="site-header__icon-button site-header__search-button"
-          type="submit"
-          aria-label="Search"
-        >
-          <i class="bi bi-search"></i>
-        </button>
-      </form>
+      <div class="site-header__controls">
+        <form class="site-header__search" (ngSubmit)="submitSearch()">
+          <label class="rh-visually-hidden" for="header-search"
+            >Search the Rich House collection</label
+          >
+          <input
+            id="header-search"
+            class="rh-input site-header__search-input"
+            type="search"
+            name="headerSearch"
+            [(ngModel)]="searchText"
+            placeholder="Search the collection"
+          />
+          <button
+            class="site-header__icon-button site-header__search-button"
+            type="submit"
+            aria-label="Search"
+          >
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
 
-      <div class="site-header__actions">
-        <a
-          class="site-header__action"
-          [routerLink]="accountRoute"
-          [class.is-active]="isRouteActive('/profile') || isRouteActive('/login')"
-        >
-          <i class="bi bi-person"></i>
-          <span>Account</span>
-        </a>
-
-        <a
-          class="site-header__action site-header__action--cart"
-          routerLink="/cart"
-          [class.is-active]="isRouteActive('/cart')"
-        >
-          <i class="bi bi-bag"></i>
-          <span>Cart</span>
-          <span class="site-header__count" *ngIf="cartCount > 0">{{ cartCount }}</span>
-        </a>
-
-        <button class="site-header__signout" type="button" *ngIf="isLoggedIn" (click)="logout()">
-          Sign out
-        </button>
+        <div class="site-header__actions">
+          <a
+            class="site-header__action site-header__action--cart"
+            routerLink="/cart"
+            aria-label="Cart"
+            [class.is-active]="isRouteActive('/cart')"
+          >
+            <i class="bi bi-bag"></i>
+            <span>Cart</span>
+            <span class="site-header__count" *ngIf="cartCount > 0">{{ cartCount }}</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -133,20 +134,19 @@
     aria-label="Mobile navigation"
   >
     <div class="site-header__drawer-header">
-      <div class="site-header__drawer-brand">
-        <span class="site-header__brand-mark" aria-hidden="true">
+      <a class="site-header__drawer-brand rh-brand-lockup" routerLink="/" aria-label="Rich House home">
+        <picture class="site-header__brand-mark">
+          <source srcset="assets/brand/rich-house-logo-small.webp" type="image/webp" />
           <img
-            class="site-header__brand-logo"
-            src="assets/brand/rich-house-mark.svg"
-            alt=""
-            width="56"
-            height="56"
+            class="site-header__brand-logo rh-brand-logo rh-brand-logo--header"
+            src="assets/brand/rich-house-logo-transparent.png"
+            alt="Rich House"
+            width="415"
+            height="420"
           />
-        </span>
-        <div class="site-header__brand-copy">
-          <strong>{{ brand.name }}</strong>
-        </div>
-      </div>
+        </picture>
+        <span class="site-header__brand-copy">Rich House</span>
+      </a>
 
       <button
         class="site-header__icon-button"
@@ -193,20 +193,6 @@
         </a>
       </div>
 
-      <div class="site-header__drawer-group">
-        <span class="site-header__drawer-label">Account</span>
-        <a class="site-header__drawer-link" [routerLink]="accountRoute">{{
-          isLoggedIn ? 'My Profile' : 'Sign In'
-        }}</a>
-        <button
-          class="site-header__drawer-link site-header__drawer-link--button"
-          type="button"
-          *ngIf="isLoggedIn"
-          (click)="logout()"
-        >
-          Sign out
-        </button>
-      </div>
     </nav>
   </aside>
 </header>
