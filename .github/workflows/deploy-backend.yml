@@ -1,0 +1,158 @@
+name: Deploy Backend to MonsterASP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+
+  workflow_dispatch:
+
+concurrency:
+  group: monsterasp-backend-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-backend:
+    name: Publish and Deploy Backend
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore backend
+        working-directory: backend
+        run: dotnet restore Marketify.csproj
+
+      - name: Build backend
+        working-directory: backend
+        run: dotnet build Marketify.csproj --configuration Release --no-restore
+
+      - name: Publish backend
+        working-directory: backend
+        run: |
+          dotnet publish Marketify.csproj `
+            --configuration Release `
+            --no-build `
+            --output "${{ github.workspace }}\backend-publish" `
+            /p:UseAppHost=false
+
+      - name: Read MonsterASP publish profile
+        env:
+          MONSTER_PUBLISH_PROFILE: ${{ secrets.MONSTER_PUBLISH_PROFILE }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:MONSTER_PUBLISH_PROFILE)) {
+            throw "MONSTER_PUBLISH_PROFILE secret is missing."
+          }
+
+          $profilePath = Join-Path $env:RUNNER_TEMP "monster.publishSettings"
+
+          Set-Content `
+            -Path $profilePath `
+            -Value $env:MONSTER_PUBLISH_PROFILE `
+            -Encoding UTF8
+
+          [xml]$xml = Get-Content $profilePath
+          $profile = $xml.publishData.publishProfile
+
+          if (-not $profile) {
+            throw "Could not read the MonsterASP publish profile."
+          }
+
+          if ($profile.publishMethod -ne "MSDeploy") {
+            throw "Expected MSDeploy publish method."
+          }
+
+          "MSDEPLOY_HOST=$($profile.publishUrl)" >> $env:GITHUB_ENV
+          "MSDEPLOY_SITE=$($profile.msdeploySite)" >> $env:GITHUB_ENV
+          "MSDEPLOY_USER=$($profile.userName)" >> $env:GITHUB_ENV
+          "MSDEPLOY_PASSWORD=$($profile.userPWD)" >> $env:GITHUB_ENV
+          "PRODUCTION_URL=$($profile.destinationAppUrl)" >> $env:GITHUB_ENV
+
+      - name: Locate Web Deploy
+        run: |
+          $locations = @(
+            "${env:ProgramFiles}\IIS\Microsoft Web Deploy V3\msdeploy.exe",
+            "${env:ProgramFiles(x86)}\IIS\Microsoft Web Deploy V3\msdeploy.exe"
+          )
+
+          $msdeploy = $locations |
+            Where-Object { Test-Path $_ } |
+            Select-Object -First 1
+
+          if (-not $msdeploy) {
+            choco install webdeploy -y --no-progress
+
+            $msdeploy = $locations |
+              Where-Object { Test-Path $_ } |
+              Select-Object -First 1
+          }
+
+          if (-not $msdeploy) {
+            throw "msdeploy.exe was not found."
+          }
+
+          "MSDEPLOY_EXE=$msdeploy" >> $env:GITHUB_ENV
+
+      - name: Deploy backend to MonsterASP
+        run: |
+          $publishPath = Join-Path $env:GITHUB_WORKSPACE "backend-publish"
+
+          $endpoint = "https://${env:MSDEPLOY_HOST}:8172/msdeploy.axd?site=${env:MSDEPLOY_SITE}"
+
+          & $env:MSDEPLOY_EXE `
+            -verb:sync `
+            "-source:iisApp=$publishPath" `
+            "-dest:iisApp=$env:MSDEPLOY_SITE,computerName=$endpoint,userName=$env:MSDEPLOY_USER,password=$env:MSDEPLOY_PASSWORD,authType=Basic" `
+            -allowUntrusted `
+            -enableRule:AppOffline `
+            -enableRule:DoNotDeleteRule `
+            -retryAttempts:3 `
+            -retryInterval:5000
+
+          if ($LASTEXITCODE -ne 0) {
+            throw "MonsterASP deployment failed with exit code $LASTEXITCODE."
+          }
+
+      - name: Verify production API
+        run: |
+          $healthUrl = $env:PRODUCTION_URL -replace '^http://', 'https://'
+          $healthUrl = $healthUrl.TrimEnd('/')
+
+          for ($attempt = 1; $attempt -le 10; $attempt++) {
+            try {
+              $response = Invoke-WebRequest `
+                -Uri $healthUrl `
+                -MaximumRedirection 5 `
+                -SkipHttpErrorCheck `
+                -TimeoutSec 20
+
+              $statusCode = [int]$response.StatusCode
+              Write-Host "Health check attempt $attempt returned HTTP $statusCode"
+
+              if ($statusCode -lt 500) {
+                Write-Host "MonsterASP backend is reachable."
+                exit 0
+              }
+            }
+            catch {
+              Write-Warning "Health check attempt $attempt failed."
+            }
+
+            Start-Sleep -Seconds 10
+          }
+
+          throw "Backend did not become reachable after deployment."
