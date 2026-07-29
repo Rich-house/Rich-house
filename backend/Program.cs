@@ -329,9 +329,19 @@ static async Task ApplyMigrationsAndSeedAsync(
 
     logger.LogInformation("Identity role seeding completed successfully.");
 
-    if (environment.IsDevelopment())
+    var seedSuperAdmin =
+        environment.IsDevelopment()
+        || string.Equals(
+            Environment.GetEnvironmentVariable("SEED_SUPERADMIN"),
+            "true",
+            StringComparison.OrdinalIgnoreCase);
+
+    if (seedSuperAdmin)
     {
-        await DatabaseSeeder.SeedDevelopmentSuperAdminAsync(scope.ServiceProvider, logger, cancellationToken);
+        await DatabaseSeeder.SeedDevelopmentSuperAdminAsync(
+            scope.ServiceProvider,
+            logger,
+            cancellationToken);
     }
 }
 
