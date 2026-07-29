@@ -65,7 +65,7 @@ jobs:
             -Value $env:MONSTER_PUBLISH_PROFILE `
             -Encoding UTF8
 
-          [xml]$xml = Get-Content $profilePath
+          [xml]$xml = Get-Content -Raw $profilePath
           $profile = $xml.publishData.publishProfile
 
           if (-not $profile) {
