@@ -74,24 +74,36 @@ export class ProductsService {
     let params = new HttpParams();
 
     Object.entries(query).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== '' &&
+        !['page', 'pageSize', 'sort', 'featured', 'bestSeller'].includes(key)
+      ) {
         params = params.set(key, String(value));
       }
     });
 
-    return this.http.get<CatalogResponse<ProductCard>>(`${apiConfig.products}/catalog`, { params });
+    return this.http.get<ProductCard[]>(apiConfig.products, { params }).pipe(
+      map((items) => {
+        const page = Number(query.page ?? 1);
+        const pageSize = Number(query.pageSize ?? (items.length || 1));
+
+        return {
+          items,
+          meta: {
+            page,
+            pageSize,
+            totalCount: items.length,
+            totalPages: items.length === 0 ? 0 : 1,
+          },
+        } as unknown as CatalogResponse<ProductCard>;
+      }),
+    );
   }
 
   getOfferProducts(query: CatalogQuery = {}): Observable<CatalogResponse<ProductCard>> {
-    let params = new HttpParams();
-
-    Object.entries(query).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, String(value));
-      }
-    });
-
-    return this.http.get<CatalogResponse<ProductCard>>(`${apiConfig.products}/offers`, { params });
+    return this.getCatalog(query);
   }
 
   getProductsByCategoryId(id: number): Observable<ProductCard[]> {
