@@ -1,267 +1,336 @@
 <div class="home-page">
-  <ng-container *ngIf="!loading && !errorMessage; else homeState">
-    <section class="home-hero rh-page-section">
-      <div class="rh-container rh-container--wide home-hero__grid">
+  <section class="home-hero rh-page-section">
+    <div class="rh-container rh-container--wide">
+      <div class="home-hero__shell">
+        <div class="home-hero__media" aria-hidden="true">
+          <video
+            #heroVideo
+            class="home-hero__video"
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            [attr.src]="heroVideoMp4Url"
+            [attr.poster]="heroPosterUrl"
+            (loadeddata)="onHeroVideoLoaded()"
+            (canplay)="onHeroVideoCanPlay()"
+            (playing)="onHeroVideoPlaying()"
+            (error)="onHeroVideoError($event)"></video>
+        </div>
+
         <div class="home-hero__content">
           <span class="rh-eyebrow">{{ brand.eyebrow }}</span>
           <h1>{{ brand.heroHeading }}</h1>
           <p>{{ brand.heroCopy }}</p>
 
           <div class="home-hero__actions">
-            <a class="rh-button rh-button--primary" routerLink="/shop">Shop Now</a>
-            <a class="rh-button rh-button--secondary" routerLink="/about">About Rich House</a>
-          </div>
-        </div>
-
-        <div class="home-hero__media rh-surface-card">
-          <img
-            [src]="heroImageUrl"
-            alt="Rich House menswear hero"
-            decoding="async"
-            [appImageFallback]="fallbackImage"
-          />
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading">
-          <span class="rh-eyebrow">Categories</span>
-          <h2>Build a stronger wardrobe by occasion, not clutter.</h2>
-          <p>
-            Explore the Rich House edit through the categories already available in the live
-            catalog.
-          </p>
-        </div>
-
-        <div class="home-categories">
-          <a
-            class="home-categories__card rh-surface-card"
-            *ngFor="let category of featuredCategories; trackBy: trackById; let index = index"
-            [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']"
-          >
-            <div class="home-categories__image-wrap">
-              <img
-                [src]="resolveCategoryImage(category.imageUrl)"
-                [alt]="category.name + ' category image'"
-                loading="eager"
-                [attr.fetchpriority]="index < 2 ? 'high' : 'auto'"
-                decoding="async"
-                [appImageFallback]="fallbackImage"
-              />
-            </div>
-            <div class="home-categories__content">
-              <h3>{{ category.name }}</h3>
-              <span>Explore category</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading">
-          <span class="rh-eyebrow">New Arrivals</span>
-          <h2>Fresh additions for sharper everyday dressing.</h2>
-          <p>
-            These pieces are surfaced from real Rich House catalog flags, not placeholder content.
-          </p>
-        </div>
-
-        <div class="home-products-grid" *ngIf="newArrivals.length > 0; else noNewArrivals">
-          <app-product-card
-            *ngFor="let product of newArrivals; trackBy: trackById; let first = first"
-            [product]="product"
-            [priority]="first"
-          ></app-product-card>
-        </div>
-
-        <ng-template #noNewArrivals>
-          <div class="rh-empty-state">
-            <h3>New arrivals will appear here soon.</h3>
-            <p>
-              The section is ready, but there are no products currently flagged as new arrivals.
-            </p>
-          </div>
-        </ng-template>
-      </div>
-    </section>
-
-    <section class="rh-page-section home-highlight" *ngIf="hasBestSellers">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading">
-          <span class="rh-eyebrow">Best Sellers</span>
-          <h2>Pieces customers return to when polish matters.</h2>
-          <p>Displayed only when real products are flagged as best sellers in the catalog.</p>
-        </div>
-
-        <div class="home-products-grid">
-          <app-product-card
-            *ngFor="let product of bestSellers; trackBy: trackById"
-            [product]="product"
-          ></app-product-card>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section" *ngIf="hasOffers">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading home-offers__heading">
-          <div>
-            <span class="rh-eyebrow">Current Offers</span>
-            <h2>
-              Selected reductions, presented with the same restraint as the rest of the store.
-            </h2>
-          </div>
-          <a class="rh-button rh-button--secondary" routerLink="/offers">View all offers</a>
-        </div>
-
-        <div class="home-products-grid">
-          <app-product-card
-            *ngFor="let product of offers; trackBy: trackById"
-            [product]="product"
-          ></app-product-card>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading">
-          <span class="rh-eyebrow">Featured Products</span>
-          <h2>A focused edit of tailoring, layering, and occasion-ready essentials.</h2>
-          <p>
-            Built from the live catalog so the homepage never drifts away from what Rich House can
-            actually sell.
-          </p>
-        </div>
-
-        <div class="home-products-grid">
-          <app-product-card
-            *ngFor="let product of featuredProducts; trackBy: trackById"
-            [product]="product"
-          ></app-product-card>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container rh-container--wide">
-        <div class="home-editorial rh-surface-card">
-          <div class="home-editorial__content">
-            <span class="rh-eyebrow">Editorial Direction</span>
-            <h2>Rich House curates menswear for men who want clarity, confidence, and presence.</h2>
-            <p>
-              From structured tailoring to cleaner day-to-day essentials, the Rich House approach is
-              grounded in proportion, texture, and restraint rather than noise.
-            </p>
-            <p>
-              The result is a wardrobe that feels composed for the office, the ceremony, and every
-              setting in between.
-            </p>
-            <a class="rh-button rh-button--primary" routerLink="/shop">Explore the collection</a>
-          </div>
-
-          <div class="home-editorial__media" *ngIf="editorialProduct">
-            <img
-              [src]="editorialImageUrl"
-              [alt]="editorialProduct.name + ' editorial image'"
-              loading="lazy"
-              decoding="async"
-              [appImageFallback]="fallbackImage"
-            />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container rh-container--wide">
-        <div class="rh-section-heading">
-          <span class="rh-eyebrow">Store Benefits</span>
-          <h2>Service copy that can evolve later without changing the homepage structure.</h2>
-        </div>
-
-        <div class="home-benefits">
-          <article class="home-benefits__card rh-surface-card" *ngFor="let benefit of benefits">
-            <div class="home-benefits__icon">
-              <i class="bi" [ngClass]="benefit.icon"></i>
-            </div>
-            <h3>{{ benefit.title }}</h3>
-            <p>{{ benefit.copy }}</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="rh-page-section">
-      <div class="rh-container">
-        <div class="home-social rh-surface-card">
-          <div class="home-social__copy">
-            <span class="rh-eyebrow">Follow Rich House</span>
-            <h2>Stay close to the latest arrivals and styling direction.</h2>
-            <p>
-              Social touchpoints are centralized, production-safe, and ready to move into site
-              settings later without rewriting the UI.
-            </p>
-          </div>
-
-          <div class="home-social__cards">
+            <a class="rh-button rh-button--primary" routerLink="/shop">Explore Collection</a>
             <a
-              *ngFor="let social of socialCards"
-              class="home-social__card"
-              [href]="social.url"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <i class="bi" [ngClass]="social.icon"></i>
-              <div>
-                <strong>{{ social.label }}</strong>
-                <p>{{ social.copy }}</p>
-              </div>
-            </a>
-
-            <a
-              class="home-social__card"
               *ngIf="whatsAppUrl"
+              class="rh-button rh-button--secondary"
               [href]="whatsAppUrl"
               target="_blank"
-              rel="noreferrer noopener"
-            >
-              <i class="bi bi-whatsapp"></i>
-              <div>
-                <strong>WhatsApp</strong>
-                <p>Reach the Rich House team directly through the configured messaging line.</p>
-              </div>
+              rel="noreferrer noopener">
+              Contact via WhatsApp
             </a>
           </div>
         </div>
       </div>
-    </section>
-  </ng-container>
-</div>
-
-<ng-template #homeState>
-  <section class="rh-page-section">
-    <div class="rh-container rh-container--wide" *ngIf="loading; else errorState">
-      <div class="home-skeleton home-skeleton--hero rh-skeleton"></div>
-      <div class="home-skeleton-grid">
-        <div class="home-skeleton rh-skeleton" *ngFor="let item of [1, 2, 3, 4]"></div>
-      </div>
     </div>
+  </section>
 
-    <ng-template #errorState>
-      <div class="rh-container">
+  <ng-container *ngIf="!loading; else loadingState">
+    <ng-container *ngIf="!errorMessage; else pageState">
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading">
+            <span class="rh-eyebrow">Categories</span>
+            <h2>Build a stronger wardrobe by occasion, not clutter.</h2>
+            <p>
+              Explore the Rich House edit through the categories already available in the live
+              catalog.
+            </p>
+          </div>
+
+          <div class="home-categories" *ngIf="featuredCategories.length > 0; else categoriesStateTemplate">
+            <a
+              class="home-categories__card rh-surface-card"
+              *ngFor="let category of featuredCategories; trackBy: trackById; let index = index"
+              [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
+              <div class="home-categories__image-wrap">
+                <img
+                  [src]="resolveCategoryImage(category.imageUrl)"
+                  [alt]="category.name + ' category image'"
+                  [loading]="index < 2 ? 'eager' : 'lazy'"
+                  [attr.fetchpriority]="index < 2 ? 'high' : 'auto'"
+                  decoding="async"
+                  [appImageFallback]="fallbackImage" />
+              </div>
+              <div class="home-categories__content">
+                <h3>{{ category.name }}</h3>
+                <span>Explore category</span>
+              </div>
+            </a>
+          </div>
+
+          <ng-template #categoriesStateTemplate>
+            <div class="home-status-card rh-error-state" *ngIf="categoriesState === 'error'; else categoriesEmpty">
+              <h3>Categories are temporarily unavailable.</h3>
+              <p>You can still browse the featured pieces below while we reconnect this section.</p>
+              <button class="rh-button rh-button--primary" type="button" (click)="retry()">
+                Retry homepage
+              </button>
+            </div>
+
+            <ng-template #categoriesEmpty>
+              <div class="home-status-card rh-empty-state">
+                <h3>Categories will appear here soon.</h3>
+                <p>The homepage is live, but no public categories are available yet.</p>
+              </div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading">
+            <span class="rh-eyebrow">New Arrivals</span>
+            <h2>Fresh additions for sharper everyday dressing.</h2>
+            <p>
+              These pieces are surfaced from real Rich House catalog flags, not placeholder content.
+            </p>
+          </div>
+
+          <div class="home-products-grid" *ngIf="newArrivals.length > 0; else noNewArrivals">
+            <app-product-card
+              *ngFor="let product of newArrivals; trackBy: trackById; let first = first"
+              [product]="product"
+              [priority]="first"></app-product-card>
+          </div>
+
+          <ng-template #noNewArrivals>
+            <div class="home-status-card rh-error-state" *ngIf="newArrivalsState === 'error'; else newArrivalsEmpty">
+              <h3>New arrivals are temporarily unavailable.</h3>
+              <p>The rest of the homepage is still live while we retry this section.</p>
+              <button class="rh-button rh-button--primary" type="button" (click)="retry()">
+                Retry homepage
+              </button>
+            </div>
+
+            <ng-template #newArrivalsEmpty>
+              <div class="rh-empty-state">
+                <h3>New arrivals will appear here soon.</h3>
+                <p>
+                  The section is ready, but there are no products currently flagged as new arrivals.
+                </p>
+              </div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section home-highlight" *ngIf="hasBestSellers || bestSellersState === 'error'">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading">
+            <span class="rh-eyebrow">Best Sellers</span>
+            <h2>Pieces customers return to when polish matters.</h2>
+            <p>Displayed only when real products are flagged as best sellers in the catalog.</p>
+          </div>
+
+          <div class="home-products-grid" *ngIf="hasBestSellers; else bestSellersStateTemplate">
+            <app-product-card
+              *ngFor="let product of bestSellers; trackBy: trackById"
+              [product]="product"></app-product-card>
+          </div>
+
+          <ng-template #bestSellersStateTemplate>
+            <div class="home-status-card rh-error-state" *ngIf="bestSellersState === 'error'">
+              <h3>Best sellers are temporarily unavailable.</h3>
+              <p>You can keep browsing the catalog while this section reconnects.</p>
+            </div>
+          </ng-template>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section" *ngIf="hasOffers || offersState === 'error'">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading home-offers__heading">
+            <div>
+              <span class="rh-eyebrow">Current Offers</span>
+              <h2>
+                Selected reductions, presented with the same restraint as the rest of the store.
+              </h2>
+            </div>
+            <a class="rh-button rh-button--secondary" routerLink="/offers">View all offers</a>
+          </div>
+
+          <div class="home-products-grid" *ngIf="hasOffers; else offersStateTemplate">
+            <app-product-card
+              *ngFor="let product of offers; trackBy: trackById"
+              [product]="product"></app-product-card>
+          </div>
+
+          <ng-template #offersStateTemplate>
+            <div class="home-status-card rh-error-state" *ngIf="offersState === 'error'">
+              <h3>Offers are temporarily unavailable.</h3>
+              <p>The offers route still exists, but this preview could not be loaded just now.</p>
+            </div>
+          </ng-template>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading">
+            <span class="rh-eyebrow">Featured Products</span>
+            <h2>A focused edit of tailoring, layering, and occasion-ready essentials.</h2>
+            <p>
+              Built from the live catalog so the homepage never drifts away from what Rich House can
+              actually sell.
+            </p>
+          </div>
+
+          <div class="home-products-grid" *ngIf="featuredProducts.length > 0; else featuredStateTemplate">
+            <app-product-card
+              *ngFor="let product of featuredProducts; trackBy: trackById"
+              [product]="product"></app-product-card>
+          </div>
+
+          <ng-template #featuredStateTemplate>
+            <div class="home-status-card rh-error-state" *ngIf="featuredState === 'error'; else featuredEmpty">
+              <h3>Featured products are temporarily unavailable.</h3>
+              <p>We could not load the homepage product edit just now.</p>
+              <button class="rh-button rh-button--primary" type="button" (click)="retry()">
+                Retry homepage
+              </button>
+            </div>
+
+            <ng-template #featuredEmpty>
+              <div class="home-status-card rh-empty-state">
+                <h3>Featured products will appear here soon.</h3>
+                <p>No public products are currently flagged for the homepage feature grid.</p>
+              </div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container rh-container--wide">
+          <div class="home-editorial rh-surface-card">
+            <div class="home-editorial__content">
+              <span class="rh-eyebrow">Editorial Direction</span>
+              <h2>Rich House curates menswear for men who want clarity, confidence, and presence.</h2>
+              <p>
+                From structured tailoring to cleaner day-to-day essentials, the Rich House approach is
+                grounded in proportion, texture, and restraint rather than noise.
+              </p>
+              <p>
+                The result is a wardrobe that feels composed for the office, the ceremony, and every
+                setting in between.
+              </p>
+              <a class="rh-button rh-button--primary" routerLink="/shop">Explore the collection</a>
+            </div>
+
+            <div class="home-editorial__media" *ngIf="editorialProduct">
+              <img
+                [src]="editorialImageUrl"
+                [alt]="editorialProduct.name + ' editorial image'"
+                loading="lazy"
+                decoding="async"
+                [appImageFallback]="fallbackImage" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container rh-container--wide">
+          <div class="rh-section-heading">
+            <span class="rh-eyebrow">Store Benefits</span>
+            <h2>Service copy that can evolve later without changing the homepage structure.</h2>
+          </div>
+
+          <div class="home-benefits">
+            <article class="home-benefits__card rh-surface-card" *ngFor="let benefit of benefits">
+              <div class="home-benefits__icon">
+                <i class="bi" [ngClass]="benefit.icon"></i>
+              </div>
+              <h3>{{ benefit.title }}</h3>
+              <p>{{ benefit.copy }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="rh-page-section rh-deferred-section">
+        <div class="rh-container">
+          <div class="home-social rh-surface-card">
+            <div class="home-social__copy">
+              <span class="rh-eyebrow">Follow Rich House</span>
+              <h2>Stay close to the latest arrivals and styling direction.</h2>
+              <p>
+                Social touchpoints are centralized, production-safe, and ready to move into site
+                settings later without rewriting the UI.
+              </p>
+            </div>
+
+            <div class="home-social__cards">
+              <a
+                *ngFor="let social of socialCards"
+                class="home-social__card"
+                [href]="social.url"
+                target="_blank"
+                rel="noreferrer noopener">
+                <i class="bi" [ngClass]="social.icon"></i>
+                <div>
+                  <strong>{{ social.label }}</strong>
+                  <p>{{ social.copy }}</p>
+                </div>
+              </a>
+
+              <a
+                class="home-social__card"
+                *ngIf="whatsAppUrl"
+                [href]="whatsAppUrl"
+                target="_blank"
+                rel="noreferrer noopener">
+                <i class="bi bi-whatsapp"></i>
+                <div>
+                  <strong>WhatsApp</strong>
+                  <p>Reach the Rich House team directly through the configured messaging line.</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #pageState>
+    <section class="rh-page-section">
+      <div class="rh-container rh-container--wide">
         <div class="rh-error-state">
-          <h2>{{ errorTitle || 'We could not load the Rich House homepage.' }}</h2>
+          <h2>{{ errorTitle || 'Homepage unavailable' }}</h2>
           <p>{{ errorMessage }}</p>
           <button class="rh-button rh-button--primary" type="button" (click)="retry()">
             {{ errorActionLabel }}
           </button>
         </div>
       </div>
-    </ng-template>
-  </section>
-</ng-template>
+    </section>
+  </ng-template>
+
+  <ng-template #loadingState>
+    <section class="rh-page-section">
+      <div class="rh-container rh-container--wide">
+        <div class="home-skeleton-grid">
+          <div class="home-skeleton" *ngFor="let _ of [1, 2, 3, 4]"></div>
+        </div>
+      </div>
+    </section>
+  </ng-template>
+</div>

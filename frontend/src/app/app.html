@@ -6,5 +6,11 @@
   </main>
 
   <app-footer *ngIf="showCustomerChrome()"></app-footer>
-  <app-whatsapp-button *ngIf="showCustomerChrome()" variant="floating"></app-whatsapp-button>
+  <app-whatsapp-button
+    *ngIf="showFloatingWhatsApp()"
+    ariaLabel="Message Rich House on WhatsApp"
+    appearance="subtle"
+    label="WhatsApp"
+    size="compact"
+    variant="floating"></app-whatsapp-button>
 </div>

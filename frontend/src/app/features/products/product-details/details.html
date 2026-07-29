@@ -1,230 +1,293 @@
-<div class="product-details-wrapper pt-0 pb-5 details-page" *ngIf="!loading && product; else loadingTemplate">
-  <div class="container">
-
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-4">
-      <ol class="breadcrumb bg-light p-3 rounded-pill px-4 details-breadcrumb">
-        <li class="breadcrumb-item">
-          <a [routerLink]="['/shop']" class="details-breadcrumb__link">Store</a>
-        </li>
-        <li class="breadcrumb-item">
+<section class="details-page rh-page-section" *ngIf="!loading && product; else loadingTemplate">
+  <div class="rh-container rh-container--product">
+    <nav aria-label="breadcrumb" class="details-breadcrumb">
+      <ol>
+        <li><a [routerLink]="['/shop']" class="details-breadcrumb__link">Store</a></li>
+        <li>
           <a
             [routerLink]="product.categorySlug ? ['/shop', product.categorySlug] : ['/shop']"
             class="details-breadcrumb__link">
-            {{ product.categoryName }}
+            {{ displayCategory }}
           </a>
         </li>
-        <li class="breadcrumb-item active fw-bold details-breadcrumb__current">
-          {{ product.name }}
-        </li>
+        <li aria-current="page">{{ product.name }}</li>
       </ol>
     </nav>
 
-    <div class="row g-lg-5">
-      <!-- Product Images Carousel -->
-      <div class="col-lg-7 mb-4 mb-lg-0">
-        <div id="productImagesCarousel" class="carousel slide shadow-sm rounded-4 overflow-hidden border">
-          <div class="carousel-inner bg-light">
-            <div *ngFor="let img of galleryImages; let i = index" 
-                 class="carousel-item" 
-                 [class.active]="i === 0">
-              <img [src]="img" 
-                   class="img-fluid p-3" 
-                   style="height: 450px; width: 100%; object-fit: contain;" 
-                   [alt]="product.name"
-                   [appImageFallback]="fallbackImage">
-            </div>
+    <div class="details-layout">
+      <section
+        class="details-gallery"
+        [attr.aria-label]="product.name + ' gallery'"
+        tabindex="0"
+        (keydown)="onGalleryKeydown($event)">
+        <div class="details-gallery__frame">
+          <img
+            [src]="activeGalleryImage"
+            [alt]="product.name + ' by Rich House'"
+            width="1280"
+            height="1600"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            [appImageFallback]="fallbackImage" />
+
+          <div class="details-gallery__controls" *ngIf="hasMultipleImages">
+            <button
+              type="button"
+              class="details-gallery__control"
+              (click)="previousImage()"
+              aria-label="Show previous product image">
+              <i class="bi bi-arrow-left"></i>
+            </button>
+            <button
+              type="button"
+              class="details-gallery__control"
+              (click)="nextImage()"
+              aria-label="Show next product image">
+              <i class="bi bi-arrow-right"></i>
+            </button>
           </div>
-          <ng-container *ngIf="galleryImages.length > 1">
-            <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon"></span>
-            </button>
-          </ng-container>
         </div>
-      </div>
 
-      <!-- Product Info -->
-      <div class="col-lg-5">
-        <div class="ps-lg-3">
-          <span class="rh-badge details-category-badge">
-            {{ product.categoryName }}
-          </span>
+        <div class="details-gallery__thumbs" *ngIf="hasMultipleImages">
+          <button
+            type="button"
+            class="details-gallery__thumb"
+            *ngFor="let image of galleryImages; let index = index"
+            [class.is-active]="index === activeImageIndex"
+            (click)="selectImage(index)"
+            [attr.aria-label]="'Show product image ' + (index + 1)"
+            [attr.aria-pressed]="index === activeImageIndex">
+            <img
+              [src]="image"
+              [alt]="product.name + ' thumbnail ' + (index + 1)"
+              width="180"
+              height="220"
+              loading="lazy"
+              decoding="async"
+              [appImageFallback]="fallbackImage" />
+          </button>
+        </div>
+      </section>
 
-          <h1 class="fw-bold mt-3">{{ product.name }}</h1>
-          <h3 class="details-price fw-bold mb-3">{{ product.price | egpPrice }}</h3>
-          <p class="text-muted lh-lg">{{ product.description }}</p>
+      <section class="details-summary">
+        <div class="details-summary__sticky">
+          <p class="details-category-label">{{ displayCategory }}</p>
 
-          <hr class="my-4">
+          <div class="details-summary__header">
+            <h1>{{ product.name }}</h1>
+            <p class="details-price">{{ product.price | egpPrice }}</p>
+            <p class="details-summary__lead">{{ productSummary }}</p>
+          </div>
 
-          <!-- Size Selection -->
-          <div class="mb-4" *ngIf="product.sizes && product.sizes.length > 0">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="fw-bold mb-0">Select Size</h6>
-              <span class="details-link small">Size Guide</span>
+          <dl class="details-meta-list">
+            <div class="details-meta-row">
+              <dt>Availability</dt>
+              <dd [class.is-in-stock]="product.stockQuantity > 0">{{ availabilityLabel }}</dd>
             </div>
-            <div class="d-flex flex-wrap gap-2">
-              <div *ngFor="let size of product.sizes">
-                <input type="radio" 
-                       class="btn-check" 
-                       name="sizeOptions" 
-                       [id]="'size-' + size" 
-                       [value]="size" 
-                       [(ngModel)]="selectedSize">
-                <label class="btn details-size-option" [for]="'size-' + size">
+            <div class="details-meta-row" *ngIf="product.sku">
+              <dt>Product code</dt>
+              <dd>{{ product.sku }}</dd>
+            </div>
+          </dl>
+
+          <div class="details-size-picker" *ngIf="hasSizes">
+            <div class="details-size-picker__header">
+              <div>
+                <h2>Size</h2>
+                <p>Choose the size you want before adding this piece to your bag.</p>
+              </div>
+              <a class="details-link" routerLink="/size-guide">View size guide</a>
+            </div>
+
+            <div class="details-size-picker__options" role="radiogroup" aria-label="Available sizes">
+              <div class="details-size-choice" *ngFor="let size of product.sizes">
+                <input
+                  class="details-size-input"
+                  type="radio"
+                  name="sizeOptions"
+                  [id]="'size-' + size"
+                  [checked]="selectedSize === size"
+                  (change)="onSizeChange(size)" />
+                <label class="details-size-option" [for]="'size-' + size">
                   {{ getSizeLabel(size) }}
                 </label>
               </div>
             </div>
+
+            <p class="details-field-note" *ngIf="sizeSelectionMessage">{{ sizeSelectionMessage }}</p>
           </div>
 
-          <div class="p-3 rounded-3 mb-4" [class.bg-success-subtle]="product.stockQuantity > 0" [class.bg-danger-subtle]="product.stockQuantity <= 0">
-            <div class="d-flex align-items-center">
-              <div [ngClass]="product.stockQuantity > 0 ? 'bg-success' : 'bg-danger'" class="rounded-circle me-2" style="width: 10px; height: 10px;"></div>
-              <span class="fw-bold" [ngClass]="product.stockQuantity > 0 ? 'text-success' : 'text-danger'">
-                {{ product.stockQuantity > 0 ? 'Available (' + product.stockQuantity + ' left)' : 'Out of Stock' }}
-              </span>
-            </div>
-          </div>
+          <div class="details-purchase-panel">
+            <div class="details-action-row">
+              <div class="details-quantity">
+                <span id="details-quantity-label">Quantity</span>
+                <div
+                  class="details-quantity__controls"
+                  role="group"
+                  aria-labelledby="details-quantity-label">
+                  <button
+                    type="button"
+                    (click)="decreaseQuantity()"
+                    [disabled]="quantity <= 1"
+                    aria-label="Decrease quantity">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <strong>{{ quantity }}</strong>
+                  <button
+                    type="button"
+                    (click)="increaseQuantity()"
+                    [disabled]="quantity >= maxQuantity"
+                    aria-label="Increase quantity">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
 
-          <div class="d-grid gap-3">
-            <button class="rh-button rh-button--primary details-primary-action" [disabled]="product.stockQuantity <= 0 || isAdding" (click)="addToCart()">
-              <span *ngIf="isAdding" class="spinner-border spinner-border-sm me-2"></span>
-              <i *ngIf="!isAdding" class="bi bi-bag-plus-fill me-2"></i>
-              {{ isAdding ? 'Adding to Bag...' : 'Add to Cart' }}
-            </button>
-            <div class="row g-2">
-              <div class="col-6">
-                <app-whatsapp-button
-                  appearance="subtle"
-                  [block]="true"
-                  label="Ask on WhatsApp"
-                  [productName]="product.name"
-                  size="compact"
-                  [ariaLabel]="'Ask Rich House about ' + product.name + ' on WhatsApp'">
-                </app-whatsapp-button>
-              </div>
-              <div class="col-6">
-                <button class="rh-button rh-button--secondary details-secondary-action" routerLink="/cart">View Cart</button>
+              <div class="details-actions">
+                <button
+                  class="details-primary-action"
+                  type="button"
+                  [disabled]="!canSubmitCart"
+                  (click)="addToCart()">
+                  <span *ngIf="isAdding" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                  <span>{{ isAdding ? 'Adding to Bag...' : 'Add to Bag' }}</span>
+                </button>
+
+                <a class="details-secondary-action" routerLink="/cart">View Bag</a>
               </div>
             </div>
+
+            <p class="details-assistance-note">
+              Need help with fit or availability? Use the WhatsApp button for a direct Rich House
+              reply.
+            </p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
 
-    <div class="add-review-container mt-5 pt-4" *ngIf="authService.isLoggedIn()">
-      <hr class="mb-5 opacity-25">
-      <div class="card border-0 shadow-sm rounded-4 p-4 bg-light bg-opacity-75">
-        <h4 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2 details-accent-text"></i>Write a Review</h4>
-        
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label fw-bold small text-muted">Your Rating</label>
-            <select class="form-select border-0 shadow-sm rounded-3 py-2" [(ngModel)]="newReview.rating">
-              <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-              <option value="4">⭐⭐⭐⭐ (4/5)</option>
-              <option value="3">⭐⭐⭐ (3/5)</option>
-              <option value="2">⭐⭐ (2/5)</option>
-              <option value="1">⭐ (1/5)</option>
+    <section class="details-information">
+      <article class="details-information__content">
+        <span class="rh-eyebrow">Description</span>
+        <h2>Product details</h2>
+        <p>{{ displayDescription }}</p>
+      </article>
+
+      <aside class="details-information__aside">
+        <span class="rh-eyebrow">Additional details</span>
+        <dl class="details-information__list">
+          <div>
+            <dt>Category</dt>
+            <dd>{{ displayCategory }}</dd>
+          </div>
+          <div *ngIf="product.sizes.length > 0">
+            <dt>Available sizes</dt>
+            <dd>{{ product.sizes.join(' · ') }}</dd>
+          </div>
+          <div *ngIf="product.sku">
+            <dt>Product code</dt>
+            <dd>{{ product.sku }}</dd>
+          </div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="details-reviews" *ngIf="authService.isLoggedIn()">
+      <div class="details-review-form">
+        <h2>Write a Review</h2>
+
+        <div class="details-review-form__grid">
+          <div class="details-review-form__field">
+            <label for="review-rating">Your Rating</label>
+            <select id="review-rating" class="rh-select" [(ngModel)]="newReview.rating">
+              <option value="5">5/5</option>
+              <option value="4">4/5</option>
+              <option value="3">3/5</option>
+              <option value="2">2/5</option>
+              <option value="1">1/5</option>
             </select>
           </div>
-          
-          <div class="col-12">
-            <label class="form-label fw-bold small text-muted">Your Comment</label>
-            <textarea class="form-control border-0 shadow-sm rounded-4 p-3" 
-                      rows="3" 
-                      placeholder="Share your experience with this product..."
-                      [(ngModel)]="newReview.comment"></textarea>
+
+          <div class="details-review-form__field details-review-form__field--full">
+            <label for="review-comment">Your Comment</label>
+            <textarea
+              id="review-comment"
+              class="rh-textarea"
+              rows="4"
+              placeholder="Share your experience with this product..."
+              [(ngModel)]="newReview.comment"></textarea>
           </div>
 
-          <div class="col-12 text-end">
-            <button class="rh-button rh-button--primary details-review-button"
-                    (click)="submitReview()"
-                    [disabled]="isSubmittingReview">
-              <span *ngIf="isSubmittingReview" class="spinner-border spinner-border-sm me-2"></span>
+          <div class="details-review-form__actions">
+            <button
+              class="rh-button rh-button--primary details-review-button"
+              type="button"
+              (click)="submitReview()"
+              [disabled]="isSubmittingReview">
+              <span *ngIf="isSubmittingReview" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
               {{ isSubmittingReview ? 'Posting...' : 'Post Review' }}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="mt-5 text-center p-4 bg-light rounded-4 border" *ngIf="!authService.isLoggedIn()">
-      <p class="mb-0 text-muted">Please <a routerLink="/login" class="details-link fw-bold text-decoration-none">Login</a> to write a review and share your feedback.</p>
-    </div>
-
-    <div class="reviews-section mt-5" id="reviews-list">
-      <div class="d-flex align-items-center mb-4" *ngIf="reviews && reviews.length > 0">
-        <h4 class="fw-bold mb-0">Customer Reviews</h4>
-        <span class="badge details-review-count ms-3 rounded-pill px-3">{{ reviews.length }}</span>
+    <section class="details-reviews rh-deferred-section" id="reviews-list">
+      <div class="details-reviews__header" *ngIf="reviews && reviews.length > 0">
+        <h2>Customer Reviews</h2>
+        <span class="details-review-count">{{ reviews.length }}</span>
       </div>
-      
-      <div class="row g-4" *ngIf="reviews && reviews.length > 0; else noReviews">
-        <div class="col-md-6" *ngFor="let review of reviews">
-          <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white border-start border-primary border-4">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h6 class="fw-bold mb-0 text-dark">{{ review.userName }}</h6>
-                <small class="text-muted" style="font-size: 0.75rem;">
-                  <i class="bi bi-calendar3 me-1"></i> {{ review.createdAt | date:'mediumDate' }}
-                </small>
-              </div>
-              <div class="stars text-warning">
-                <i *ngFor="let star of getStars(review.rating)" class="bi bi-star-fill ms-1"></i>
-                <i *ngFor="let empty of [].constructor(5 - review.rating)" class="bi bi-star text-muted ms-1"></i>
-              </div>
+
+      <div class="details-reviews__grid" *ngIf="reviews && reviews.length > 0; else noReviews">
+        <article class="details-review-card" *ngFor="let review of reviews">
+          <div class="details-review-card__header">
+            <div>
+              <h3>{{ review.userName }}</h3>
+              <p>{{ review.createdAt | date:'mediumDate' }}</p>
             </div>
-            <p class="text-secondary mb-0" style="font-style: italic; line-height: 1.6;">
-              "{{ review.comment }}"
-            </p>
+
+            <div class="details-review-card__stars">
+              <i *ngFor="let star of getStars(review.rating)" class="bi bi-star-fill"></i>
+              <i *ngFor="let empty of [].constructor(5 - review.rating)" class="bi bi-star"></i>
+            </div>
           </div>
-        </div>
+
+          <p>{{ review.comment }}</p>
+        </article>
       </div>
 
       <ng-template #noReviews>
-        <div class="text-center py-5 bg-light rounded-4 border border-dashed">
-          <i class="bi bi-chat-square-text text-muted fs-1"></i>
-          <p class="text-muted mt-3 fw-medium">No reviews for this product yet. Be the first one!</p>
+        <div class="rh-empty-state">
+          <h2>No reviews for this product yet.</h2>
+          <p>The piece is live and ready, but no customer feedback has been posted yet.</p>
         </div>
       </ng-template>
-    </div>
+    </section>
 
-    <!-- Related Products Section -->
-    <div class="related-products-section mt-5 pt-4" *ngIf="relatedProducts.length > 0">
-      <hr class="mb-5 opacity-25"> 
-      <h4 class="fw-bold mb-4">You May Also Like</h4>
-      
-      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
-          <div class="col" *ngFor="let item of relatedProducts">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover" 
-                 [routerLink]="item.slug ? ['/product', item.slug] : ['/details', item.id]" 
-                 style="cursor: pointer; transition: transform 0.3s;">
-            <div class="bg-light p-3 text-center">
-              <img [src]="resolveRelatedProductImage(item)" 
-                   class="card-img-top" 
-                   style="height: 160px; object-fit: contain;" 
-                   [alt]="item.name"
-                   [appImageFallback]="fallbackImage">
-            </div>
-            <div class="card-body p-3">
-              <h6 class="fw-bold mb-2 text-truncate" style="font-size: 0.9rem;">{{ item.name }}</h6>
-              <div class="d-flex justify-content-between align-items-center mt-2">
-                <span class="details-related-price fw-bold small">{{ item.price | egpPrice }}</span>
-                <i class="bi bi-arrow-right-circle details-accent-text"></i>
-              </div>
-            </div>
-          </div>
-        </div>
+    <section class="details-related rh-deferred-section" *ngIf="relatedProducts.length > 0">
+      <div class="rh-section-heading">
+        <span class="rh-eyebrow">Related Pieces</span>
+        <h2>You may also like</h2>
       </div>
-    </div>
 
+      <div class="details-related__grid">
+        <app-product-card
+          *ngFor="let item of relatedProducts; trackBy: trackByProductId"
+          [product]="item"></app-product-card>
+      </div>
+    </section>
   </div>
-</div>
 
-<!-- Loading Template -->
+  <app-whatsapp-button
+    variant="floating"
+    appearance="subtle"
+    size="compact"
+    label="WhatsApp"
+    [productName]="product.name"
+    [ariaLabel]="'Ask Rich House about ' + product.name + ' on WhatsApp'"></app-whatsapp-button>
+</section>
+
 <ng-template #loadingTemplate>
   <div class="vh-100 d-flex flex-column justify-content-center align-items-center details-page">
     <div class="spinner-border details-loading-spinner mb-3" style="width: 3rem; height: 3rem;"></div>

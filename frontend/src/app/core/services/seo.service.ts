@@ -2,11 +2,16 @@ import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ProductDetails } from '../../shared/models/product.models';
-import { richHouseBrand } from '../config/site-settings.config';
+import {
+  buildProductTitle,
+  publicSiteSettings,
+  richHouseBrand,
+} from '../config/site-settings.config';
 import { resolveImageUrl } from '../utils/image-url';
 
 export interface RouteSeoConfig {
   description?: string;
+  robots?: string;
   title?: string;
   type?: 'website' | 'article' | 'product';
 }
@@ -14,6 +19,7 @@ export interface RouteSeoConfig {
 interface SeoConfig {
   description?: string;
   image?: string | null;
+  robots?: string;
   structuredData?: Record<string, unknown> | null;
   title?: string;
   type?: 'website' | 'article' | 'product';
@@ -37,6 +43,7 @@ export class SeoService {
     this.setSeo({
       title: config.title || this.defaultTitle,
       description: config.description || this.defaultDescription,
+      robots: config.robots,
       type: config.type || 'website',
       url,
     });
@@ -47,6 +54,7 @@ export class SeoService {
       title: config.title || this.defaultTitle,
       description: config.description || this.defaultDescription,
       image: config.image ?? null,
+      robots: config.robots,
       structuredData: config.structuredData ?? null,
       type: config.type || 'website',
       url: config.url,
@@ -54,7 +62,7 @@ export class SeoService {
   }
 
   setProductSeo(product: ProductDetails, url?: string): void {
-    const title = richHouseBrand.browserTitle;
+    const title = buildProductTitle(product.seoTitle?.trim() || product.name);
     const description =
       product.seoDescription?.trim() ||
       product.shortDescription?.trim() ||
@@ -81,6 +89,12 @@ export class SeoService {
           '@type': 'Brand',
           name: richHouseBrand.name,
         },
+        seller: {
+          '@type': 'Organization',
+          name: richHouseBrand.name,
+          logo: this.resolvePageUrl(richHouseBrand.logoPath),
+          url: this.resolvePageUrl('/'),
+        },
         offers: {
           '@type': 'Offer',
           priceCurrency: 'EGP',
@@ -101,10 +115,12 @@ export class SeoService {
     const pageUrl = this.resolvePageUrl(config.url);
     const imageUrl = config.image
       ? resolveImageUrl(config.image)
-      : this.resolvePageUrl('/android-chrome-512x512.png');
+      : this.resolvePageUrl(richHouseBrand.socialImagePath);
+    const organizationLogoUrl = this.resolvePageUrl(richHouseBrand.logoPath);
 
     this.title.setTitle(config.title);
     this.updateNamedMeta('description', config.description);
+    this.updateNamedMeta('robots', config.robots || 'index,follow');
     this.updateNamedMeta('application-name', richHouseBrand.name);
     this.updateNamedMeta('apple-mobile-web-app-title', richHouseBrand.name);
     this.updateNamedMeta('twitter:card', imageUrl ? 'summary_large_image' : 'summary');
@@ -112,11 +128,14 @@ export class SeoService {
     this.updateNamedMeta('twitter:description', config.description);
     this.updateNamedMeta('twitter:image', imageUrl);
     this.updatePropertyMeta('og:site_name', richHouseBrand.name);
+    this.updatePropertyMeta('og:locale', 'en_US');
     this.updatePropertyMeta('og:type', config.type);
     this.updatePropertyMeta('og:title', config.title);
     this.updatePropertyMeta('og:description', config.description);
     this.updatePropertyMeta('og:url', pageUrl);
     this.updatePropertyMeta('og:image', imageUrl);
+    this.updatePropertyMeta('og:image:alt', richHouseBrand.logoAlt);
+    this.updateCanonicalLink(pageUrl);
 
     this.updateStructuredData(
       config.structuredData ?? {
@@ -130,6 +149,13 @@ export class SeoService {
           name: richHouseBrand.name,
           url: this.resolvePageUrl('/'),
         },
+        about: {
+          '@type': 'Organization',
+          name: richHouseBrand.name,
+          logo: organizationLogoUrl,
+          url: this.resolvePageUrl('/'),
+          sameAs: [publicSiteSettings.FacebookUrl, publicSiteSettings.InstagramUrl].filter(Boolean),
+        },
       },
     );
   }
@@ -140,6 +166,19 @@ export class SeoService {
 
   private updatePropertyMeta(property: string, content: string): void {
     this.meta.updateTag({ property, content });
+  }
+
+  private updateCanonicalLink(href: string): void {
+    const existingLink = this.document.head.querySelector('link[rel="canonical"]');
+    const link =
+      existingLink instanceof HTMLLinkElement ? existingLink : this.document.createElement('link');
+
+    link.setAttribute('rel', 'canonical');
+    link.setAttribute('href', href);
+
+    if (!existingLink) {
+      this.document.head.appendChild(link);
+    }
   }
 
   private updateStructuredData(data: Record<string, unknown>): void {

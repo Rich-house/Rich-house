@@ -26,10 +26,13 @@ export class Dashboard implements OnInit {
   categories: any[] = [];
   searchEmail: string = '';
   searchResult: any = null;
+  readonly canManageUsers = this.authService.isSuperAdmin();
 
   ngOnInit(): void {
     this.loadproducts();
-    this.loadAllUsers();
+    if (this.canManageUsers) {
+      this.loadAllUsers();
+    }
     this.loadCategories();
   }
 
@@ -175,6 +178,8 @@ deleteProduct(id: number) {
   clearSearch() {
     this.searchEmail = '';
     this.searchResult = null;
-    this.loadAllUsers();
+    if (this.canManageUsers) {
+      this.loadAllUsers();
+    }
   }
 }

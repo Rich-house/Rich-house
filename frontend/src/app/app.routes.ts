@@ -5,6 +5,7 @@ import { authGuard } from './core/guards/auth-guard';
 
 const defaultStoreDescription = 'Premium menswear, suits, shirts and formalwear from Rich House.';
 const browserTitle = richHouseBrand.browserTitle;
+const adminRobots = 'noindex,nofollow';
 
 const sizeGuideContent: ContentPageData = {
   eyebrow: 'Size Guide',
@@ -119,7 +120,7 @@ const termsContent: ContentPageData = {
 export const routes: Routes = [
   {
     path: '',
-    title: browserTitle,
+    title: richHouseBrand.homeTitle,
     data: {
       seo: {
         description: defaultStoreDescription,
@@ -177,12 +178,36 @@ export const routes: Routes = [
   },
   { path: 'product', redirectTo: 'shop', pathMatch: 'full' },
   {
-    path: 'dashboard',
-    title: browserTitle,
+    path: 'admin',
+    title: richHouseBrand.adminTitle,
     data: {
+      seo: {
+        description: 'Secure administrator access for the Rich House dashboard.',
+        robots: adminRobots,
+      },
+    },
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'admin/login',
+    title: richHouseBrand.adminTitle,
+    data: {
+      seo: {
+        description: 'Secure administrator access for the Rich House dashboard.',
+        robots: adminRobots,
+      },
+    },
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'dashboard',
+    title: richHouseBrand.adminTitle,
+    data: {
+      managementOnly: true,
       seo: {
         description:
           'Manage the Rich House catalog, categories, and users from the admin dashboard.',
+        robots: adminRobots,
       },
     },
     loadComponent: () => import('./features/admin/dashboard/dashboard').then((m) => m.Dashboard),
@@ -190,28 +215,52 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard/add-product',
-    title: browserTitle,
+    title: richHouseBrand.adminTitle,
+    data: {
+      managementOnly: true,
+      seo: {
+        robots: adminRobots,
+      },
+    },
     loadComponent: () =>
       import('./features/admin/add-product/add-product').then((m) => m.AddProductComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/edit-product/:id',
-    title: browserTitle,
+    title: richHouseBrand.adminTitle,
+    data: {
+      managementOnly: true,
+      seo: {
+        robots: adminRobots,
+      },
+    },
     loadComponent: () =>
       import('./features/admin/edit-product/edit-product').then((m) => m.EditProductComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/add-category',
-    title: browserTitle,
+    title: richHouseBrand.adminTitle,
+    data: {
+      managementOnly: true,
+      seo: {
+        robots: adminRobots,
+      },
+    },
     loadComponent: () =>
       import('./features/admin/add-category/add-category').then((m) => m.AddCategoryComponent),
     canActivate: [authGuard],
   },
   {
     path: 'dashboard/edit-category/:id',
-    title: browserTitle,
+    title: richHouseBrand.adminTitle,
+    data: {
+      managementOnly: true,
+      seo: {
+        robots: adminRobots,
+      },
+    },
     loadComponent: () =>
       import('./features/admin/edit-category/edit-category').then((m) => m.EditCategory),
     canActivate: [authGuard],
@@ -322,13 +371,8 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    title: browserTitle,
-    data: {
-      seo: {
-        description: 'Sign in to your Rich House account or access the Rich House admin dashboard.',
-      },
-    },
-    loadComponent: () => import('./features/auth/login/login').then((m) => m.LoginComponent),
+    redirectTo: 'admin/login',
+    pathMatch: 'full',
   },
   {
     path: 'register',

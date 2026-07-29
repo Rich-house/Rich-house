@@ -9,6 +9,7 @@ import {
   primaryNavigationLinks,
   publicSiteSettings,
   richHouseBrand,
+  richHouseStoreLocations,
 } from '../../../core/config/site-settings.config';
 import { CategoryItem } from '../../models/category.models';
 
@@ -30,6 +31,7 @@ export class Footer {
   readonly currentYear = new Date().getFullYear();
   readonly publicSiteSettings = publicSiteSettings;
   readonly whatsAppUrl = buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber);
+  readonly storeLocations = richHouseStoreLocations;
 
   categories: CategoryItem[] = [];
 

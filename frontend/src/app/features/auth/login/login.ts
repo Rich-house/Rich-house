@@ -1,5 +1,6 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -9,12 +10,11 @@ import { describeApiError } from '../../../core/utils/http-error';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
-export class LoginComponent {
-
+export class LoginComponent implements OnInit {
   loginData = { Email: '', Password: '' };
 
   emailError: string = '';
@@ -30,6 +30,12 @@ export class LoginComponent {
     private productService: ProductsService,
     private cdr: ChangeDetectorRef 
   ) {}
+
+  ngOnInit(): void {
+    if (this.authService.hasValidSession() && this.authService.isManagementUser()) {
+      void this.router.navigateByUrl('/dashboard');
+    }
+  }
 
   onLogin() {
     this.emailError = '';
@@ -48,11 +54,19 @@ export class LoginComponent {
         }
 
         if (response && response.token) {
+            const role = this.authService.getUserRole(response.token);
+            if (role !== 'Admin' && role !== 'SuperAdmin') {
+                this.generalError = 'This sign-in is reserved for Rich House administrators.';
+                this.isLoading = false;
+                this.cdr.detectChanges();
+                return;
+            }
+
             this.authService.storeSession(response);
             this.productService.updateCartCount();
 
             const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-            const fallbackRoute = this.authService.isManagementUser() ? '/dashboard' : '/shop';
+            const fallbackRoute = '/dashboard';
             this.router.navigateByUrl(returnUrl || fallbackRoute);
         } else {
             this.generalError = "Unexpected error occurred.";

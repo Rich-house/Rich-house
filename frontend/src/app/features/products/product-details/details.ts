@@ -10,11 +10,8 @@ import { ProductCard, ProductDetails } from '../../../shared/models/product.mode
 import { SeoService } from '../../../core/services/seo.service';
 import { richHouseUi } from '../../../core/config/site-settings.config';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button';
-import {
-  productPlaceholderImage,
-  resolveCatalogThumbnailUrl,
-  resolveImageUrl,
-} from '../../../core/utils/image-url';
+import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
+import { productPlaceholderImage, resolveImageUrl } from '../../../core/utils/image-url';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
 
@@ -27,6 +24,7 @@ import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
     FormsModule,
     ImageFallbackDirective,
     WhatsAppButtonComponent,
+    ProductCardComponent,
     EgpPricePipe,
   ],
   templateUrl: './details.html',
@@ -37,6 +35,7 @@ export class Details implements OnInit {
   relatedProducts: ProductCard[] = [];
   reviews: any[] = [];
   loading = true;
+  activeImageIndex = 0;
 
   newReview = {
     rating: 5,
@@ -44,12 +43,14 @@ export class Details implements OnInit {
   };
   isSubmittingReview = false;
 
-  selectedSize: string = '';
-  quantity: number = 1;
+  selectedSize = '';
+  quantity = 1;
   isAdding = false;
+  sizeSelectionMessage = '';
   readonly fallbackImage = productPlaceholderImage;
-
-  sizeLabels: { [key: number]: string } = {
+  readonly fallbackDescription =
+    'A refined formalwear piece designed for an elegant and confident look.';
+  readonly sizeLabels: Record<number, string> = {
     1: 'Small',
     2: 'Medium',
     3: 'Large',
@@ -58,12 +59,12 @@ export class Details implements OnInit {
   };
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private productService: ProductsService,
-    private cdr: ChangeDetectorRef,
-    public authService: Auth,
-    private seoService: SeoService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly productService: ProductsService,
+    private readonly cdr: ChangeDetectorRef,
+    public readonly authService: Auth,
+    private readonly seoService: SeoService,
   ) {}
 
   ngOnInit(): void {
@@ -80,7 +81,70 @@ export class Details implements OnInit {
     });
   }
 
-  loadReviews(productId: string | number) {
+  get galleryImages(): string[] {
+    const images = this.product?.imageUrls ?? [];
+    return images.length > 0
+      ? images.map((imageUrl) => resolveImageUrl(imageUrl))
+      : [this.fallbackImage];
+  }
+
+  get hasMultipleImages(): boolean {
+    return this.galleryImages.length > 1;
+  }
+
+  get activeGalleryImage(): string {
+    return this.galleryImages[this.activeImageIndex] ?? this.fallbackImage;
+  }
+
+  get productSummary(): string {
+    const shortDescription = this.sanitizeCustomerCopy(this.product?.shortDescription);
+    const longDescription = this.sanitizeCustomerCopy(this.product?.description);
+    const source = shortDescription || longDescription;
+
+    if (!source) {
+      return this.fallbackDescription;
+    }
+
+    const sentenceMatch = source.match(/^.*?[.!?](?:\s|$)/);
+    const summary = sentenceMatch?.[0]?.trim() || source.trim();
+    return summary.length > 170 ? `${summary.slice(0, 167).trimEnd()}...` : summary;
+  }
+
+  get displayDescription(): string {
+    return this.sanitizeCustomerCopy(this.product?.description) || this.fallbackDescription;
+  }
+
+  get displayCategory(): string {
+    return this.product?.categoryName?.trim() || 'Ready-to-Wear';
+  }
+
+  get availabilityLabel(): string {
+    return (this.product?.stockQuantity ?? 0) > 0 ? 'In stock' : 'Currently unavailable';
+  }
+
+  get hasSizes(): boolean {
+    return !!this.product?.sizes?.length;
+  }
+
+  get sizeIsRequired(): boolean {
+    return this.hasSizes;
+  }
+
+  get maxQuantity(): number {
+    const stockQuantity = this.product?.stockQuantity ?? 1;
+    return Math.max(1, Math.min(99, stockQuantity));
+  }
+
+  get canSubmitCart(): boolean {
+    const product = this.product;
+    if (!product || product.stockQuantity <= 0 || this.isAdding) {
+      return false;
+    }
+
+    return !this.sizeIsRequired || !!this.selectedSize;
+  }
+
+  loadReviews(productId: string | number): void {
     this.productService.getProductReviews(productId).subscribe({
       next: (data) => {
         this.reviews = data;
@@ -90,7 +154,7 @@ export class Details implements OnInit {
     });
   }
 
-  submitReview() {
+  submitReview(): void {
     if (!this.newReview.comment.trim()) {
       Swal.fire('Note', 'Please write your comment before submitting.', 'info');
       return;
@@ -139,7 +203,68 @@ export class Details implements OnInit {
     return this.sizeLabels[numSize] || String(size);
   }
 
-  loadProduct(id: string) {
+  selectImage(index: number): void {
+    if (index < 0 || index >= this.galleryImages.length) {
+      return;
+    }
+
+    this.activeImageIndex = index;
+  }
+
+  previousImage(): void {
+    if (!this.hasMultipleImages) {
+      return;
+    }
+
+    const previousIndex =
+      this.activeImageIndex === 0 ? this.galleryImages.length - 1 : this.activeImageIndex - 1;
+    this.selectImage(previousIndex);
+  }
+
+  nextImage(): void {
+    if (!this.hasMultipleImages) {
+      return;
+    }
+
+    const nextIndex =
+      this.activeImageIndex === this.galleryImages.length - 1 ? 0 : this.activeImageIndex + 1;
+    this.selectImage(nextIndex);
+  }
+
+  onGalleryKeydown(event: KeyboardEvent): void {
+    if (!this.hasMultipleImages) {
+      return;
+    }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      this.previousImage();
+    }
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      this.nextImage();
+    }
+  }
+
+  onSizeChange(size: string): void {
+    this.selectedSize = size;
+    this.sizeSelectionMessage = '';
+  }
+
+  increaseQuantity(): void {
+    this.quantity = Math.min(this.maxQuantity, this.quantity + 1);
+  }
+
+  decreaseQuantity(): void {
+    this.quantity = Math.max(1, this.quantity - 1);
+  }
+
+  trackByProductId(_index: number, product: ProductCard): number {
+    return product.id;
+  }
+
+  loadProduct(id: string): void {
     this.loading = true;
     this.productService.getProductById(id).subscribe({
       next: (res) => {
@@ -152,7 +277,7 @@ export class Details implements OnInit {
     });
   }
 
-  loadProductBySlug(slug: string) {
+  loadProductBySlug(slug: string): void {
     this.loading = true;
     this.productService.getProductBySlug(slug).subscribe({
       next: (res) => {
@@ -165,7 +290,7 @@ export class Details implements OnInit {
     });
   }
 
-  loadRelated(catId: number, currentId: number) {
+  loadRelated(catId: number, currentId: number): void {
     this.productService.getProductsByCategoryId(catId).subscribe({
       next: (res: ProductCard[]) => {
         this.relatedProducts = res.filter((product) => product.id !== currentId);
@@ -175,31 +300,15 @@ export class Details implements OnInit {
     });
   }
 
-  get galleryImages(): string[] {
-    const images = this.product?.imageUrls ?? [];
-    return images.length > 0
-      ? images.map((imageUrl) => resolveImageUrl(imageUrl))
-      : [this.fallbackImage];
-  }
-
-  resolveRelatedProductImage(product: ProductCard): string {
-    return resolveCatalogThumbnailUrl(product.imageUrls[0]);
-  }
-
-  addToCart() {
+  addToCart(): void {
     const product = this.product;
     if (!product) {
       return;
     }
 
-    if (product.sizes.length > 0 && !this.selectedSize) {
-      Swal.fire({
-        title: 'Select Size',
-        text: 'Please choose a size before adding to cart',
-        icon: 'warning',
-        confirmButtonColor: richHouseUi.modalConfirmColor,
-        confirmButtonText: 'Got it!',
-      });
+    if (this.sizeIsRequired && !this.selectedSize) {
+      this.sizeSelectionMessage = 'Please select a size before adding this piece to your bag.';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -219,7 +328,7 @@ export class Details implements OnInit {
         Swal.fire({
           position: 'top-end',
           icon: 'success',
-          title: 'Added to cart!',
+          title: 'Added to bag',
           showConfirmButton: false,
           timer: 1500,
           toast: true,
@@ -231,19 +340,40 @@ export class Details implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
-          text: 'Failed to add item to cart. Please try again.',
+          text: 'Failed to add item to your bag. Please try again.',
+          confirmButtonColor: richHouseUi.modalConfirmColor,
         });
         this.cdr.detectChanges();
       },
     });
   }
 
-  private handleLoadedProduct(product: ProductDetails) {
+  private handleLoadedProduct(product: ProductDetails): void {
     this.product = product;
+    this.activeImageIndex = 0;
+    this.quantity = 1;
+    this.selectedSize = '';
+    this.sizeSelectionMessage = '';
     this.loading = false;
     this.seoService.setProductSeo(product, this.router.url);
     this.loadReviews(product.id);
     this.loadRelated(product.categoryId, product.id);
     this.cdr.detectChanges();
+  }
+
+  private sanitizeCustomerCopy(copy?: string | null): string {
+    const cleaned = copy?.replace(/\s+/g, ' ').trim() ?? '';
+    if (!cleaned) {
+      return '';
+    }
+
+    if (
+      /provisional catalog entry/i.test(cleaned)
+      || /inferred from the supplied photography/i.test(cleaned)
+    ) {
+      return '';
+    }
+
+    return cleaned;
   }
 }

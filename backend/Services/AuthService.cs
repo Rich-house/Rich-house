@@ -37,16 +37,17 @@ namespace Marketify.Services
             var userRoles = await _userManger.GetRolesAsync(user);
             var (token, expiresIn) = _jwtProvider.GenerateToken(user, userRoles);
             var time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
-            var emailBody = EmailBodyHelper.GenerateEmailBody("EmailUserLogIn",
-                new Dictionary<string, string>
-                {
-            { "{{username}}", user.FirstName },
-            { "{{login_time}}",time }
-                }
-            );
 
             try
             {
+                var emailBody = EmailBodyHelper.GenerateEmailBody("EmailUserLogIn",
+                    new Dictionary<string, string>
+                    {
+                        { "{{username}}", user.FirstName },
+                        { "{{login_time}}", time }
+                    }
+                );
+
                 await _emailSender.SendEmailAsync(user.Email!, "Marketify  : UserlogedIn ✅", emailBody);
             }
             catch (Exception ex)
