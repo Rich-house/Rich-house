@@ -65,7 +65,22 @@ jobs:
             -Value $env:MONSTER_PUBLISH_PROFILE `
             -Encoding UTF8
 
-          [xml]$xml = Get-Content -Raw $profilePath
+          $rawProfile = Get-Content -Raw $profilePath
+          $xmlStart = $rawProfile.IndexOf("<?xml")
+          $xmlEndTag = "</publishData>"
+          $xmlEnd = $rawProfile.LastIndexOf($xmlEndTag)
+
+          if ($xmlStart -lt 0 -or $xmlEnd -lt 0) {
+            throw "Valid publishSettings XML was not found in MONSTER_PUBLISH_PROFILE."
+          }
+
+          $xmlLength = ($xmlEnd + $xmlEndTag.Length) - $xmlStart
+          $cleanXml = $rawProfile.Substring($xmlStart, $xmlLength).Trim()
+
+          $xml = New-Object System.Xml.XmlDocument
+          $xml.PreserveWhitespace = $false
+          $xml.LoadXml($cleanXml)
+
           $profile = $xml.publishData.publishProfile
 
           if (-not $profile) {
