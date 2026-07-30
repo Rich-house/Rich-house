@@ -235,6 +235,10 @@ export class SeoService {
 
   private resolvePageUrl(path?: string): string {
     const normalizedPath = path || this.document.location.pathname + this.document.location.search;
+    if (/^(?:https?:)?\/\//i.test(normalizedPath)) {
+      return normalizedPath;
+    }
+
     return buildCanonicalUrl(normalizedPath);
   }
 
