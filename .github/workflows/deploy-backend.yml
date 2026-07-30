@@ -41,22 +41,6 @@ jobs:
         working-directory: backend
         run: dotnet build Marketify.csproj --configuration Release --no-restore
 
-      - name: Install dotnet-ef
-        run: |
-          dotnet tool install --global dotnet-ef --version "9.*"
-          "$env:USERPROFILE\\.dotnet\\tools" >> $env:GITHUB_PATH
-
-      - name: Apply production EF migrations
-        env:
-          ASPNETCORE_ENVIRONMENT: Production
-          ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_DEFAULT_CONNECTION_STRING }}
-        run: |
-          dotnet ef database update `
-            --project backend/Marketify.csproj `
-            --startup-project backend/Marketify.csproj `
-            --configuration Release `
-            --no-build
-
       - name: Publish backend
         working-directory: backend
         run: |

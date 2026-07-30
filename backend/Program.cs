@@ -11,7 +11,6 @@ using Microsoft.Data.SqlClient;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using System.Data.Common;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -128,10 +127,9 @@ if (app.Environment.IsDevelopment())
     app.MapMethods("/swagger/index.html", ["HEAD"], () => Results.Ok());
 }
 
-await InitializeApplicationDatabasesAsync(
-    app.Services,
+await RunStartupDatabaseTasksAsync(
+    app,
     startupLogger,
-    app.Environment,
     app.Lifetime.ApplicationStopping);
 startupLogger.LogInformation("Hangfire storage is ready for database {DatabaseName}.", GetDatabaseName(hangfireConnectionString));
 
@@ -160,96 +158,56 @@ app.Lifetime.ApplicationStopped.Register(Log.CloseAndFlush);
 
 app.Run();
 
-static async Task InitializeApplicationDatabasesAsync(
-    IServiceProvider services,
+static async Task RunStartupDatabaseTasksAsync(
+    WebApplication app,
     Microsoft.Extensions.Logging.ILogger logger,
-    IHostEnvironment environment,
     CancellationToken cancellationToken)
 {
-    const int maxAttempts = 10;
-    var delay = TimeSpan.FromSeconds(3);
+    var shouldRunMigrations =
+        app.Environment.IsProduction()
+        || app.Configuration.GetValue<bool>("RUN_DATABASE_MIGRATIONS");
 
-    if (!environment.IsDevelopment())
+    if (!shouldRunMigrations)
     {
-        await InitializeApplicationDatabasesOnceAsync(services, logger, environment, cancellationToken);
+        logger.LogInformation(
+            "Skipping startup database migrations and catalog seeding for environment {EnvironmentName}. Set RUN_DATABASE_MIGRATIONS=true to enable them outside Production.",
+            app.Environment.EnvironmentName);
         return;
     }
 
-    Exception? lastTransientException = null;
+    logger.LogInformation(
+        "Starting startup database migrations and seeding for environment {EnvironmentName}.",
+        app.Environment.EnvironmentName);
 
-    for (var attempt = 1; attempt <= maxAttempts; attempt++)
+    try
     {
-        try
+        if (app.Environment.IsDevelopment())
         {
-            if (attempt > 1)
-            {
-                logger.LogInformation(
-                    "Retrying SQL Server startup initialization for Development (attempt {Attempt} of {MaxAttempts}).",
-                    attempt,
-                    maxAttempts);
-            }
-
-            await InitializeApplicationDatabasesOnceAsync(services, logger, environment, cancellationToken);
-
-            if (attempt > 1)
-            {
-                logger.LogInformation(
-                    "SQL Server startup initialization completed successfully on attempt {Attempt} of {MaxAttempts}.",
-                    attempt,
-                    maxAttempts);
-            }
-
-            return;
+            await EnsureApplicationDatabasesAsync(app.Services, logger, cancellationToken);
         }
-        catch (Exception ex) when (IsSqlAuthenticationFailure(ex))
-        {
-            logger.LogError(
-                ex,
-                "Database startup failed because SQL Server rejected the configured credentials. Update the Development connection strings or local secrets to match the running SQL Server login.");
-            throw;
-        }
-        catch (Exception ex) when (IsTransientSqlStartupDelay(ex))
-        {
-            lastTransientException = ex;
 
-            if (attempt == maxAttempts)
-            {
-                break;
-            }
+        await ApplyMigrationsAndSeedAsync(
+            app.Services,
+            logger,
+            app.Environment,
+            cancellationToken);
 
-            logger.LogWarning(
-                ex,
-                "SQL Server is not ready yet during Development startup. Waiting {DelaySeconds} seconds before retry {NextAttempt} of {MaxAttempts}.",
-                delay.TotalSeconds,
-                attempt + 1,
-                maxAttempts);
-
-            await Task.Delay(delay, cancellationToken);
-        }
+        logger.LogInformation("Startup database migrations and seeding completed successfully.");
     }
-
-    throw new InvalidOperationException(
-        $"SQL Server was still unavailable after {maxAttempts} startup attempts in Development. Confirm Docker is running, the '{GetContainerNameHint()}' container is ready, and the local SQL credentials are correct.",
-        lastTransientException);
-}
-
-static async Task InitializeApplicationDatabasesOnceAsync(
-    IServiceProvider services,
-    Microsoft.Extensions.Logging.ILogger logger,
-    IHostEnvironment environment,
-    CancellationToken cancellationToken)
-{
-    if (environment.IsDevelopment())
+    catch (Exception ex) when (IsSqlAuthenticationFailure(ex))
     {
-        await EnsureApplicationDatabasesAsync(services, logger, cancellationToken);
+        logger.LogCritical(
+            ex,
+            "Startup database migrations failed because SQL Server rejected the configured credentials.");
+        throw;
     }
-    else
+    catch (Exception ex)
     {
-        logger.LogInformation(
-            "Skipping SQL Server database creation outside Development. The production database must already exist.");
+        logger.LogCritical(
+            ex,
+            "Startup database migrations or seeding failed. Application startup will stop.");
+        throw;
     }
-
-    await ApplyMigrationsAndSeedAsync(services, logger, environment, cancellationToken);
 }
 
 static async Task EnsureApplicationDatabasesAsync(
@@ -344,30 +302,19 @@ static async Task ApplyMigrationsAndSeedAsync(
             cancellationToken);
     }
 
+    logger.LogInformation("Starting Rich House production catalog seeding.");
+
     await RichHouseProductionCatalogSeeder.SeedBeltsCatalogAsync(
         dbContext,
         logger,
         cancellationToken);
+
+    logger.LogInformation("Rich House production catalog seeding completed successfully.");
 }
 
 static string GetDatabaseName(string connectionString)
 {
     return new SqlConnectionStringBuilder(connectionString).InitialCatalog;
-}
-
-static bool IsTransientSqlStartupDelay(Exception exception)
-{
-    if (IsSqlAuthenticationFailure(exception))
-    {
-        return false;
-    }
-
-    return FlattenExceptions(exception).Any(static ex =>
-        ex is TimeoutException
-        || ex is SqlException sqlException && IsTransientSqlStartupNumber(sqlException.Number)
-        || ex is DbException dbException && ContainsTransientSqlStartupMessage(dbException.Message)
-        || ex is InvalidOperationException invalidOperationException && ContainsTransientSqlStartupMessage(invalidOperationException.Message)
-        || ContainsTransientSqlStartupMessage(ex.Message));
 }
 
 static bool IsSqlAuthenticationFailure(Exception exception)
@@ -376,22 +323,6 @@ static bool IsSqlAuthenticationFailure(Exception exception)
         ex is SqlException sqlException && sqlException.Number == 18456
         || ex.Message.Contains("Login failed for user", StringComparison.OrdinalIgnoreCase)
         || ex.Message.Contains("password did not match", StringComparison.OrdinalIgnoreCase));
-}
-
-static bool IsTransientSqlStartupNumber(int errorNumber)
-{
-    return errorNumber is -2 or 2 or 20 or 53 or 64 or 233 or 258 or 11001;
-}
-
-static bool ContainsTransientSqlStartupMessage(string message)
-{
-    return message.Contains("Could not open a connection to SQL Server", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("server was not found or was not accessible", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("network-related or instance-specific error occurred", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("provider: TCP Provider, error: 40", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("actively refused", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("Login timeout expired", StringComparison.OrdinalIgnoreCase)
-        || message.Contains("connection refused", StringComparison.OrdinalIgnoreCase);
 }
 
 static IEnumerable<Exception> FlattenExceptions(Exception exception)
@@ -417,11 +348,6 @@ static IEnumerable<Exception> FlattenExceptions(Exception exception)
             queue.Enqueue(current.InnerException);
         }
     }
-}
-
-static string GetContainerNameHint()
-{
-    return "marketify-sql";
 }
 
 static async Task RunRichHouseCatalogImportAsync(
