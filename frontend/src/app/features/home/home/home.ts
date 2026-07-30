@@ -320,10 +320,14 @@ export class Home {
           this.editorialProduct =
             this.featuredProducts[1] ?? sections.fallbackProducts.data[1] ?? leadProduct;
           this.loading = false;
-          this.seoService.applyRouteSeo({
+          this.seoService.setPageSeo({
             title: richHouseBrand.homeTitle,
             description: 'Premium menswear, suits, shirts and formalwear from Rich House.',
+            keywords: richHouseBrand.defaultKeywords,
+            breadcrumbs: [{ name: 'Home', path: '/' }],
+            image: leadProduct?.imageUrls[0] ?? null,
             type: 'website',
+            url: this.router.url,
           });
           this.cdr.markForCheck();
         },

@@ -74,10 +74,22 @@ export class Aboutus {
         next: (data) => {
           this.heroProduct = data.heroProduct;
           this.featuredCategories = data.categories.slice(0, 3);
-          this.seoService.applyRouteSeo({
-            title: richHouseBrand.browserTitle,
+          this.seoService.setPageSeo({
+            title: `About | ${richHouseBrand.name}`,
             description:
               'Learn about the Rich House menswear brand, its visual direction, and its approach to modern formalwear.',
+            keywords: [
+              richHouseBrand.name,
+              'about',
+              'menswear brand',
+              'formalwear',
+              'tailoring',
+            ],
+            breadcrumbs: [
+              { name: 'Home', path: '/' },
+              { name: 'About', path: '/about' },
+            ],
+            image: data.heroProduct?.imageUrls[0] ?? null,
           });
           this.cdr.markForCheck();
         },

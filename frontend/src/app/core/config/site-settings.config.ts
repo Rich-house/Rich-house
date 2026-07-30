@@ -16,6 +16,7 @@ export const richHouseBrand = {
   name: 'Rich House',
   adminTitle: 'Rich House Admin',
   browserTitle: 'Rich House',
+  siteUrl: 'https://www.richhouseeg.com',
   eyebrow: 'RICH HOUSE MENSWEAR',
   fallbackProductName: 'Rich House product',
   homeTitle: 'Rich House',
@@ -26,6 +27,19 @@ export const richHouseBrand = {
   iconPath: 'assets/brand/rich-house-icon-512.png',
   shortDescription:
     'Rich House is a premium menswear destination shaped around refined tailoring, elevated essentials, and confident modern dressing.',
+  defaultKeywords: [
+    'Rich House',
+    'Rich House Egypt',
+    'menswear',
+    'men suits',
+    'formalwear',
+    'shirts',
+    'belts',
+    'shoes',
+    'wedding suits',
+    'Cairo fashion',
+  ],
+  themeColor: '#171614',
   socialImagePath: 'assets/brand/rich-house-logo.webp',
   heroHeading: 'Crafted for the Modern Gentleman',
   heroCopy: 'Refined suits and timeless menswear for every defining moment.',
@@ -101,3 +115,9 @@ export const buildCategoryTitle = (categoryName?: string | null): string =>
       ? categoryName.trim()
       : `${categoryName.trim()} | ${richHouseBrand.name}`
     : richHouseBrand.browserTitle;
+
+export const buildCanonicalUrl = (path = '/'): string => {
+  const siteUrl = richHouseBrand.siteUrl.replace(/\/+$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return new URL(normalizedPath, `${siteUrl}/`).href;
+};

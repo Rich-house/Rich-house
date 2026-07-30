@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/browserconfig.xml",
+      "destination": "/browserconfig.xml"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

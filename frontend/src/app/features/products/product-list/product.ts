@@ -318,6 +318,18 @@ export class Product {
         title: `Current Offers | ${richHouseBrand.name}`,
         description:
           'Discover current Rich House offers across premium menswear, suits, shirts, and formalwear.',
+        keywords: [
+          richHouseBrand.name,
+          'offers',
+          'discounts',
+          'menswear sale',
+          'formalwear offers',
+        ],
+        breadcrumbs: [
+          { name: 'Home', path: '/' },
+          { name: 'Offers', path: '/offers' },
+        ],
+        image: this.products[0]?.imageUrls[0] ?? null,
         url: this.router.url,
       });
       return;
@@ -327,6 +339,23 @@ export class Product {
       this.seoService.setPageSeo({
         title: buildCategoryTitle(this.selectedCategory.name),
         description: `Browse the Rich House ${this.selectedCategory.name} selection, curated for premium menswear and formalwear shopping.`,
+        keywords: [
+          this.selectedCategory.name,
+          `${this.selectedCategory.name} ${richHouseBrand.name}`,
+          richHouseBrand.name,
+          'menswear',
+          'formalwear',
+          'shop Egypt',
+        ],
+        breadcrumbs: [
+          { name: 'Home', path: '/' },
+          { name: 'Shop', path: '/shop' },
+          {
+            name: this.selectedCategory.name,
+            path: `/shop/${this.selectedCategory.slug ?? ''}`,
+          },
+        ],
+        image: this.selectedCategory.imageUrl ?? this.products[0]?.imageUrls[0] ?? null,
         url: this.router.url,
       });
       return;
@@ -335,9 +364,31 @@ export class Product {
     this.seoService.setPageSeo({
       title: this.filters.search
         ? `Search: ${this.filters.search.trim()} | ${richHouseBrand.name}`
-        : richHouseBrand.browserTitle,
+        : `Shop | ${richHouseBrand.name}`,
       description:
         'Browse the Rich House menswear collection, including suits, shirts, elevated essentials, and formalwear.',
+      keywords: this.filters.search
+        ? [
+            this.filters.search.trim(),
+            richHouseBrand.name,
+            'menswear search',
+            'formalwear',
+          ]
+        : [
+            richHouseBrand.name,
+            'shop',
+            'menswear',
+            'formalwear',
+            'suits',
+            'shirts',
+            'belts',
+            'shoes',
+          ],
+      breadcrumbs: [
+        { name: 'Home', path: '/' },
+        { name: 'Shop', path: '/shop' },
+      ],
+      image: this.products[0]?.imageUrls[0] ?? null,
       url: this.router.url,
     });
   }
