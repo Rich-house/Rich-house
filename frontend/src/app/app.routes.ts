@@ -212,58 +212,72 @@ export const routes: Routes = [
     },
     loadComponent: () => import('./features/admin/dashboard/dashboard').then((m) => m.Dashboard),
     canActivate: [authGuard],
-  },
-  {
-    path: 'dashboard/add-product',
-    title: richHouseBrand.adminTitle,
-    data: {
-      managementOnly: true,
-      seo: {
-        robots: adminRobots,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'overview',
       },
-    },
-    loadComponent: () =>
-      import('./features/admin/add-product/add-product').then((m) => m.AddProductComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'dashboard/edit-product/:id',
-    title: richHouseBrand.adminTitle,
-    data: {
-      managementOnly: true,
-      seo: {
-        robots: adminRobots,
+      {
+        path: 'overview',
+        loadComponent: () =>
+          import('./features/admin/overview/overview').then((m) => m.AdminOverviewComponent),
       },
-    },
-    loadComponent: () =>
-      import('./features/admin/edit-product/edit-product').then((m) => m.EditProductComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'dashboard/add-category',
-    title: richHouseBrand.adminTitle,
-    data: {
-      managementOnly: true,
-      seo: {
-        robots: adminRobots,
+      {
+        path: 'products',
+        loadComponent: () =>
+          import('./features/admin/products/products').then((m) => m.AdminProductsComponent),
       },
-    },
-    loadComponent: () =>
-      import('./features/admin/add-category/add-category').then((m) => m.AddCategoryComponent),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'dashboard/edit-category/:id',
-    title: richHouseBrand.adminTitle,
-    data: {
-      managementOnly: true,
-      seo: {
-        robots: adminRobots,
+      {
+        path: 'add-product',
+        loadComponent: () =>
+          import('./features/admin/product-form/product-form').then((m) => m.AdminProductFormComponent),
       },
-    },
-    loadComponent: () =>
-      import('./features/admin/edit-category/edit-category').then((m) => m.EditCategory),
-    canActivate: [authGuard],
+      {
+        path: 'edit-product/:id',
+        loadComponent: () =>
+          import('./features/admin/product-form/product-form').then((m) => m.AdminProductFormComponent),
+      },
+      {
+        path: 'categories',
+        loadComponent: () =>
+          import('./features/admin/categories/categories').then((m) => m.AdminCategoriesComponent),
+      },
+      {
+        path: 'add-category',
+        loadComponent: () =>
+          import('./features/admin/category-form/category-form').then((m) => m.AdminCategoryFormComponent),
+      },
+      {
+        path: 'edit-category/:id',
+        loadComponent: () =>
+          import('./features/admin/category-form/category-form').then((m) => m.AdminCategoryFormComponent),
+      },
+      {
+        path: 'offers',
+        loadComponent: () =>
+          import('./features/admin/offers/offers').then((m) => m.AdminOffersComponent),
+      },
+      {
+        path: 'add-offer',
+        loadComponent: () =>
+          import('./features/admin/offer-form/offer-form').then((m) => m.AdminOfferFormComponent),
+      },
+      {
+        path: 'edit-offer/:id',
+        loadComponent: () =>
+          import('./features/admin/offer-form/offer-form').then((m) => m.AdminOfferFormComponent),
+      },
+      {
+        path: 'users',
+        data: {
+          superAdminOnly: true,
+        },
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('./features/admin/users/users').then((m) => m.AdminUsersComponent),
+      },
+    ],
   },
   {
     path: 'profile',

@@ -1,0 +1,85 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">{{ isEditMode ? 'Edit Category' : 'Add Category' }}</p>
+      <h1>{{ pageTitle }}</h1>
+      <p class="admin-page__intro">{{ pageSubtitle }}</p>
+    </div>
+
+    <a class="admin-page__ghost-button" routerLink="/dashboard/categories">Back to categories</a>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading category...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>{{ errorTitle || 'Unable to load category' }}</h2>
+    <p>{{ errorMessage }}</p>
+    <div class="admin-state-card__actions">
+      <button class="admin-page__ghost-button" type="button" (click)="loadCategory()">Retry</button>
+      <a class="admin-page__ghost-button" routerLink="/dashboard/categories">Back</a>
+    </div>
+  </div>
+
+  <form class="admin-form-card" *ngIf="!loading && !errorMessage" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="admin-form-grid">
+      <div class="admin-form-field">
+        <label for="category-name">Name</label>
+        <input id="category-name" type="text" formControlName="name" />
+        <small *ngIf="form.controls.name.touched && form.controls.name.invalid">
+          Category name is required.
+        </small>
+      </div>
+
+      <div class="admin-form-field">
+        <label for="category-slug">Slug</label>
+        <input id="category-slug" type="text" formControlName="slug" (input)="onSlugInput()" />
+        <small *ngIf="form.controls.slug.touched && form.controls.slug.invalid">
+          A valid slug is required.
+        </small>
+      </div>
+
+      <div class="admin-form-field">
+        <label for="category-order">Display order</label>
+        <input id="category-order" type="number" formControlName="displayOrder" />
+      </div>
+
+      <label class="admin-checkbox-field">
+        <input type="checkbox" formControlName="isActive" />
+        <span>Visible on the storefront</span>
+      </label>
+    </div>
+
+    <section class="admin-form-media">
+      <div class="admin-form-media__preview">
+        <img
+          [src]="previewUrl || resolveImage(currentImageUrl)"
+          [alt]="form.controls.name.value || 'Category image preview'"
+          width="320"
+          height="240" />
+      </div>
+
+      <div class="admin-form-media__controls">
+        <label class="admin-upload-field" for="category-image">
+          <span>Category image</span>
+          <input id="category-image" type="file" accept=".jpg,.jpeg,.png,.webp" (change)="onFileSelected($event)" />
+        </label>
+
+        <label class="admin-checkbox-field" *ngIf="currentImageUrl || previewUrl">
+          <input type="checkbox" formControlName="removeImage" (change)="onRemoveImageChange()" />
+          <span>Remove current image</span>
+        </label>
+      </div>
+    </section>
+
+    <div class="admin-form-actions">
+      <a class="admin-page__ghost-button" routerLink="/dashboard/categories">Cancel</a>
+      <button class="admin-page__primary-button" type="submit" [disabled]="form.invalid || saving">
+        <span *ngIf="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>{{ saving ? 'Saving...' : 'Save Category' }}</span>
+      </button>
+    </div>
+  </form>
+</section>

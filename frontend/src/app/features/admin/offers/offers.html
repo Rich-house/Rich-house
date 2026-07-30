@@ -1,0 +1,184 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Offers</p>
+      <h1>Offer management</h1>
+      <p class="admin-page__intro">Review campaign offers separately from legacy product-level discounts that still power storefront pricing.</p>
+    </div>
+
+    <button class="admin-page__primary-button" type="button" (click)="addOffer()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add Offer</span>
+    </button>
+  </header>
+
+  <section class="admin-filter-card">
+    <input type="search" [(ngModel)]="filters.search" placeholder="Search by offer or product name" (keyup.enter)="applyFilters()" />
+
+    <select [(ngModel)]="filters.status" (change)="applyFilters()">
+      <option value="">All statuses</option>
+      <option value="active">Active</option>
+      <option value="scheduled">Scheduled</option>
+      <option value="expired">Expired</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </section>
+
+  <section class="admin-table-card">
+    <div class="admin-table-card__header">
+      <div>
+        <h2>Campaign Offers</h2>
+        <p>Records from the centralized `Offer` table.</p>
+      </div>
+      <span class="admin-section-count">{{ campaignPagination.totalItems }}</span>
+    </div>
+
+    <div class="admin-state-card" *ngIf="campaignLoading">
+      <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+      <span>Loading campaign offers...</span>
+    </div>
+
+    <div class="admin-state-card admin-state-card--error" *ngIf="!campaignLoading && campaignErrorMessage">
+      <h2>Campaign offers unavailable</h2>
+      <p>{{ campaignErrorMessage }}</p>
+      <button class="admin-page__ghost-button" type="button" (click)="loadCampaignOffers()">Retry</button>
+    </div>
+
+    <div class="admin-empty-state" *ngIf="!campaignLoading && !campaignErrorMessage && campaignOffers.length === 0">
+      <h2>No campaign offers found</h2>
+      <p>Create a new campaign offer or adjust the current filters.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="!campaignLoading && !campaignErrorMessage && campaignOffers.length > 0">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Offer</th>
+            <th>Discount</th>
+            <th>Window</th>
+            <th>Status</th>
+            <th>Links</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let offer of campaignOffers; trackBy: trackByOfferId">
+            <td>
+              <div class="admin-row-media">
+                <img [src]="resolveImage(offer.imageUrl)" [alt]="offer.title" width="64" height="64" />
+                <div>
+                  <strong>{{ offer.title }}</strong>
+                  <span>#{{ offer.id }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ offer.discountValue }} {{ offer.discountType === 'Percentage' ? '%' : 'EGP' }}</td>
+            <td>{{ offer.startDate | date:'mediumDate' }} - {{ offer.endDate | date:'mediumDate' }}</td>
+            <td><span [class]="statusBadgeClass(offer.status)">{{ offer.status }}</span></td>
+            <td>{{ offer.productCount }} products • {{ offer.categoryCount }} categories</td>
+            <td class="text-end">
+              <div class="admin-action-group">
+                <button class="admin-icon-button" type="button" (click)="editOffer(offer.id)" title="Edit offer">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="admin-icon-button" type="button" (click)="toggleActivation(offer)" [title]="offer.isActive ? 'Deactivate offer' : 'Activate offer'">
+                  <i class="bi" [class.bi-pause-circle]="offer.isActive" [class.bi-play-circle]="!offer.isActive"></i>
+                </button>
+                <button class="admin-icon-button admin-icon-button--danger" type="button" (click)="deleteOffer(offer)" title="Delete offer">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="admin-pagination" *ngIf="campaignPagination.totalPages > 1">
+      <button class="admin-page__ghost-button" type="button" [disabled]="!campaignPagination.hasPreviousPage" (click)="goToCampaignPage(campaignPagination.page - 1)">
+        Previous
+      </button>
+      <span>Page {{ campaignPagination.page }} of {{ campaignPagination.totalPages }}</span>
+      <button class="admin-page__ghost-button" type="button" [disabled]="!campaignPagination.hasNextPage" (click)="goToCampaignPage(campaignPagination.page + 1)">
+        Next
+      </button>
+    </footer>
+  </section>
+
+  <section class="admin-table-card">
+    <div class="admin-table-card__header">
+      <div>
+        <h2>Product Discounts</h2>
+        <p>Legacy direct product pricing using `OfferPrice`, `CompareAtPrice`, and optional offer windows.</p>
+      </div>
+      <span class="admin-section-count">{{ productDiscountPagination.totalItems }}</span>
+    </div>
+
+    <div class="admin-state-card" *ngIf="productDiscountsLoading">
+      <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+      <span>Loading product discounts...</span>
+    </div>
+
+    <div class="admin-state-card admin-state-card--error" *ngIf="!productDiscountsLoading && productDiscountsErrorMessage">
+      <h2>Product discounts unavailable</h2>
+      <p>{{ productDiscountsErrorMessage }}</p>
+      <button class="admin-page__ghost-button" type="button" (click)="loadProductDiscounts()">Retry</button>
+    </div>
+
+    <div class="admin-empty-state" *ngIf="!productDiscountsLoading && !productDiscountsErrorMessage && productDiscounts.length === 0">
+      <h2>No direct product discounts found</h2>
+      <p>Discounted products will appear here when a direct sale price is configured on a product record.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="!productDiscountsLoading && !productDiscountsErrorMessage && productDiscounts.length > 0">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Base price</th>
+            <th>Direct sale price</th>
+            <th>Window</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of productDiscounts; trackBy: trackByProductDiscountId">
+            <td>
+              <div class="admin-row-media">
+                <img [src]="resolveImage(product.mainImageUrl)" [alt]="product.name" width="64" height="64" />
+                <div>
+                  <strong>{{ product.name }}</strong>
+                  <span>#{{ product.id }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ product.categoryName }}</td>
+            <td>{{ product.price | egpPrice }}</td>
+            <td>{{ product.offerPrice | egpPrice }}</td>
+            <td>{{ product.offerStart ? (product.offerStart | date:'mediumDate') : 'Immediate' }} - {{ product.offerEnd ? (product.offerEnd | date:'mediumDate') : 'Open ended' }}</td>
+            <td><span [class]="statusBadgeClass(product.status)">{{ product.status }}</span></td>
+            <td class="text-end">
+              <div class="admin-action-group">
+                <button class="admin-icon-button" type="button" (click)="editProduct(product.id)" title="Edit discounted product">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="admin-pagination" *ngIf="productDiscountPagination.totalPages > 1">
+      <button class="admin-page__ghost-button" type="button" [disabled]="!productDiscountPagination.hasPreviousPage" (click)="goToProductDiscountPage(productDiscountPagination.page - 1)">
+        Previous
+      </button>
+      <span>Page {{ productDiscountPagination.page }} of {{ productDiscountPagination.totalPages }}</span>
+      <button class="admin-page__ghost-button" type="button" [disabled]="!productDiscountPagination.hasNextPage" (click)="goToProductDiscountPage(productDiscountPagination.page + 1)">
+        Next
+      </button>
+    </footer>
+  </section>
+</section>

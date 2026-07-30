@@ -1,0 +1,63 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Users Admin</p>
+      <h1>Administrator access</h1>
+      <p class="admin-page__intro">Review administrator accounts and remove access when needed.</p>
+    </div>
+
+    <div class="admin-search">
+      <input
+        type="email"
+        [(ngModel)]="searchEmail"
+        placeholder="Search by email"
+        (keyup.enter)="searchUsers()" />
+      <button class="admin-page__ghost-button" type="button" (click)="searchUsers()">Search</button>
+      <button class="admin-page__ghost-button" type="button" (click)="resetSearch()">Reset</button>
+    </div>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading administrators...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>Users unavailable</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="admin-page__ghost-button" type="button" (click)="loadUsers()">Retry</button>
+  </div>
+
+  <div class="admin-table-card" *ngIf="!loading && !errorMessage">
+    <div class="admin-empty-state" *ngIf="users.length === 0">
+      <h2>No administrator found</h2>
+      <p>Try a different email search or reset the directory view.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="users.length > 0">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users; trackBy: trackByEmail">
+            <td>
+              <div class="admin-user-row">
+                <span>{{ user.email.charAt(0).toUpperCase() }}</span>
+                <strong>{{ user.email }}</strong>
+              </div>
+            </td>
+            <td class="text-end">
+              <button class="admin-icon-button admin-icon-button--danger" type="button" (click)="deleteUser(user)">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

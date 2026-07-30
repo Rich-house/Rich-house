@@ -1,0 +1,120 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">{{ isEditMode ? 'Edit Offer' : 'Add Offer' }}</p>
+      <h1>{{ pageTitle }}</h1>
+      <p class="admin-page__intro">Set the campaign timing, discount value, and linked catalog targets.</p>
+    </div>
+
+    <a class="admin-page__ghost-button" routerLink="/dashboard/offers">Back to offers</a>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading offer...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>{{ errorTitle || 'Unable to load offer' }}</h2>
+    <p>{{ errorMessage }}</p>
+    <div class="admin-state-card__actions">
+      <button class="admin-page__ghost-button" type="button" (click)="loadFormData()">Retry</button>
+      <a class="admin-page__ghost-button" routerLink="/dashboard/offers">Back</a>
+    </div>
+  </div>
+
+  <form class="admin-form-card" *ngIf="!loading && !errorMessage" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <section class="admin-form-section">
+      <h2>Offer details</h2>
+      <div class="admin-form-grid">
+        <div class="admin-form-field">
+          <label for="offer-title">Title</label>
+          <input id="offer-title" type="text" formControlName="title" />
+        </div>
+        <div class="admin-form-field">
+          <label for="offer-type">Discount type</label>
+          <select id="offer-type" formControlName="discountType">
+            <option value="Percentage">Percentage</option>
+            <option value="FixedAmount">Fixed amount</option>
+          </select>
+        </div>
+        <div class="admin-form-field">
+          <label for="offer-value">Discount value</label>
+          <input id="offer-value" type="number" min="0.01" step="0.01" formControlName="discountValue" />
+        </div>
+        <div class="admin-form-field">
+          <label for="offer-start">Start date</label>
+          <input id="offer-start" type="datetime-local" formControlName="startDate" />
+        </div>
+        <div class="admin-form-field">
+          <label for="offer-end">End date</label>
+          <input id="offer-end" type="datetime-local" formControlName="endDate" />
+        </div>
+        <label class="admin-checkbox-field">
+          <input type="checkbox" formControlName="isActive" />
+          <span>Offer is active</span>
+        </label>
+        <div class="admin-form-field admin-form-field--full">
+          <label for="offer-description">Description</label>
+          <textarea id="offer-description" rows="4" formControlName="description"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Offer image</h2>
+      <div class="admin-image-layout">
+        <img [src]="previewUrl || resolveImage(currentImageUrl)" alt="Offer preview" width="320" height="220" />
+        <div class="admin-image-layout__controls">
+          <label class="admin-upload-button">
+            <input type="file" accept=".jpg,.jpeg,.png,.webp" (change)="onFileSelected($event)" />
+            <span>Upload image</span>
+          </label>
+
+          <label class="admin-checkbox-field" *ngIf="currentImageUrl || previewUrl">
+            <input type="checkbox" formControlName="removeImage" />
+            <span>Remove current image</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Linked products</h2>
+      <div class="admin-form-field">
+        <label for="offer-product-search">Search products</label>
+        <input id="offer-product-search" type="search" formControlName="productSearch" placeholder="Search products" />
+      </div>
+      <div class="admin-selection-grid">
+        <label class="admin-selection-item" *ngFor="let product of filteredProducts; trackBy: trackByProductId">
+          <input type="checkbox" [checked]="hasProduct(product.id)" (change)="onToggleProduct(product.id, $any($event.target).checked)" />
+          <span>{{ product.name }}</span>
+          <small>{{ product.categoryName }}</small>
+        </label>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Linked categories</h2>
+      <div class="admin-form-field">
+        <label for="offer-category-search">Search categories</label>
+        <input id="offer-category-search" type="search" formControlName="categorySearch" placeholder="Search categories" />
+      </div>
+      <div class="admin-selection-grid">
+        <label class="admin-selection-item" *ngFor="let category of filteredCategories; trackBy: trackByCategoryId">
+          <input type="checkbox" [checked]="hasCategory(category.id)" (change)="onToggleCategory(category.id, $any($event.target).checked)" />
+          <span>{{ category.name }}</span>
+          <small>{{ category.slug }}</small>
+        </label>
+      </div>
+    </section>
+
+    <div class="admin-form-actions">
+      <a class="admin-page__ghost-button" routerLink="/dashboard/offers">Cancel</a>
+      <button class="admin-page__primary-button" type="submit" [disabled]="form.invalid || saving">
+        <span *ngIf="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>{{ saving ? 'Saving...' : 'Save Offer' }}</span>
+      </button>
+    </div>
+  </form>
+</section>

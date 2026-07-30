@@ -1,0 +1,185 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">{{ isEditMode ? 'Edit Product' : 'Add Product' }}</p>
+      <h1>{{ pageTitle }}</h1>
+      <p class="admin-page__intro">{{ pageSubtitle }}</p>
+    </div>
+
+    <a class="admin-page__ghost-button" routerLink="/dashboard/products">Back to products</a>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading product...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>{{ errorTitle || 'Unable to load product' }}</h2>
+    <p>{{ errorMessage }}</p>
+    <div class="admin-state-card__actions">
+      <button class="admin-page__ghost-button" type="button" (click)="loadFormData()">Retry</button>
+      <a class="admin-page__ghost-button" routerLink="/dashboard/products">Back</a>
+    </div>
+  </div>
+
+  <form class="admin-form-card" *ngIf="!loading && !errorMessage" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <section class="admin-form-section">
+      <h2>Product details</h2>
+      <div class="admin-form-grid">
+        <div class="admin-form-field">
+          <label for="product-name">Name</label>
+          <input id="product-name" type="text" formControlName="name" />
+        </div>
+
+        <div class="admin-form-field">
+          <label for="product-slug">Slug</label>
+          <input id="product-slug" type="text" formControlName="slug" (input)="onSlugInput()" />
+        </div>
+
+        <div class="admin-form-field">
+          <label for="product-category">Category</label>
+          <select id="product-category" formControlName="categoryId">
+            <option [ngValue]="null">Select category</option>
+            <option *ngFor="let category of categories; trackBy: trackByCategoryId" [ngValue]="category.id">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="admin-form-field">
+          <label for="product-status">Status</label>
+          <select id="product-status" formControlName="status">
+            <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <div class="admin-form-field admin-form-field--full">
+          <label for="product-short-description">Short description</label>
+          <textarea id="product-short-description" rows="2" formControlName="shortDescription"></textarea>
+        </div>
+
+        <div class="admin-form-field admin-form-field--full">
+          <label for="product-description">Full description</label>
+          <textarea id="product-description" rows="5" formControlName="description"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Pricing and stock</h2>
+      <div class="admin-form-grid">
+        <div class="admin-form-field">
+          <label for="product-price">Base price</label>
+          <input id="product-price" type="number" min="0" formControlName="price" />
+        </div>
+        <div class="admin-form-field">
+          <label for="product-compare-price">Compare-at price</label>
+          <input id="product-compare-price" type="number" min="0" formControlName="compareAtPrice" />
+        </div>
+        <div class="admin-form-field">
+          <label for="product-offer-price">Direct sale price</label>
+          <input id="product-offer-price" type="number" min="0" formControlName="offerPrice" />
+        </div>
+        <div class="admin-form-field">
+          <label for="product-stock">Stock quantity</label>
+          <input id="product-stock" type="number" min="0" formControlName="stockQuantity" />
+        </div>
+        <div class="admin-form-field">
+          <label for="product-offer-start">Offer start</label>
+          <input id="product-offer-start" type="datetime-local" formControlName="offerStart" />
+        </div>
+        <div class="admin-form-field">
+          <label for="product-offer-end">Offer end</label>
+          <input id="product-offer-end" type="datetime-local" formControlName="offerEnd" />
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Sizes and colors</h2>
+      <div class="admin-form-grid admin-form-grid--single">
+        <div class="admin-size-grid">
+          <label class="admin-size-option" *ngFor="let size of sizes; trackBy: trackBySizeId">
+            <input type="checkbox" [checked]="hasSize(size.id)" (change)="onToggleSize(size.id, $any($event.target).checked)" />
+            <span>{{ size.name }}</span>
+          </label>
+        </div>
+
+        <div class="admin-form-field">
+          <label for="product-colors">Colors</label>
+          <input id="product-colors" type="text" formControlName="colors" placeholder="Black, Navy, Forest Green" />
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <h2>Merchandising</h2>
+      <div class="admin-toggle-grid">
+        <label class="admin-checkbox-field"><input type="checkbox" formControlName="isActive" /><span>Active</span></label>
+        <label class="admin-checkbox-field"><input type="checkbox" formControlName="isFeatured" /><span>Featured</span></label>
+        <label class="admin-checkbox-field"><input type="checkbox" formControlName="isBestSeller" /><span>Best seller</span></label>
+        <label class="admin-checkbox-field"><input type="checkbox" formControlName="isNewArrival" /><span>New arrival</span></label>
+      </div>
+    </section>
+
+    <section class="admin-form-section">
+      <div class="admin-form-section__header">
+        <h2>Product gallery</h2>
+        <label class="admin-upload-button">
+          <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple (change)="onFilesSelected($event)" />
+          <span>Upload images</span>
+        </label>
+      </div>
+
+      <div class="admin-media-grid" *ngIf="images.length > 0; else noImages">
+        <article class="admin-media-card" *ngFor="let image of images; let index = index; trackBy: trackByImageToken">
+          <img [src]="resolveImage(image.url)" [alt]="'Product image ' + (index + 1)" width="240" height="240" />
+          <div class="admin-media-card__actions">
+            <button class="admin-page__ghost-button" type="button" (click)="setMainImage(image.token)">
+              {{ mainImageToken === image.token ? 'Main image' : 'Set as main' }}
+            </button>
+            <div class="admin-media-card__controls">
+              <button class="admin-icon-button" type="button" (click)="moveImage(index, -1)" [disabled]="index === 0">
+                <i class="bi bi-arrow-left"></i>
+              </button>
+              <button class="admin-icon-button" type="button" (click)="moveImage(index, 1)" [disabled]="index === images.length - 1">
+                <i class="bi bi-arrow-right"></i>
+              </button>
+              <button class="admin-icon-button admin-icon-button--danger" type="button" (click)="removeImage(image.token)">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #noImages>
+        <div class="admin-empty-state admin-empty-state--embedded">
+          <h2>No images selected</h2>
+          <p>Upload at least one image before saving the product.</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <div class="admin-form-actions">
+      <a class="admin-page__ghost-button" routerLink="/dashboard/products">Cancel</a>
+      <button class="admin-page__primary-button" type="submit" [disabled]="form.invalid || saving || images.length === 0">
+        <span *ngIf="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span>{{ saving ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Save Product') }}</span>
+      </button>
+    </div>
+
+    <div class="admin-inline-feedback admin-inline-feedback--error" *ngIf="showSubmitValidation">
+      <strong>Save is currently blocked.</strong>
+      <ul>
+        <li *ngFor="let reason of submitBlockedReasons">{{ reason }}</li>
+      </ul>
+    </div>
+
+    <div class="admin-inline-feedback admin-inline-feedback--error" *ngIf="saveErrorMessage">
+      <strong>We could not save this product.</strong>
+      <p>{{ saveErrorMessage }}</p>
+    </div>
+  </form>
+</section>

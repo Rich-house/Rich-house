@@ -1,14 +1,15 @@
-﻿using Marketify.Contracts.Category;
+using Marketify.Contracts.Category;
 
-namespace Marketify.Services
+namespace Marketify.Services;
+
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-        Task<bool> CreateCategory(CreateCategoryDto Dto);
-        Task<bool> EditCategory(int Id,EditCategory Dto);
-        Task<bool> SoftDelete(int Id);
-        Task<GetCategoryByIdDTO?> GetCategoryById(int Id);
-        Task<GetCategoryByIdDTO?> GetCategoryBySlugAsync(string slug);
-        Task<IEnumerable<GetCategoryByIdDTO>> GetAllCategories();
-    }
+    Task<IReadOnlyList<AdminCategoryListItemDto>> GetAdminCategoriesAsync(CancellationToken cancellationToken = default);
+    Task<AdminCategoryDetailsDto?> GetAdminCategoryByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<AdminCategoryDetailsDto> CreateAdminCategoryAsync(UpsertCategoryDto dto, CancellationToken cancellationToken = default);
+    Task<AdminCategoryDetailsDto> UpdateAdminCategoryAsync(int id, UpsertCategoryDto dto, CancellationToken cancellationToken = default);
+    Task DeleteCategoryAsync(int id, CancellationToken cancellationToken = default);
+    Task<GetCategoryByIdDTO?> GetCategoryById(int id);
+    Task<GetCategoryByIdDTO?> GetCategoryBySlugAsync(string slug);
+    Task<IEnumerable<GetCategoryByIdDTO>> GetAllCategories();
 }

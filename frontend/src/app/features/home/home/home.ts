@@ -136,7 +136,7 @@ export class Home {
   }
 
   get featuredCategories(): CategoryItem[] {
-    return this.categories.slice(0, 4);
+    return this.categories;
   }
 
   get editorialImageUrl(): string {
