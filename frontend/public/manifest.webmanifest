@@ -5,8 +5,8 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#fdfbf8",
-  "theme_color": "#121212",
+  "background_color": "#f8f4ee",
+  "theme_color": "#171614",
   "icons": [
     {
       "src": "/assets/brand/rich-house-icon-192.png",

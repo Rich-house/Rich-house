@@ -2,10 +2,25 @@ import { Routes } from '@angular/router';
 import { ContentPageData } from './shared/components/content-page/content-page';
 import { richHouseBrand } from './core/config/site-settings.config';
 import { authGuard } from './core/guards/auth-guard';
+import { SeoBreadcrumbItem } from './core/services/seo.service';
 
 const defaultStoreDescription = 'Premium menswear, suits, shirts and formalwear from Rich House.';
 const browserTitle = richHouseBrand.browserTitle;
 const adminRobots = 'noindex,nofollow';
+const homeBreadcrumbs: SeoBreadcrumbItem[] = [{ name: 'Home', path: '/' }];
+const shopBreadcrumbs: SeoBreadcrumbItem[] = [...homeBreadcrumbs, { name: 'Shop', path: '/shop' }];
+const offersBreadcrumbs: SeoBreadcrumbItem[] = [
+  ...homeBreadcrumbs,
+  { name: 'Offers', path: '/offers' },
+];
+const aboutBreadcrumbs: SeoBreadcrumbItem[] = [
+  ...homeBreadcrumbs,
+  { name: 'About', path: '/about' },
+];
+const contactBreadcrumbs: SeoBreadcrumbItem[] = [
+  ...homeBreadcrumbs,
+  { name: 'Contact', path: '/contact' },
+];
 
 const sizeGuideContent: ContentPageData = {
   eyebrow: 'Size Guide',
@@ -124,6 +139,8 @@ export const routes: Routes = [
     data: {
       seo: {
         description: defaultStoreDescription,
+        keywords: richHouseBrand.defaultKeywords,
+        breadcrumbs: homeBreadcrumbs,
         type: 'website',
       },
     },
@@ -132,34 +149,60 @@ export const routes: Routes = [
   { path: 'home', redirectTo: '', pathMatch: 'full' },
   {
     path: 'shop',
-    title: browserTitle,
+    title: `Shop | ${richHouseBrand.name}`,
     data: {
       seo: {
         description:
           'Browse the Rich House menswear collection, including suits, shirts, elevated essentials, and formalwear.',
+        keywords: [
+          richHouseBrand.name,
+          'shop',
+          'menswear',
+          'formalwear',
+          'shirts',
+          'suits',
+          'belts',
+          'shoes',
+        ],
+        breadcrumbs: shopBreadcrumbs,
       },
     },
     loadComponent: () => import('./features/products/product-list/product').then((m) => m.Product),
   },
   {
     path: 'shop/:categorySlug',
-    title: browserTitle,
+    title: `Shop | ${richHouseBrand.name}`,
     data: {
       seo: {
         description:
           'Explore Rich House categories, from tailoring and shirts to occasion-ready menswear essentials.',
+        keywords: [
+          richHouseBrand.name,
+          'category',
+          'menswear',
+          'formalwear',
+        ],
+        breadcrumbs: shopBreadcrumbs,
       },
     },
     loadComponent: () => import('./features/products/product-list/product').then((m) => m.Product),
   },
   {
     path: 'offers',
-    title: browserTitle,
+    title: `Offers | ${richHouseBrand.name}`,
     data: {
       offersOnly: true,
       seo: {
         description:
           'Discover current Rich House offers across premium menswear, tailoring, and formalwear.',
+        keywords: [
+          richHouseBrand.name,
+          'offers',
+          'discounts',
+          'menswear sale',
+          'formalwear offers',
+        ],
+        breadcrumbs: offersBreadcrumbs,
       },
     },
     loadComponent: () => import('./features/products/product-list/product').then((m) => m.Product),
@@ -304,11 +347,19 @@ export const routes: Routes = [
   },
   {
     path: 'contact',
-    title: browserTitle,
+    title: `Contact | ${richHouseBrand.name}`,
     data: {
       seo: {
         description:
           'Contact Rich House for sizing, availability, styling guidance, and customer support.',
+        keywords: [
+          richHouseBrand.name,
+          'contact',
+          'WhatsApp',
+          'store location',
+          'customer support',
+        ],
+        breadcrumbs: contactBreadcrumbs,
       },
     },
     loadComponent: () => import('./features/help/help-center/help-center').then((m) => m.HelpCenter),
@@ -321,11 +372,19 @@ export const routes: Routes = [
   },
   {
     path: 'about',
-    title: browserTitle,
+    title: `About | ${richHouseBrand.name}`,
     data: {
       seo: {
         description:
           'Learn about the Rich House menswear brand, its visual direction, and its approach to modern formalwear.',
+        keywords: [
+          richHouseBrand.name,
+          'about',
+          'menswear brand',
+          'formalwear',
+          'tailoring',
+        ],
+        breadcrumbs: aboutBreadcrumbs,
       },
     },
     loadComponent: () => import('./features/about/aboutus/aboutus').then((m) => m.Aboutus),
@@ -334,12 +393,14 @@ export const routes: Routes = [
   { path: 'about/values', redirectTo: 'about', pathMatch: 'full' },
   {
     path: 'size-guide',
-    title: browserTitle,
+    title: `Size Guide | ${richHouseBrand.name}`,
     data: {
       content: sizeGuideContent,
       seo: {
         description:
           'Use the Rich House size guide for tailoring, shirts, and knitwear across current catalog sizing.',
+        keywords: [richHouseBrand.name, 'size guide', 'menswear sizes', 'suits', 'shirts'],
+        breadcrumbs: [...homeBreadcrumbs, { name: 'Size Guide', path: '/size-guide' }],
       },
     },
     loadComponent: () =>
@@ -347,12 +408,14 @@ export const routes: Routes = [
   },
   {
     path: 'returns',
-    title: browserTitle,
+    title: `Returns and Exchanges | ${richHouseBrand.name}`,
     data: {
       content: returnsContent,
       seo: {
         description:
           'Review the current Rich House returns and exchanges guidance for menswear orders.',
+        keywords: [richHouseBrand.name, 'returns', 'exchanges', 'order support'],
+        breadcrumbs: [...homeBreadcrumbs, { name: 'Returns and Exchanges', path: '/returns' }],
       },
     },
     loadComponent: () =>
@@ -360,12 +423,14 @@ export const routes: Routes = [
   },
   {
     path: 'privacy',
-    title: browserTitle,
+    title: `Privacy Policy | ${richHouseBrand.name}`,
     data: {
       content: privacyContent,
       seo: {
         description:
           'Read the current Rich House privacy overview for account, order, and storefront information handling.',
+        keywords: [richHouseBrand.name, 'privacy policy', 'customer information', 'orders'],
+        breadcrumbs: [...homeBreadcrumbs, { name: 'Privacy Policy', path: '/privacy' }],
       },
     },
     loadComponent: () =>
@@ -373,11 +438,13 @@ export const routes: Routes = [
   },
   {
     path: 'terms',
-    title: browserTitle,
+    title: `Terms | ${richHouseBrand.name}`,
     data: {
       content: termsContent,
       seo: {
         description: 'Review the current Rich House storefront terms and ordering guidance.',
+        keywords: [richHouseBrand.name, 'terms', 'store policy', 'ordering'],
+        breadcrumbs: [...homeBreadcrumbs, { name: 'Terms', path: '/terms' }],
       },
     },
     loadComponent: () =>
