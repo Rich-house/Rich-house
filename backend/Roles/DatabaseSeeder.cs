@@ -1,4 +1,4 @@
-﻿using Marketify.Entites;
+using Marketify.Entites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
@@ -45,12 +45,6 @@ namespace Marketify.Roles
             ILogger? logger = null,
             CancellationToken cancellationToken = default)
         {
-            var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
-            if (!environment.IsDevelopment())
-            {
-                return;
-            }
-
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
