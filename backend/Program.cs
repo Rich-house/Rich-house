@@ -343,6 +343,11 @@ static async Task ApplyMigrationsAndSeedAsync(
             logger,
             cancellationToken);
     }
+
+    await RichHouseProductionCatalogSeeder.SeedBeltsCatalogAsync(
+        dbContext,
+        logger,
+        cancellationToken);
 }
 
 static string GetDatabaseName(string connectionString)

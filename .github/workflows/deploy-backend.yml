@@ -41,6 +41,22 @@ jobs:
         working-directory: backend
         run: dotnet build Marketify.csproj --configuration Release --no-restore
 
+      - name: Install dotnet-ef
+        run: |
+          dotnet tool install --global dotnet-ef --version "9.*"
+          "$env:USERPROFILE\\.dotnet\\tools" >> $env:GITHUB_PATH
+
+      - name: Apply production EF migrations
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
+          ConnectionStrings__DefaultConnection: ${{ secrets.PRODUCTION_DEFAULT_CONNECTION_STRING }}
+        run: |
+          dotnet ef database update `
+            --project backend/Marketify.csproj `
+            --startup-project backend/Marketify.csproj `
+            --configuration Release `
+            --no-build
+
       - name: Publish backend
         working-directory: backend
         run: |
@@ -144,8 +160,7 @@ jobs:
 
       - name: Verify production API
         run: |
-          $healthUrl = $env:PRODUCTION_URL -replace '^http://', 'https://'
-          $healthUrl = $healthUrl.TrimEnd('/')
+          $healthUrl = ($env:PRODUCTION_URL -replace '^http://', 'https://').TrimEnd('/') + '/health'
 
           for ($attempt = 1; $attempt -le 10; $attempt++) {
             try {
@@ -158,8 +173,8 @@ jobs:
               $statusCode = [int]$response.StatusCode
               Write-Host "Health check attempt $attempt returned HTTP $statusCode"
 
-              if ($statusCode -lt 500) {
-                Write-Host "MonsterASP backend is reachable."
+              if ($statusCode -eq 200) {
+                Write-Host "MonsterASP backend health check passed."
                 exit 0
               }
             }
@@ -170,4 +185,4 @@ jobs:
             Start-Sleep -Seconds 10
           }
 
-          throw "Backend did not become reachable after deployment."
+          throw "Backend health endpoint did not return HTTP 200 after deployment."
