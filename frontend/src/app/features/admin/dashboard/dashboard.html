@@ -1,201 +1,49 @@
-<div class="d-flex dashboard-wrapper" style="min-height: 100vh;">
-  
-  <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column" style="width: 280px; position: sticky; top: 0; height: 100vh; background: #1a1a2e;">
-    <div class="p-4 mb-4 mt-2">
-      <div class="d-flex align-items-center justify-content-center gap-3 text-white">
-        <img
-          class="rh-brand-logo rh-brand-logo--sidebar"
-          src="assets/brand/rich-house-logo-transparent.png"
-          alt="Rich House"
-          width="415"
-          height="420" />
-        <div class="text-start">
-          <div class="text-uppercase small fw-semibold" style="letter-spacing: 0.18em; color: #c8a972;">
-            Rich House
-          </div>
-          <div class="fw-bold" style="letter-spacing: 0.08em;">Admin</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="nav flex-column flex-grow-1">
-      <button class="nav-link-custom" [class.active]="activeTab === 'products'" (click)="activeTab = 'products'">
-          📦 <span>Products</span>
-      </button>
+<div class="admin-shell">
+  <button
+    class="admin-shell__mobile-toggle"
+    type="button"
+    (click)="toggleSidebar()"
+    aria-label="Toggle dashboard navigation">
+    <i class="bi bi-list"></i>
+  </button>
 
-      <!-- التبويب الجديد -->
-      <button class="nav-link-custom" [class.active]="activeTab === 'categories'" (click)="activeTab = 'categories'">
-          📁 <span>Categories</span>
-      </button>
-      
-      <button
-          *ngIf="canManageUsers"
-          class="nav-link-custom"
-          [class.active]="activeTab === 'users'"
-          (click)="activeTab = 'users'">
-          👥 <span>Users Admin</span>
-      </button>
-    </div>
+  <button
+    *ngIf="sidebarOpen"
+    class="admin-shell__overlay"
+    type="button"
+    (click)="closeSidebar()"
+    aria-label="Close dashboard navigation"></button>
 
-    <div class="p-4 border-top border-secondary">
-      <button class="btn btn-outline-danger w-100 rounded-3" (click)="onLogout()">
-        Logout
-      </button>
-    </div>
-  </div>
-
-  <!-- Main Content Area -->
-  <div class="flex-grow-1 p-5 bg-light">
-    
-    <!-- Products View -->
-    <div *ngIf="activeTab === 'products'" class="animate-fade">
-      <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-          <h2 class="fw-bold text-dark m-0">Products Inventory</h2>
-          <p class="text-muted small">Manage your stock and pricing</p>
-        </div>
-        <button class="btn btn-primary-custom text-white" (click)="addProduct()" style="background: #5d5be5;">
-          + Add Product
-        </button>
-      </div>
-
-      <div class="custom-card card shadow-sm border-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th class="ps-4">Product Name</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let product of products">
-                <td class="ps-4">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar bg-light p-2 rounded-3 me-3 text-primary">📦</div>
-                    <div>
-                      <div class="fw-bold text-dark">{{ product.name }}</div>
-                      <div class="text-muted extra-small">#{{ product.id }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td><span class="badge rounded-pill bg-info text-dark">{{ product.categoryName }}</span></td>
-                <td><span class="fw-bold text-dark">${{ product.price }}</span></td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-light me-1" (click)="editProduct(product.id)">✏️</button>
-                  <button class="btn btn-sm btn-light text-danger" (click)="deleteProduct(product.id)">🗑️</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+  <aside class="admin-shell__sidebar" [class.is-open]="sidebarOpen">
+    <div class="admin-shell__brand">
+      <img [src]="brand.logoPath" [alt]="brand.logoAlt" width="140" height="60" />
+      <div>
+        <p>Rich House</p>
+        <span>Catalog dashboard</span>
       </div>
     </div>
 
-    <!-- Categories View (القسم الجديد المضاف) -->
-    <div *ngIf="activeTab === 'categories'" class="animate-fade">
-      <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-          <h2 class="fw-bold text-dark m-0">Categories</h2>
-          <p class="text-muted small">Organize your products collection</p>
-        </div>
-        <button class="btn btn-primary-custom text-white" (click)="addCategory()" style="background: #5d5be5;">
-          + Add Category
-        </button>
-      </div>
+    <nav class="admin-shell__nav" aria-label="Dashboard navigation">
+      <ng-container *ngFor="let item of navItems; trackBy: trackByRoute">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard/overview' }"
+          [attr.title]="item.superAdminOnly && !canManageUsers ? 'Super admin access required' : null"
+          (click)="closeSidebar()">
+          <i [class]="'bi ' + item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      </ng-container>
+    </nav>
 
-      <div class="custom-card card shadow-sm border-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th class="ps-4">Category Name</th>
-                <th>ID</th>
-                <th class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let cat of categories">
-                <td class="ps-4">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar bg-soft-primary p-2 rounded-3 me-3 text-primary">📁</div>
-                    <span class="fw-bold text-dark">{{ cat.name }}</span>
-                  </div>
-                </td>
-                <td><span class="text-muted small">#{{ cat.id }}</span></td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-light me-1" (click)="editCategory(cat.id)">✏️</button>
-                  <button class="btn btn-sm btn-light text-danger" (click)="deleteCategory(cat.id)">🗑️</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <button class="admin-shell__logout" type="button" (click)="onLogout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Logout</span>
+    </button>
+  </aside>
 
-    <!-- Users View -->
-    <div *ngIf="canManageUsers && activeTab === 'users'" class="animate-fade">
-      <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-          <h2 class="fw-bold text-dark m-0">User Directory</h2>
-          <p class="text-muted small">Control user access and permissions</p>
-        </div>
-
-        <div class="d-flex gap-2">
-            <div class="input-group" style="width: 350px;">
-                <input 
-                  type="text" 
-                  class="form-control border-0 shadow-sm" 
-                  placeholder="Enter user email..." 
-                  [(ngModel)]="searchEmail"
-                  (keyup.enter)="onSearchUser()">
-                <button class="btn btn-primary" (click)="onSearchUser()" style="background: #5d5be5;">
-                  Search
-                </button>
-            </div>
-            <button *ngIf="searchEmail" class="btn btn-outline-secondary shadow-sm" (click)="clearSearch()">Reset</button>
-        </div>
-      </div>
-
-      <div class="custom-card card shadow-sm border-0">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th class="ps-4">User Details</th>
-                <th>Role</th>
-                <th class="text-center">Management</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let user of users">
-                <td class="ps-4">
-                  <div class="d-flex align-items-center">
-                    <div class="avatar bg-success text-white rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                      {{ user.email.charAt(0).toUpperCase() }}
-                    </div>
-                    <span class="fw-semibold">{{ user.email }}</span>
-                  </div>
-                </td>
-                <td><span class="badge bg-soft-success text-success border border-success px-3">Active User</span></td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-outline-danger" (click)="onDeleteUser(user.email)">
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div *ngIf="users.length === 0" class="text-center py-5">
-              <h4 class="text-muted">No user found with this email</h4>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+  <main class="admin-shell__content">
+    <router-outlet></router-outlet>
+  </main>
 </div>

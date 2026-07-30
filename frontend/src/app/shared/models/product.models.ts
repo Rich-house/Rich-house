@@ -99,3 +99,84 @@ export interface CatalogResponse<TItem> {
   items: TItem[];
   meta: PaginationMeta;
 }
+
+export interface AdminProductQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  categoryId?: number | null;
+  isActive?: boolean | null;
+  lowStockOnly?: boolean | null;
+}
+
+export interface AdminProductDiscountQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string | null;
+}
+
+export interface AdminProductListItem {
+  id: number;
+  name: string;
+  slug: string | null;
+  categoryId: number;
+  categoryName: string;
+  mainImageUrl: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  salePrice: number | null;
+  stockQuantity: number;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  isBestSeller: boolean;
+  isNewArrival: boolean;
+}
+
+export interface AdminProductDiscountItem {
+  id: number;
+  name: string;
+  slug: string | null;
+  categoryId: number;
+  categoryName: string;
+  mainImageUrl: string | null;
+  price: number;
+  compareAtPrice: number | null;
+  offerPrice: number;
+  offerStart: string | null;
+  offerEnd: string | null;
+  isActive: boolean;
+  isCategoryActive: boolean;
+  status: string;
+}
+
+export interface AdminProductImage {
+  id: number | null;
+  url: string;
+  isMain: boolean;
+  sortOrder: number;
+}
+
+export interface AdminProductDetails {
+  id: number;
+  name: string;
+  slug: string;
+  shortDescription: string | null;
+  description: string;
+  categoryId: number;
+  price: number;
+  compareAtPrice: number | null;
+  offerPrice: number | null;
+  offerStart: string | null;
+  offerEnd: string | null;
+  stockQuantity: number;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  isBestSeller: boolean;
+  isNewArrival: boolean;
+  selectedSizeIds: number[];
+  colors: string[];
+  images: AdminProductImage[];
+}

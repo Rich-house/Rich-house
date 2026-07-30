@@ -1,0 +1,97 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Overview</p>
+      <h1>Catalog management</h1>
+      <p class="admin-page__intro">Track inventory health, current offers, and recent catalog updates.</p>
+    </div>
+
+    <button class="admin-page__ghost-button" type="button" (click)="loadSummary()">Refresh</button>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading dashboard overview...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>Overview unavailable</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="admin-page__ghost-button" type="button" (click)="loadSummary()">Retry</button>
+  </div>
+
+  <ng-container *ngIf="!loading && summary">
+    <div class="overview-stats">
+      <article class="overview-stat-card">
+        <span>Total products</span>
+        <strong>{{ summary.totalProducts }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Active products</span>
+        <strong>{{ summary.activeProducts }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Inactive products</span>
+        <strong>{{ summary.inactiveProducts }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Total categories</span>
+        <strong>{{ summary.totalCategories }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Active campaign offers</span>
+        <strong>{{ summary.activeOffers }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Active product discounts</span>
+        <strong>{{ summary.activeProductDiscounts }}</strong>
+      </article>
+      <article class="overview-stat-card">
+        <span>Low-stock products</span>
+        <strong>{{ summary.lowStockProducts }}</strong>
+      </article>
+    </div>
+
+    <div class="overview-grid">
+      <section class="overview-panel">
+        <div class="overview-panel__header">
+          <h2>Recent products</h2>
+          <span>{{ summary.recentProducts.length }}</span>
+        </div>
+
+        <div class="overview-empty" *ngIf="summary.recentProducts.length === 0">
+          No products have been added yet.
+        </div>
+
+        <article class="overview-recent-item" *ngFor="let item of summary.recentProducts; trackBy: trackByRecentId">
+          <img [src]="resolveImage(item.imageUrl)" [alt]="item.title" width="64" height="64" />
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.subtitle || 'Product' }}</p>
+            <span>{{ item.status }} • {{ item.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="overview-panel">
+        <div class="overview-panel__header">
+          <h2>Recent campaign offers</h2>
+          <span>{{ summary.recentOffers.length }}</span>
+        </div>
+
+        <div class="overview-empty" *ngIf="summary.recentOffers.length === 0">
+          No campaign offers have been created yet.
+        </div>
+
+        <article class="overview-recent-item" *ngFor="let item of summary.recentOffers; trackBy: trackByRecentId">
+          <img [src]="resolveImage(item.imageUrl)" [alt]="item.title" width="64" height="64" />
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.subtitle || 'Offer' }}</p>
+            <span>{{ item.status }} • {{ item.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </article>
+      </section>
+    </div>
+  </ng-container>
+</section>

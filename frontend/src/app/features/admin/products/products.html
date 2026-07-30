@@ -1,0 +1,123 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Products</p>
+      <h1>Inventory management</h1>
+      <p class="admin-page__intro">Manage pricing, stock, imagery, and storefront merchandising flags.</p>
+    </div>
+
+    <button class="admin-page__primary-button" type="button" (click)="addProduct()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add Product</span>
+    </button>
+  </header>
+
+  <section class="admin-filter-card">
+    <input
+      type="search"
+      [(ngModel)]="query.search"
+      placeholder="Search by product name, slug, or SKU"
+      (keyup.enter)="applyFilters()" />
+
+    <select [(ngModel)]="query.categoryId" (change)="applyFilters()">
+      <option [ngValue]="null">All categories</option>
+      <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+    </select>
+
+    <select [(ngModel)]="query.isActive" (change)="applyFilters()">
+      <option [ngValue]="null">All statuses</option>
+      <option [ngValue]="true">Active only</option>
+      <option [ngValue]="false">Inactive only</option>
+    </select>
+
+    <label class="admin-checkbox-field">
+      <input type="checkbox" [(ngModel)]="query.lowStockOnly" (change)="applyFilters()" />
+      <span>Low stock only</span>
+    </label>
+  </section>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading products...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>Products unavailable</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="admin-page__ghost-button" type="button" (click)="loadProducts()">Retry</button>
+  </div>
+
+  <div class="admin-table-card" *ngIf="!loading && !errorMessage">
+    <div class="admin-empty-state" *ngIf="products.length === 0">
+      <h2>No products found</h2>
+      <p>Adjust the current filters or add a new catalog item.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="products.length > 0">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Base price</th>
+            <th>Sale price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th>Flags</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products; trackBy: trackByProductId">
+            <td>
+              <div class="admin-row-media">
+                <img [src]="resolveImage(product.mainImageUrl)" [alt]="product.name" width="64" height="64" />
+                <div>
+                  <strong>{{ product.name }}</strong>
+                  <span>#{{ product.id }}</span>
+                </div>
+              </div>
+            </td>
+            <td>{{ product.categoryName }}</td>
+            <td>{{ product.price | egpPrice }}</td>
+            <td>{{ product.salePrice ? (product.salePrice | egpPrice) : '—' }}</td>
+            <td>{{ product.stockQuantity }}</td>
+            <td>
+              <span class="admin-badge" [class.admin-badge--muted]="!product.isActive">
+                {{ product.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <div class="admin-flag-group">
+                <span *ngIf="product.isFeatured">Featured</span>
+                <span *ngIf="product.isBestSeller">Best Seller</span>
+                <span *ngIf="product.isNewArrival">New Arrival</span>
+                <span *ngIf="!product.isFeatured && !product.isBestSeller && !product.isNewArrival">—</span>
+              </div>
+            </td>
+            <td class="text-end">
+              <div class="admin-action-group">
+                <button class="admin-icon-button" type="button" (click)="editProduct(product.id)" title="Edit product">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="admin-icon-button admin-icon-button--danger" type="button" (click)="deleteProduct(product)" title="Delete product">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer class="admin-pagination" *ngIf="pagination.totalPages > 1">
+      <button class="admin-page__ghost-button" type="button" [disabled]="!pagination.hasPreviousPage" (click)="goToPage(pagination.page - 1)">
+        Previous
+      </button>
+      <span>Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
+      <button class="admin-page__ghost-button" type="button" [disabled]="!pagination.hasNextPage" (click)="goToPage(pagination.page + 1)">
+        Next
+      </button>
+    </footer>
+  </div>
+</section>

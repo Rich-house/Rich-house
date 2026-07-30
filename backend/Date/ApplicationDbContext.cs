@@ -19,6 +19,9 @@ namespace Marketify.Date
         public DbSet<Size> Sizes { get; set; }
         public DbSet<ProductSize> ProductSizes { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<Offer> Offers { get; set; }
+        public DbSet<OfferProduct> OfferProducts { get; set; }
+        public DbSet<OfferCategory> OfferCategories { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }

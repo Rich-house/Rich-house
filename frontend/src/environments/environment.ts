@@ -6,8 +6,10 @@ export const environment = {
     endpoints: {
       auth: 'api/Auth',
       admin: 'api/Admin',
+      adminCatalog: 'api/admin/catalog',
       products: 'api/Product',
       categories: 'api/Category',
+      offers: 'api/Offer',
       reviews: 'api/Review',
       cart: 'api/Cart',
       currentUser: 'api/Auth/me',

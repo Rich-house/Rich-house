@@ -8,8 +8,13 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   if (authService.hasValidSession()) {
     const requiresManagementAccess = route.data['managementOnly'] === true;
+    const requiresSuperAdmin = route.data['superAdminOnly'] === true;
     if (requiresManagementAccess && !authService.isManagementUser()) {
       return router.parseUrl('/shop');
+    }
+
+    if (requiresSuperAdmin && !authService.isSuperAdmin()) {
+      return router.parseUrl('/dashboard');
     }
 
     return true;

@@ -460,6 +460,91 @@ namespace Marketify.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Marketify.Entites.Offer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DiscountType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("EndDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTimeOffset>("StartDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive", "StartDate", "EndDate");
+
+                    b.ToTable("Offers");
+                });
+
+            modelBuilder.Entity("Marketify.Entites.OfferCategory", b =>
+                {
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OfferId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("OfferCategories");
+                });
+
+            modelBuilder.Entity("Marketify.Entites.OfferProduct", b =>
+                {
+                    b.Property<int>("OfferId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OfferId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OfferProducts");
+                });
+
             modelBuilder.Entity("Marketify.Entites.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -1131,6 +1216,44 @@ namespace Marketify.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Marketify.Entites.OfferCategory", b =>
+                {
+                    b.HasOne("Marketify.Entites.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marketify.Entites.Offer", "Offer")
+                        .WithMany("Categories")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Offer");
+                });
+
+            modelBuilder.Entity("Marketify.Entites.OfferProduct", b =>
+                {
+                    b.HasOne("Marketify.Entites.Offer", "Offer")
+                        .WithMany("Products")
+                        .HasForeignKey("OfferId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Marketify.Entites.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Offer");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Marketify.Entites.Order", b =>
                 {
                     b.HasOne("Marketify.Entites.ApplicationUser", "User")
@@ -1304,6 +1427,13 @@ namespace Marketify.Migrations
 
             modelBuilder.Entity("Marketify.Entites.Category", b =>
                 {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Marketify.Entites.Offer", b =>
+                {
+                    b.Navigation("Categories");
+
                     b.Navigation("Products");
                 });
 

@@ -1,0 +1,78 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <p class="admin-page__eyebrow">Categories</p>
+      <h1>Category management</h1>
+      <p class="admin-page__intro">Manage catalog grouping, category imagery, and storefront visibility.</p>
+    </div>
+
+    <button class="admin-page__primary-button" type="button" (click)="addCategory()">
+      <i class="bi bi-plus-lg"></i>
+      <span>Add Category</span>
+    </button>
+  </header>
+
+  <div class="admin-state-card" *ngIf="loading">
+    <div class="spinner-border spinner-border-sm" aria-hidden="true"></div>
+    <span>Loading categories...</span>
+  </div>
+
+  <div class="admin-state-card admin-state-card--error" *ngIf="!loading && errorMessage">
+    <h2>Categories unavailable</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="admin-page__ghost-button" type="button" (click)="loadCategories()">Retry</button>
+  </div>
+
+  <div class="admin-table-card" *ngIf="!loading && !errorMessage">
+    <div class="admin-empty-state" *ngIf="categories.length === 0">
+      <h2>No categories yet</h2>
+      <p>Create the first category to start structuring the Rich House catalog.</p>
+    </div>
+
+    <div class="table-responsive" *ngIf="categories.length > 0">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Slug</th>
+            <th>Status</th>
+            <th>Display order</th>
+            <th>Products</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of categories; trackBy: trackByCategoryId">
+            <td>
+              <div class="admin-row-media">
+                <img [src]="resolveImage(category.imageUrl)" [alt]="category.name" width="64" height="64" />
+                <div>
+                  <strong>{{ category.name }}</strong>
+                  <span>#{{ category.id }}</span>
+                </div>
+              </div>
+            </td>
+            <td><code>{{ category.slug }}</code></td>
+            <td>
+              <span class="admin-badge" [class.admin-badge--muted]="!category.isActive">
+                {{ category.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ category.displayOrder }}</td>
+            <td>{{ category.productCount }}</td>
+            <td class="text-end">
+              <div class="admin-action-group">
+                <button class="admin-icon-button" type="button" (click)="editCategory(category.id)" title="Edit category">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="admin-icon-button admin-icon-button--danger" type="button" (click)="deleteCategory(category)" title="Delete category">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
