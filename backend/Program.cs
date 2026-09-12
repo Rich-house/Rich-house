@@ -144,6 +144,7 @@ app.UseRateLimiter();
 app.UseRouting();
 
 app.UseCors("AllowFrontendApp");
+app.UseMiddleware<Marketify.Middleware.GlobalExceptionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

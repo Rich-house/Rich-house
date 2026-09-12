@@ -81,7 +81,7 @@ export class LoginComponent implements OnInit {
         let message = 'Login failed. Please try again.';
 
         if (describeApiError(err).kind === 'unavailable') {
-          message = 'The Rich House backend is unavailable. Start the API and try again.';
+          message = 'The Rich House service is temporarily unreachable. Please wait a moment and try again.';
         } else if (err?.error?.description) {
           message = err.error.description;
         } else if (err?.error?.message) {

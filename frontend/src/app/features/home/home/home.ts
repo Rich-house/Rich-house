@@ -396,7 +396,7 @@ export class Home {
       ),
       catchError((error) => {
         const apiError = describeApiError(error, {
-          unavailable: `The Rich House backend is not running on ${apiConfig.baseUrl} right now. Start it, then retry the homepage.`,
+          unavailable: 'The Rich House service is temporarily unreachable. Please wait a moment and retry the homepage.',
           unauthorized:
             'Your session is no longer authorized for this request. Please sign in again.',
           server:
@@ -465,8 +465,8 @@ export class Home {
     if (firstFailedSection.error === 'unavailable') {
       return {
         kind: 'unavailable',
-        title: 'Backend unavailable',
-        message: `The Rich House backend is not running on ${apiConfig.baseUrl} right now. Start it, then retry the homepage.`,
+        title: 'Service temporarily unavailable',
+        message: 'The Rich House service is temporarily unreachable. Please wait a moment and retry the homepage.',
       };
     }
 

@@ -18,9 +18,9 @@ interface ApiErrorMessages {
 
 const defaultMessages: Record<ApiErrorKind, { title: string; message: string }> = {
   unavailable: {
-    title: 'Backend unavailable',
+    title: 'Service temporarily unavailable',
     message:
-      'The Rich House backend is not responding right now. Start the API and try again.',
+      'The Rich House service is temporarily unreachable. Please wait a moment and try again.',
   },
   unauthorized: {
     title: 'Sign in required',
