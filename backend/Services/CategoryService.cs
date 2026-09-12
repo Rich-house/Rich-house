@@ -258,7 +258,9 @@ public class CategoryService(
         var slug = baseSlug;
         var suffix = 2;
 
-        while (await _context.Categories.AnyAsync(
+        while (await _context.Categories
+                   .IgnoreQueryFilters()
+                   .AnyAsync(
                    category => category.Slug == slug
                        && (!excludedCategoryId.HasValue || category.Id != excludedCategoryId.Value),
                    cancellationToken))
