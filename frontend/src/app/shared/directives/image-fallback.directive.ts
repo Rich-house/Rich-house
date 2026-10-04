@@ -6,7 +6,8 @@ import { productPlaceholderImage, resolveImageUrl } from '../../core/utils/image
   standalone: true,
 })
 export class ImageFallbackDirective {
-  @Input('appImageFallback') fallbackImage = productPlaceholderImage;
+  @Input('appImageFallback') fallbackImage: string | readonly string[] = productPlaceholderImage;
+  private readonly attemptedUrls = new Set<string>();
 
   @HostListener('error', ['$event.target'])
   onError(target: EventTarget | null): void {
@@ -14,13 +15,22 @@ export class ImageFallbackDirective {
       return;
     }
 
-    const fallbackUrl = resolveImageUrl(this.fallbackImage);
-    const absoluteFallbackUrl = new URL(fallbackUrl, document.baseURI).href;
+    const configuredFallbacks = Array.isArray(this.fallbackImage)
+      ? this.fallbackImage
+      : [this.fallbackImage];
+    const candidates = [...configuredFallbacks, productPlaceholderImage]
+      .map((candidate) => resolveImageUrl(candidate))
+      .filter((candidate, index, values) => values.indexOf(candidate) === index);
+    const currentUrl = target.currentSrc || target.src;
+    this.attemptedUrls.add(currentUrl);
 
-    if (target.currentSrc === absoluteFallbackUrl || target.src === absoluteFallbackUrl) {
-      return;
+    for (const candidate of candidates) {
+      const absoluteCandidateUrl = new URL(candidate, document.baseURI).href;
+      if (!this.attemptedUrls.has(absoluteCandidateUrl)) {
+        this.attemptedUrls.add(absoluteCandidateUrl);
+        target.src = candidate;
+        return;
+      }
     }
-
-    target.src = fallbackUrl;
   }
 }

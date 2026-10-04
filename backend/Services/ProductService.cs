@@ -9,10 +9,12 @@ namespace Marketify.Services;
 
 public class ProductService(
     ApplicationDbContext context,
-    CatalogImageStorageService imageStorage) : IProductService
+    CatalogImageStorageService imageStorage,
+    IHostEnvironment environment) : IProductService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly CatalogImageStorageService _imageStorage = imageStorage;
+    private readonly bool _includeInactiveProducts = environment.IsDevelopment();
 
     public async Task<PagedResult<AdminProductListItemDto>> GetAdminProductsAsync(AdminProductQuery query, CancellationToken cancellationToken = default)
     {
@@ -260,7 +262,7 @@ public class ProductService(
 
         var product = await _context.Products
             .AsNoTracking()
-            .Where(item => item.IsActive && item.Category.IsActive)
+            .Where(item => item.Category.IsActive && (_includeInactiveProducts || item.IsActive))
             .Include(item => item.Category)
             .Include(item => item.Images)
             .Include(item => item.ProductSizes)
@@ -291,7 +293,7 @@ public class ProductService(
 
         var product = await _context.Products
             .AsNoTracking()
-            .Where(item => item.IsActive && item.Category.IsActive)
+            .Where(item => item.Category.IsActive && (_includeInactiveProducts || item.IsActive))
             .Include(item => item.Category)
             .Include(item => item.Images)
             .Include(item => item.ProductSizes)
@@ -381,7 +383,7 @@ public class ProductService(
 
         var productsQuery = _context.Products
             .AsNoTracking()
-            .Where(product => product.IsActive && product.Category.IsActive);
+            .Where(product => product.Category.IsActive && (_includeInactiveProducts || product.IsActive));
 
         if (query.CategoryId is not null)
         {

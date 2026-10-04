@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ProductsService } from '../../../core/services/product';
 import { apiConfig } from '../../../core/config/api.config';
 import { SeoService } from '../../../core/services/seo.service';
@@ -24,6 +24,7 @@ import {
 import {
   productPlaceholderImage,
   resolveCatalogThumbnailUrl,
+  resolveCatalogResponsiveThumbnailUrl,
   resolveImageUrl,
 } from '../../../core/utils/image-url';
 import { describeApiError, type ApiErrorKind } from '../../../core/utils/http-error';
@@ -64,30 +65,30 @@ export class Home {
   readonly fallbackImage = productPlaceholderImage;
   readonly heroPosterUrl =
     `/assets/hero/rich-house-suit-hero-poster.webp?v=${this.heroAssetRevision}`;
+  readonly heroMobilePosterUrl =
+    `/assets/hero/rich-house-suit-hero-mobile.webp?v=${this.heroAssetRevision}`;
+  readonly heroMobilePosterSrcset =
+    '/assets/hero/rich-house-suit-hero-mobile-820.webp?v=20261004 820w, ' +
+    `${this.heroMobilePosterUrl} 1080w`;
   readonly heroVideoMp4Url =
-    `/assets/hero/rich-house-suit-hero.mp4?v=${this.heroAssetRevision}`;
+    `/assets/hero/rich-house-suit-hero-optimized.mp4?v=${this.heroAssetRevision}`;
   readonly publicSiteSettings = publicSiteSettings;
   readonly whatsAppUrl = buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber);
   readonly benefits = [
     {
-      icon: 'bi-patch-check',
-      title: 'Refined quality',
-      copy: 'Thoughtful pieces selected for fit, finish, and lasting wardrobe value.',
+      icon: 'bi-gem',
+      title: 'Premium Tailoring',
+      copy: 'Considered suiting and occasion pieces selected for a polished, composed finish.',
     },
     {
-      icon: 'bi-shield-lock',
-      title: 'Secure ordering',
-      copy: 'A cleaner storefront experience designed to keep browsing and checkout straightforward.',
+      icon: 'bi-person-check',
+      title: 'Perfect Fit',
+      copy: 'Clear size choices and product details help you find the fit that feels right.',
     },
     {
-      icon: 'bi-box-seam',
-      title: 'Delivery ready',
-      copy: 'Catalog, availability, and offer visibility are structured for a smooth fulfillment workflow.',
-    },
-    {
-      icon: 'bi-arrow-repeat',
-      title: 'Exchange friendly',
-      copy: 'Policy messaging is ready to be refined later from configurable site content.',
+      icon: 'bi-chat-dots',
+      title: 'Personal Assistance',
+      copy: 'Message the Rich House team for guidance with sizing, availability, or choosing a look.',
     },
   ] as const;
 
@@ -118,6 +119,7 @@ export class Home {
   offers: ProductCard[] = [];
   featuredProducts: ProductCard[] = [];
   heroMediaState: HeroMediaState = 'loading';
+  heroVideoEnabled = false;
   categoriesState: HomepageSectionState = 'loading';
   newArrivalsState: HomepageSectionState = 'loading';
   bestSellersState: HomepageSectionState = 'loading';
@@ -126,13 +128,28 @@ export class Home {
 
   private heroVideoElement?: HTMLVideoElement;
   private heroPlaybackInFlight = false;
+  private heroVideoTimer: number | null = null;
 
   constructor() {
     this.loadHomepage();
+    this.destroyRef.onDestroy(() => {
+      if (this.heroVideoTimer !== null) {
+        window.clearTimeout(this.heroVideoTimer);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
-    void this.ensureHeroVideoPlayback();
+    if (!this.shouldLoadHeroVideo()) {
+      this.heroMediaState = 'playing';
+      return;
+    }
+
+    this.heroVideoTimer = window.setTimeout(() => {
+      this.heroVideoEnabled = true;
+      this.cdr.detectChanges();
+      window.setTimeout(() => void this.ensureHeroVideoPlayback());
+    }, 1400);
   }
 
   get featuredCategories(): CategoryItem[] {
@@ -164,6 +181,14 @@ export class Home {
 
   resolveCategoryImage(path: string | null): string {
     return resolveCatalogThumbnailUrl(path);
+  }
+
+  categoryImageSrcset(path: string | null): string {
+    return `${resolveCatalogResponsiveThumbnailUrl(path)} 384w, ${this.resolveCategoryImage(path)} 512w`;
+  }
+
+  categoryImageFallbacks(path: string | null): readonly string[] {
+    return [resolveImageUrl(path), this.fallbackImage];
   }
 
   retry(): void {
@@ -212,6 +237,37 @@ export class Home {
     this.offersState = 'loading';
     this.featuredState = 'loading';
 
+    const emptyFallbackResult: HomepageSectionResult<ProductCard[]> = {
+      data: [],
+      error: null,
+      requestUrl: null,
+      state: 'empty',
+      status: null,
+    };
+    const featuredBundle$ = this.wrapHomepageSection(
+      'featuredProducts',
+      this.productsService
+        .getCatalog({ page: 1, pageSize: 8, sort: 'featured', featured: true })
+        .pipe(map((response) => response.items)),
+      [],
+      (items) => items.length > 0,
+    ).pipe(
+      switchMap((featuredProducts) => {
+        if (featuredProducts.data.length > 0) {
+          return of({ featuredProducts, fallbackProducts: emptyFallbackResult });
+        }
+
+        return this.wrapHomepageSection(
+          'fallbackProducts',
+          this.productsService
+            .getCatalog({ page: 1, pageSize: 6, sort: 'featured' })
+            .pipe(map((response) => response.items)),
+          [],
+          (items) => items.length > 0,
+        ).pipe(map((fallbackProducts) => ({ featuredProducts, fallbackProducts })));
+      }),
+    );
+
     forkJoin({
       categories: this.wrapHomepageSection(
         'categories',
@@ -219,14 +275,7 @@ export class Home {
         [],
         (items) => items.length > 0,
       ),
-      featuredProducts: this.wrapHomepageSection(
-        'featuredProducts',
-        this.productsService
-          .getCatalog({ page: 1, pageSize: 8, sort: 'featured', featured: true })
-          .pipe(map((response) => response.items)),
-        [],
-        (items) => items.length > 0,
-      ),
+      featuredBundle: featuredBundle$,
       newArrivals: this.wrapHomepageSection(
         'newArrivals',
         this.productsService
@@ -251,18 +300,11 @@ export class Home {
         [],
         (items) => items.length > 0,
       ),
-      fallbackProducts: this.wrapHomepageSection(
-        'fallbackProducts',
-        this.productsService
-          .getCatalog({ page: 1, pageSize: 6, sort: 'featured' })
-          .pipe(map((response) => response.items)),
-        [],
-        (items) => items.length > 0,
-      ),
     })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (sections) => {
+          const { featuredProducts, fallbackProducts } = sections.featuredBundle;
           this.categories = sections.categories.data;
           this.categoriesState = sections.categories.state;
           this.newArrivals = sections.newArrivals.data;
@@ -273,25 +315,29 @@ export class Home {
           this.offersState = sections.offers.state;
 
           this.featuredProducts =
-            sections.featuredProducts.data.length > 0
-              ? sections.featuredProducts.data
-              : sections.fallbackProducts.data;
+            featuredProducts.data.length > 0
+              ? featuredProducts.data
+              : fallbackProducts.data;
           this.featuredState = this.resolveFeaturedState(
-            sections.featuredProducts,
-            sections.fallbackProducts,
+            featuredProducts,
+            fallbackProducts,
           );
 
           const hasRenderableContent = this.hasHomepageContent({
             bestSellers: this.bestSellers,
             categories: this.categories,
-            fallbackProducts: sections.fallbackProducts.data,
+            fallbackProducts: fallbackProducts.data,
             featuredProducts: this.featuredProducts,
             newArrivals: this.newArrivals,
             offers: this.offers,
           });
 
           if (!hasRenderableContent) {
-            const primaryError = this.resolveHomepageError(sections);
+            const primaryError = this.resolveHomepageError({
+              ...sections,
+              featuredProducts,
+              fallbackProducts,
+            });
             this.loading = false;
             if (primaryError) {
               this.errorKind = primaryError.kind;
@@ -315,10 +361,12 @@ export class Home {
             this.bestSellers[0] ??
             this.newArrivals[0] ??
             this.offers[0] ??
-            sections.fallbackProducts.data[0] ??
+            fallbackProducts.data[0] ??
             null;
           this.editorialProduct =
-            this.featuredProducts[1] ?? sections.fallbackProducts.data[1] ?? leadProduct;
+            [...this.featuredProducts, ...this.newArrivals, ...fallbackProducts.data].find(
+              (product) => product.slug === 'ivory-tuxedo-with-double-stripe-lapels',
+            ) ?? this.featuredProducts[1] ?? fallbackProducts.data[1] ?? leadProduct;
           this.loading = false;
           this.seoService.setPageSeo({
             title: richHouseBrand.homeTitle,
@@ -346,7 +394,7 @@ export class Home {
     videoElement.playsInline = true;
     videoElement.loop = true;
     videoElement.autoplay = true;
-    videoElement.preload = 'auto';
+    videoElement.preload = 'metadata';
     videoElement.playbackRate = 1;
     if (videoElement.getAttribute('src') !== this.heroVideoMp4Url) {
       videoElement.setAttribute('src', this.heroVideoMp4Url);
@@ -376,6 +424,19 @@ export class Home {
     } finally {
       this.heroPlaybackInFlight = false;
     }
+  }
+
+  private shouldLoadHeroVideo(): boolean {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      return false;
+    }
+
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    return (
+      window.matchMedia('(min-width: 48.01rem)').matches
+      && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      && !connection?.saveData
+    );
   }
 
   private wrapHomepageSection<TData>(

@@ -48,3 +48,5 @@ backend/appsettings.Local.json
 backend/publish/
 backend/*.bak*
 richhouse-production-audit.txt
+
+.local-catalog-backup/

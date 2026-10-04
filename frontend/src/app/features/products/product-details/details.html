@@ -23,13 +23,15 @@
         <div class="details-gallery__frame">
           <img
             [src]="activeGalleryImage"
+            [attr.srcset]="activeGalleryImageSrcset"
+            sizes="(max-width: 48rem) calc(100vw - 2rem), min(52vw, 42rem)"
             [alt]="product.name + ' by Rich House'"
             width="1280"
             height="1600"
             loading="eager"
             fetchpriority="high"
             decoding="async"
-            [appImageFallback]="fallbackImage" />
+            [appImageFallback]="activeGalleryImageFallbacks" />
 
           <div class="details-gallery__controls" *ngIf="hasMultipleImages">
             <button
@@ -53,7 +55,7 @@
           <button
             type="button"
             class="details-gallery__thumb"
-            *ngFor="let image of galleryImages; let index = index"
+            *ngFor="let image of galleryThumbnails; let index = index"
             [class.is-active]="index === activeImageIndex"
             (click)="selectImage(index)"
             [attr.aria-label]="'Show product image ' + (index + 1)"
@@ -65,7 +67,7 @@
               height="220"
               loading="lazy"
               decoding="async"
-              [appImageFallback]="fallbackImage" />
+              [appImageFallback]="galleryThumbnailFallbacks(index)" />
           </button>
         </div>
       </section>
@@ -76,7 +78,13 @@
 
           <div class="details-summary__header">
             <h1>{{ product.name }}</h1>
-            <p class="details-price">{{ product.price | egpPrice }}</p>
+            <div class="details-pricing">
+              <p class="details-price">{{ product.price | egpPrice }}</p>
+              <span class="details-compare-at" *ngIf="hasCompareAtPrice">
+                {{ product.compareAtPrice | egpPrice }}
+              </span>
+              <span class="details-discount" *ngIf="discountPercent">Save {{ discountPercent }}%</span>
+            </div>
             <p class="details-summary__lead">{{ productSummary }}</p>
           </div>
 

@@ -6,28 +6,38 @@
           <ng-container *ngIf="discountPercent; else offerLabel">-{{ discountPercent }}%</ng-container>
           <ng-template #offerLabel>Offer</ng-template>
         </span>
-        <span class="product-card__badge" *ngIf="product.isNewArrival">New</span>
-        <span class="product-card__badge" *ngIf="product.isBestSeller">Best Seller</span>
-        <span class="product-card__badge" *ngIf="product.isFeatured">Featured</span>
+        <span class="product-card__badge" *ngIf="product.isNewArrival && !product.isOnOffer">New</span>
+        <span class="product-card__badge" *ngIf="product.isBestSeller && !product.isOnOffer && !product.isNewArrival">
+          Best Seller
+        </span>
       </div>
 
       <img
         class="product-card__image"
         [src]="primaryImage"
+        [attr.srcset]="primaryImageSrcset"
+        sizes="(max-width: 48rem) calc(50vw - 1.5rem), (max-width: 80rem) calc(33.333vw - 2rem), 20rem"
         [alt]="altText"
+        width="640"
+        height="800"
         [loading]="priority ? 'eager' : 'lazy'"
-        [attr.fetchpriority]="priority ? 'high' : 'auto'"
+        [attr.fetchpriority]="priority ? 'high' : 'low'"
         decoding="async"
-        [appImageFallback]="fallbackImage" />
+        [appImageFallback]="primaryImageFallbacks" />
 
       <img
         *ngIf="secondaryImage"
         class="product-card__image product-card__image--secondary"
         [src]="secondaryImage"
+        [attr.srcset]="secondaryImageSrcset"
+        sizes="(max-width: 48rem) calc(50vw - 1.5rem), (max-width: 80rem) calc(33.333vw - 2rem), 20rem"
         [alt]="altText"
+        width="640"
+        height="800"
         loading="lazy"
+        fetchpriority="low"
         decoding="async"
-        [appImageFallback]="fallbackImage" />
+        [appImageFallback]="secondaryImageFallbacks" />
     </div>
 
     <div class="product-card__content">

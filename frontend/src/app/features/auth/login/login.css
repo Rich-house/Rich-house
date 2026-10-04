@@ -175,12 +175,36 @@
   .admin-login__panel--brand {
     min-height: auto;
     align-items: start;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .admin-login__brand-copy {
+    gap: 0.9rem;
+    width: min(100%, 31rem);
+  }
+
+  .admin-login__brand-copy h1 {
+    max-width: 18ch;
+    font-size: 2rem;
+    line-height: 1.04;
+  }
+
+  .admin-login__brand-copy p,
+  .admin-login__highlights {
+    display: none;
+  }
+
+  .admin-login__card {
+    padding: 1.25rem;
+  }
+
+  .admin-login__form,
+  .admin-login__intro {
+    gap: 1rem;
   }
 
   .admin-login__field-head {
-    align-items: start;
-    flex-direction: column;
+    align-items: center;
   }
 }

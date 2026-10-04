@@ -4,10 +4,15 @@
       <section class="site-footer__brand">
         <a class="site-footer__brand-link rh-brand-lockup" routerLink="/" aria-label="Rich House home">
           <picture>
-            <source srcset="assets/brand/rich-house-logo.webp" type="image/webp" />
+            <source
+              srcset="assets/brand/rich-house-logo-128.webp 128w, assets/brand/rich-house-logo-small.webp 415w"
+              sizes="64px"
+              type="image/webp" />
             <img
               class="rh-brand-logo rh-brand-logo--footer"
               src="assets/brand/rich-house-logo-transparent.png"
+              srcset="assets/brand/rich-house-logo-128.webp 128w, assets/brand/rich-house-logo-small.webp 415w"
+              sizes="64px"
               alt="Rich House"
               width="949"
               height="960" />
@@ -20,17 +25,6 @@
         </p>
 
         <div class="site-footer__socials">
-          <a
-            class="site-footer__social"
-            *ngIf="whatsAppUrl"
-            [href]="whatsAppUrl"
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Message Rich House on WhatsApp">
-            <i class="bi bi-whatsapp"></i>
-            <span>WhatsApp</span>
-          </a>
-
           <a
             class="site-footer__social"
             [href]="publicSiteSettings.FacebookUrl"
@@ -50,6 +44,26 @@
             <i class="bi bi-instagram"></i>
             <span>Instagram</span>
           </a>
+        </div>
+
+        <div class="site-footer__locations">
+          <a
+            class="site-footer__location"
+            *ngFor="let location of storeLocations"
+            [href]="location.directionsUrl"
+            target="_blank"
+            rel="noreferrer noopener">
+            <strong>{{ location.name }}</strong>
+            <span>{{ location.address }}</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="site-footer__column">
+        <span class="site-footer__eyebrow">Customer Care</span>
+        <h3>Help</h3>
+        <div class="site-footer__links">
+          <a *ngFor="let link of informationLinks" [routerLink]="link.route">{{ link.label }}</a>
         </div>
       </section>
 
@@ -71,34 +85,14 @@
             {{ category.name }}
           </a>
           <a routerLink="/shop" *ngIf="categories.length === 0">Shop All</a>
-        </div>
-      </section>
-
-      <section class="site-footer__column">
-        <span class="site-footer__eyebrow">Customer Care</span>
-        <h3>Contact</h3>
-        <div class="site-footer__links site-footer__links--contact">
-          <a routerLink="/contact">Visit the contact page</a>
-          <a *ngFor="let link of informationLinks" [routerLink]="link.route">{{ link.label }}</a>
-        </div>
-
-        <div class="site-footer__locations">
-          <a
-            class="site-footer__location"
-            *ngFor="let location of storeLocations"
-            [href]="location.directionsUrl"
-            target="_blank"
-            rel="noreferrer noopener">
-            <strong>{{ location.name }}</strong>
-            <span>{{ location.address }}</span>
-          </a>
+          <a routerLink="/shop" *ngIf="categories.length > 0">Shop all categories</a>
         </div>
       </section>
     </div>
 
     <div class="site-footer__bottom">
       <p>© {{ currentYear }} {{ brand.name }}. All rights reserved.</p>
-      <p>Crafted for modern tailoring, occasionwear, and everyday polish.</p>
+      <p>Modern tailoring, occasionwear, and everyday polish.</p>
     </div>
   </div>
 </footer>

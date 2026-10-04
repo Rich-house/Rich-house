@@ -1,17 +1,31 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductsService } from '../../../core/services/product';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Auth } from '../../../core/services/auth';
-import Swal from 'sweetalert2';
+import type { SweetAlertIcon, SweetAlertOptions } from 'sweetalert2';
 import { AddToCartRequest } from '../../../shared/models/cart.models';
 import { ProductCard, ProductDetails } from '../../../shared/models/product.models';
 import { SeoService } from '../../../core/services/seo.service';
 import { richHouseUi } from '../../../core/config/site-settings.config';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card';
-import { productPlaceholderImage, resolveImageUrl } from '../../../core/utils/image-url';
+import {
+  productPlaceholderImage,
+  resolveCatalogThumbnailUrl,
+  resolveImageUrl,
+  resolveOptimizedProductImageUrl,
+  resolveResponsiveProductImageUrl,
+} from '../../../core/utils/image-url';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
 
@@ -29,8 +43,10 @@ import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
   ],
   templateUrl: './details.html',
   styleUrl: './details.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Details implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   product: ProductDetails | null = null;
   relatedProducts: ProductCard[] = [];
   reviews: any[] = [];
@@ -68,7 +84,7 @@ export class Details implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const slug = params.get('slug');
       const id = params.get('id');
       if (slug) {
@@ -84,7 +100,14 @@ export class Details implements OnInit {
   get galleryImages(): string[] {
     const images = this.product?.imageUrls ?? [];
     return images.length > 0
-      ? images.map((imageUrl) => resolveImageUrl(imageUrl))
+      ? images.map((imageUrl) => resolveOptimizedProductImageUrl(imageUrl))
+      : [this.fallbackImage];
+  }
+
+  get galleryThumbnails(): string[] {
+    const images = this.product?.imageUrls ?? [];
+    return images.length > 0
+      ? images.map((imageUrl) => resolveCatalogThumbnailUrl(imageUrl))
       : [this.fallbackImage];
   }
 
@@ -94,6 +117,19 @@ export class Details implements OnInit {
 
   get activeGalleryImage(): string {
     return this.galleryImages[this.activeImageIndex] ?? this.fallbackImage;
+  }
+
+  get activeGalleryImageSrcset(): string {
+    const source = this.product?.imageUrls[this.activeImageIndex];
+    return `${resolveResponsiveProductImageUrl(source)} 720w, ${this.activeGalleryImage} 1024w`;
+  }
+
+  get activeGalleryImageFallbacks(): readonly string[] {
+    return [resolveImageUrl(this.product?.imageUrls[this.activeImageIndex]), this.fallbackImage];
+  }
+
+  galleryThumbnailFallbacks(index: number): readonly string[] {
+    return [resolveImageUrl(this.product?.imageUrls[index]), this.fallbackImage];
   }
 
   get productSummary(): string {
@@ -122,6 +158,20 @@ export class Details implements OnInit {
     return (this.product?.stockQuantity ?? 0) > 0 ? 'In stock' : 'Currently unavailable';
   }
 
+  get hasCompareAtPrice(): boolean {
+    const product = this.product;
+    return !!product?.compareAtPrice && product.compareAtPrice > product.price;
+  }
+
+  get discountPercent(): number | null {
+    const product = this.product;
+    if (!product || !this.hasCompareAtPrice || !product.compareAtPrice) {
+      return null;
+    }
+
+    return Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100);
+  }
+
   get hasSizes(): boolean {
     return !!this.product?.sizes?.length;
   }
@@ -145,7 +195,10 @@ export class Details implements OnInit {
   }
 
   loadReviews(productId: string | number): void {
-    this.productService.getProductReviews(productId).subscribe({
+    this.productService
+      .getProductReviews(productId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (data) => {
         this.reviews = data;
         this.cdr.detectChanges();
@@ -156,7 +209,7 @@ export class Details implements OnInit {
 
   submitReview(): void {
     if (!this.newReview.comment.trim()) {
-      Swal.fire('Note', 'Please write your comment before submitting.', 'info');
+      void this.showMessage('Note', 'Please write your comment before submitting.', 'info');
       return;
     }
 
@@ -172,10 +225,10 @@ export class Details implements OnInit {
       comment: this.newReview.comment,
     };
 
-    this.productService.addReview(reviewData).subscribe({
+    this.productService.addReview(reviewData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isSubmittingReview = false;
-        Swal.fire({
+        void this.showAlert({
           icon: 'success',
           title: 'Review Submitted',
           text: 'Thank you for your feedback!',
@@ -188,7 +241,11 @@ export class Details implements OnInit {
       },
       error: () => {
         this.isSubmittingReview = false;
-        Swal.fire('Error', 'Failed to post review. Please make sure you are logged in.', 'error');
+        void this.showMessage(
+          'Error',
+          'Failed to post review. Please make sure you are logged in.',
+          'error',
+        );
         this.cdr.detectChanges();
       },
     });
@@ -266,7 +323,7 @@ export class Details implements OnInit {
 
   loadProduct(id: string): void {
     this.loading = true;
-    this.productService.getProductById(id).subscribe({
+    this.productService.getProductById(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.handleLoadedProduct(res);
       },
@@ -279,7 +336,7 @@ export class Details implements OnInit {
 
   loadProductBySlug(slug: string): void {
     this.loading = true;
-    this.productService.getProductBySlug(slug).subscribe({
+    this.productService.getProductBySlug(slug).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.handleLoadedProduct(res);
       },
@@ -291,7 +348,10 @@ export class Details implements OnInit {
   }
 
   loadRelated(catId: number, currentId: number): void {
-    this.productService.getProductsByCategoryId(catId).subscribe({
+    this.productService
+      .getProductsByCategoryId(catId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (res: ProductCard[]) => {
         this.relatedProducts = res.filter((product) => product.id !== currentId);
         this.cdr.detectChanges();
@@ -322,10 +382,10 @@ export class Details implements OnInit {
       unitPrice: product.price,
     };
 
-    this.productService.addToCart(cartPayload).subscribe({
+    this.productService.addToCart(cartPayload).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.isAdding = false;
-        Swal.fire({
+        void this.showAlert({
           position: 'top-end',
           icon: 'success',
           title: 'Added to bag',
@@ -337,7 +397,7 @@ export class Details implements OnInit {
       },
       error: () => {
         this.isAdding = false;
-        Swal.fire({
+        void this.showAlert({
           icon: 'error',
           title: 'Oops...',
           text: 'Failed to add item to your bag. Please try again.',
@@ -359,6 +419,20 @@ export class Details implements OnInit {
     this.loadReviews(product.id);
     this.loadRelated(product.categoryId, product.id);
     this.cdr.detectChanges();
+  }
+
+  private async showAlert(options: SweetAlertOptions): Promise<void> {
+    const { default: Swal } = await import('sweetalert2');
+    await Swal.fire(options);
+  }
+
+  private async showMessage(
+    title: string,
+    message: string,
+    icon: SweetAlertIcon,
+  ): Promise<void> {
+    const { default: Swal } = await import('sweetalert2');
+    await Swal.fire(title, message, icon);
   }
 
   private sanitizeCustomerCopy(copy?: string | null): string {

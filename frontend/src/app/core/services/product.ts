@@ -24,9 +24,18 @@ import {
 })
 export class ProductsService {
   private readonly guestCartStorageKey = 'rich_house_guest_cart';
+  private readonly catalogCacheTtlMs = 60_000;
   private http = inject(HttpClient);
   private authService = inject(Auth);
   private categoriesCache$?: Observable<CategoryItem[]>;
+  private readonly catalogCache = new Map<
+    string,
+    { expiresAt: number; request$: Observable<CatalogResponse<ProductCard>> }
+  >();
+  private readonly productDetailsCache = new Map<
+    string,
+    { expiresAt: number; request$: Observable<ProductDetails> }
+  >();
 
   private cartCountSubject = new BehaviorSubject<number>(0);
   cartCount$ = this.cartCountSubject.asObservable();
@@ -71,15 +80,11 @@ export class ProductsService {
   }
 
   getCatalog(query: CatalogQuery = {}): Observable<CatalogResponse<ProductCard>> {
-    return this.http.get<CatalogResponse<ProductCard>>(`${apiConfig.products}/catalog`, {
-      params: this.buildCatalogParams(query),
-    });
+    return this.getCachedCatalog('catalog', query, `${apiConfig.products}/catalog`);
   }
 
   getOfferProducts(query: CatalogQuery = {}): Observable<CatalogResponse<ProductCard>> {
-    return this.http.get<CatalogResponse<ProductCard>>(`${apiConfig.products}/offers`, {
-      params: this.buildCatalogParams(query),
-    });
+    return this.getCachedCatalog('offers', query, `${apiConfig.products}/offers`);
   }
 
   getProductsByCategoryId(id: number): Observable<ProductCard[]> {
@@ -104,19 +109,44 @@ export class ProductsService {
   }
 
   getProductBySlug(slug: string): Observable<ProductDetails> {
-    return this.http.get<ProductDetails>(`${apiConfig.products}/slug/${slug}`);
+    const key = slug.trim().toLowerCase();
+    const cached = this.productDetailsCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.request$;
+    }
+
+    const request$ = this.http
+      .get<ProductDetails>(`${apiConfig.products}/slug/${encodeURIComponent(slug)}`)
+      .pipe(
+        shareReplay({ bufferSize: 1, refCount: false }),
+        catchError((error) => {
+          this.productDetailsCache.delete(key);
+          return throwError(() => error);
+        }),
+      );
+    this.productDetailsCache.set(key, {
+      expiresAt: Date.now() + this.catalogCacheTtlMs,
+      request$,
+    });
+    return request$;
   }
 
   addProduct(productData: FormData): Observable<any> {
-    return this.http.post<any>(apiConfig.products, productData);
+    return this.http
+      .post<any>(apiConfig.products, productData)
+      .pipe(tap(() => this.invalidateCatalogCaches()));
   }
 
   deleteProduct(id: number): Observable<any> {
-    return this.http.delete(`${apiConfig.products}/${id}`);
+    return this.http
+      .delete(`${apiConfig.products}/${id}`)
+      .pipe(tap(() => this.invalidateCatalogCaches()));
   }
 
   updateProduct(id: number, productData: FormData): Observable<any> {
-    return this.http.put<any>(`${apiConfig.products}/${id}`, productData);
+    return this.http
+      .put<any>(`${apiConfig.products}/${id}`, productData)
+      .pipe(tap(() => this.invalidateCatalogCaches()));
   }
 
   updateCartCount() {
@@ -235,6 +265,41 @@ export class ProductsService {
     });
 
     return params;
+  }
+
+  private getCachedCatalog(
+    scope: 'catalog' | 'offers',
+    query: CatalogQuery,
+    url: string,
+  ): Observable<CatalogResponse<ProductCard>> {
+    const normalizedQuery = Object.entries(query)
+      .filter(([, value]) => value !== undefined && value !== null && value !== '')
+      .sort(([left], [right]) => left.localeCompare(right));
+    const key = `${scope}:${JSON.stringify(normalizedQuery)}`;
+    const cached = this.catalogCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.request$;
+    }
+
+    const request$ = this.http
+      .get<CatalogResponse<ProductCard>>(url, { params: this.buildCatalogParams(query) })
+      .pipe(
+        shareReplay({ bufferSize: 1, refCount: false }),
+        catchError((error) => {
+          this.catalogCache.delete(key);
+          return throwError(() => error);
+        }),
+      );
+    this.catalogCache.set(key, {
+      expiresAt: Date.now() + this.catalogCacheTtlMs,
+      request$,
+    });
+    return request$;
+  }
+
+  private invalidateCatalogCaches(): void {
+    this.catalogCache.clear();
+    this.productDetailsCache.clear();
   }
 
   private readGuestCart(): CartResponse {

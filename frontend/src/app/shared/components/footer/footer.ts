@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/product';
 import {
-  buildWhatsAppUrl,
   footerInformationLinks,
   primaryNavigationLinks,
   publicSiteSettings,
@@ -27,10 +26,9 @@ export class Footer {
 
   readonly brand = richHouseBrand;
   readonly navigationLinks = primaryNavigationLinks;
-  readonly informationLinks = footerInformationLinks;
+  readonly informationLinks = footerInformationLinks.filter((link) => link.route !== '/about');
   readonly currentYear = new Date().getFullYear();
   readonly publicSiteSettings = publicSiteSettings;
-  readonly whatsAppUrl = buildWhatsAppUrl(publicSiteSettings.WhatsAppNumber);
   readonly storeLocations = richHouseStoreLocations;
 
   categories: CategoryItem[] = [];

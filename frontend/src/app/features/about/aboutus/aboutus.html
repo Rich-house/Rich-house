@@ -1,98 +1,156 @@
-<section class="about-page rh-page-section">
-  <div class="rh-container rh-container--wide">
-    <div class="about-page__hero rh-surface-card">
-      <div class="about-page__copy">
-        <span class="rh-eyebrow">About Rich House</span>
-        <h1>{{ brand.shortDescription }}</h1>
-        <p>
-          Rich House brings together timeless tailoring and modern style for men who want every
-          outfit to feel deliberate, refined, and easy to wear.
-        </p>
-        <p>
-          We focus on cleaner presentation, sharper curation, and a customer journey that helps men
-          shop by occasion and confidence instead of scrolling through noise.
-        </p>
+<section class="about-page">
+  <div class="about-hero rh-container rh-container--wide">
+    <picture>
+      <source media="(max-width: 48rem)" [srcset]="heroMobileImageSrcset" sizes="100vw" />
+      <img
+        class="about-hero__image"
+        [src]="heroImageUrl"
+        alt="Rich House formal menswear collection"
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        [appImageFallback]="fallbackImage" />
+    </picture>
+    <div class="about-hero__overlay"></div>
+    <div class="about-hero__content">
+      <span class="about-hero__eyebrow">About Rich House</span>
+      <h1>Made for presence.</h1>
+      <p>
+        Contemporary menswear shaped around refined tailoring, confident proportions, and
+        effortless occasion dressing.
+      </p>
+    </div>
+  </div>
 
-        <div class="about-page__actions">
-          <a class="rh-button rh-button--primary" routerLink="/shop">Shop the collection</a>
-          <a class="rh-button rh-button--secondary" routerLink="/contact">Get in touch</a>
-        </div>
-      </div>
-
-      <div class="about-page__visual" *ngIf="heroProduct">
+  <section class="about-story rh-page-section rh-deferred-section" aria-labelledby="about-story-title">
+    <div class="rh-container rh-container--wide about-story__grid">
+      <div class="about-story__media">
         <img
-          [src]="heroImageUrl"
-          [alt]="heroProduct.name + ' by Rich House'"
+          [src]="storyImageUrl"
+          [attr.srcset]="storyImageSrcset"
+          sizes="(max-width: 48rem) calc(100vw - 2rem), min(46vw, 40rem)"
+          alt="Model wearing a beige Rich House three-piece suit"
+          width="1024"
+          height="1536"
+          loading="lazy"
+          fetchpriority="low"
           decoding="async"
-          [appImageFallback]="fallbackImage"
-        />
-      </div>
-    </div>
-
-    <div class="about-page__principles">
-      <article class="about-page__principle rh-surface-card" *ngFor="let principle of principles">
-        <i class="bi bi-check2-circle"></i>
-        <p>{{ principle }}</p>
-      </article>
-    </div>
-
-    <div class="about-page__story">
-      <article class="about-page__story-card rh-surface-card" *ngFor="let section of storySections">
-        <h2>{{ section.title }}</h2>
-        <p>{{ section.copy }}</p>
-      </article>
-    </div>
-
-    <section class="about-page__stores">
-      <div class="rh-section-heading">
-        <span class="rh-eyebrow">Our Stores</span>
-        <h2>Visit Rich House in Cairo and Giza.</h2>
+          [appImageFallback]="fallbackImage" />
       </div>
 
-      <div class="rh-location-grid">
-        <article class="rh-location-card rh-surface-card" *ngFor="let location of storeLocations">
-          <div>
-            <h3>{{ location.name }}</h3>
-            <p>{{ location.address }}</p>
-          </div>
-
-          <a
-            class="rh-button rh-button--secondary"
-            [href]="location.directionsUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Get Directions
-          </a>
-        </article>
-      </div>
-    </section>
-
-    <div class="about-page__categories" *ngIf="featuredCategories.length > 0">
-      <div class="rh-section-heading">
-        <span class="rh-eyebrow">Shop by Category</span>
-        <h2>Tailoring, layering, and essentials arranged around real catalog structure.</h2>
-      </div>
-
-      <div class="about-page__category-grid">
-        <a
-          class="about-page__category-card rh-surface-card"
-          *ngFor="let category of featuredCategories; trackBy: trackById"
-          [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']"
-        >
-          <img
-            [src]="resolveCategoryImage(category.imageUrl)"
-            [alt]="category.name + ' category image'"
-            loading="lazy"
-            decoding="async"
-            [appImageFallback]="fallbackImage"
-          />
-          <div>
-            <h3>{{ category.name }}</h3>
-            <span>Explore the category</span>
-          </div>
+      <div class="about-story__content">
+        <span class="rh-eyebrow">Our Story</span>
+        <h2 id="about-story-title">Menswear considered from every angle.</h2>
+        <p>
+          Rich House is an Egyptian menswear brand built around the confidence of a well-considered
+          look. Our point of view brings together structured suits, occasionwear, and polished
+          everyday pieces with a clear focus on proportion and fit.
+        </p>
+        <p>
+          From the first detail to the final silhouette, each choice is guided by craftsmanship,
+          clarity, and the way clothing should feel when the occasion matters.
+        </p>
+        <a class="about-text-link" routerLink="/shop">
+          Discover the collection
+          <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
         </a>
       </div>
     </div>
-  </div>
+  </section>
+
+  <section class="about-values rh-page-section rh-deferred-section" aria-labelledby="about-values-title">
+    <div class="rh-container rh-container--wide">
+      <div class="rh-section-heading about-section-heading">
+        <span class="rh-eyebrow">What Guides Us</span>
+        <h2 id="about-values-title">A sharper standard for modern menswear.</h2>
+        <p>Four principles shape the Rich House approach, from the cut of a suit to the support around it.</p>
+      </div>
+
+      <div class="about-values__grid">
+        <article class="about-value" *ngFor="let value of values">
+          <span class="about-value__number">{{ value.number }}</span>
+          <h3>{{ value.title }}</h3>
+          <p>{{ value.copy }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-branches rh-page-section rh-deferred-section" aria-labelledby="about-branches-title">
+    <div class="rh-container rh-container--wide">
+      <div class="rh-section-heading about-section-heading">
+        <span class="rh-eyebrow">Our Branches</span>
+        <h2 id="about-branches-title">Visit Rich House in Cairo and Giza.</h2>
+        <p>Explore the collection in person and speak with the Rich House team about your next look.</p>
+      </div>
+
+      <div class="about-branches__grid">
+        <article
+          class="about-branch rh-surface-card"
+          *ngFor="let location of storeLocations; let index = index"
+          [class.about-branch--portrait]="index === 1">
+          <div class="about-branch__media">
+            <img
+              [src]="location.imageUrl"
+              [alt]="location.imageAlt"
+              [attr.width]="location.imageWidth"
+              [attr.height]="location.imageHeight"
+              loading="lazy"
+              fetchpriority="low"
+              decoding="async"
+              [appImageFallback]="fallbackImage" />
+          </div>
+
+          <div class="about-branch__content">
+            <div>
+              <span class="about-branch__label">Rich House Store</span>
+              <h3>{{ location.name }}</h3>
+              <p>{{ location.address }}</p>
+            </div>
+            <a
+              class="rh-button rh-button--secondary about-branch__link"
+              [href]="location.directionsUrl"
+              target="_blank"
+              rel="noopener noreferrer">
+              <i class="bi bi-geo-alt" aria-hidden="true"></i>
+              Get Directions
+            </a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-experience rh-page-section rh-deferred-section" aria-labelledby="about-experience-title">
+    <div class="rh-container rh-container--wide">
+      <div class="about-experience__panel rh-surface-card">
+        <div class="about-experience__content">
+          <span class="rh-eyebrow">The Rich House Experience</span>
+          <h2 id="about-experience-title">More than what you wear.</h2>
+          <p>
+            Rich House is built around the details that complete the experience — considered
+            tailoring, confident styling, and pieces designed to move naturally between work,
+            celebrations, and everyday occasions.
+          </p>
+          <a class="rh-button rh-button--primary" routerLink="/shop">Explore the Collection</a>
+        </div>
+
+        <div class="about-experience__media">
+          <img
+            [src]="experienceImageUrl"
+            [attr.srcset]="experienceImageSrcset"
+            sizes="(max-width: 48rem) calc(100vw - 2rem), min(42vw, 36rem)"
+            alt="Model wearing a black Rich House three-piece tuxedo"
+            width="1024"
+            height="1536"
+            loading="lazy"
+            fetchpriority="low"
+            decoding="async"
+            [appImageFallback]="fallbackImage" />
+        </div>
+      </div>
+    </div>
+  </section>
 </section>

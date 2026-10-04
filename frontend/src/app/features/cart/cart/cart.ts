@@ -1,11 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductsService } from '../../../core/services/product';
 import Swal from 'sweetalert2';
 import { CartItem, CartResponse, getCartItemKey } from '../../../shared/models/cart.models';
 import { richHouseUi } from '../../../core/config/site-settings.config';
-import { productPlaceholderImage, resolveImageUrl } from '../../../core/utils/image-url';
+import { productPlaceholderImage, resolveCatalogThumbnailUrl, resolveImageUrl } from '../../../core/utils/image-url';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
 @Component({
@@ -14,12 +15,14 @@ import { EgpPricePipe } from '../../../shared/pipes/egp-price.pipe';
   imports: [CommonModule, RouterModule, ImageFallbackDirective, EgpPricePipe],
   templateUrl: './cart.html',
   styleUrls: ['./cart.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Cart implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   cartData: CartResponse | null = null;
   loading = true;
   readonly fallbackImage = productPlaceholderImage;
-  readonly resolveImage = resolveImageUrl;
+  readonly resolveImage = resolveCatalogThumbnailUrl;
   readonly trackByCartItem = (_index: number, item: CartItem): string => getCartItemKey(item);
 
   constructor(
@@ -31,9 +34,13 @@ export class Cart implements OnInit {
     this.loadCart();
   }
 
+  imageFallbacks(path: string): readonly string[] {
+    return [resolveImageUrl(path), this.fallbackImage];
+  }
+
   loadCart() {
     this.loading = true;
-    this.productService.getCart().subscribe({
+    this.productService.getCart().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.cartData = res;
         this.loading = false;
@@ -50,7 +57,7 @@ export class Cart implements OnInit {
     const newQty = currentQty + change;
     if (newQty < 1) return;
 
-    this.productService.updateQuantity(productId, newQty, size, color ?? null).subscribe({
+    this.productService.updateQuantity(productId, newQty, size, color ?? null).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loadCart();
       },
@@ -73,7 +80,7 @@ export class Cart implements OnInit {
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        this.productService.removeItem(productId, size, color ?? null).subscribe({
+        this.productService.removeItem(productId, size, color ?? null).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: () => {
             this.loadCart();
 

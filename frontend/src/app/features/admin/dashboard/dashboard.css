@@ -147,5 +147,19 @@
 
   .admin-shell__content {
     padding: 4.75rem 1rem 1rem;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 36rem) {
+  .admin-shell__mobile-toggle {
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .admin-shell__content {
+    padding: 4.25rem 0.75rem 0.75rem;
   }
 }

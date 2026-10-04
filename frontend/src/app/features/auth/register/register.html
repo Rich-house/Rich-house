@@ -1,112 +1,99 @@
-<div class="container-fluid vh-100 p-0 overflow-hidden">
-  <div class="row g-0 h-100">
-    
-    <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center bg-dark text-white p-5">
-      <div class="text-center">
-        <i class="bi bi-person-plus display-1 mb-4"></i>
-        <h1 class="display-5 fw-bold">Create Account</h1>
-        <p class="lead opacity-75">Create your Rich House account for a smoother menswear shopping experience.</p>
-      </div>
+<section class="register-page">
+  <aside class="register-page__brand" aria-label="Rich House account benefits">
+    <a class="register-page__logo" routerLink="/" aria-label="Rich House home">
+      <img src="assets/brand/rich-house-logo-small.webp" alt="Rich House" width="415" height="420" />
+      <span>Rich House</span>
+    </a>
+    <div class="register-page__brand-copy">
+      <span class="rh-eyebrow">Private Client</span>
+      <h1>Create your Rich House account.</h1>
+      <p>Save your details for a smoother path from the collection to checkout.</p>
     </div>
+  </aside>
 
-    <div class="col-md-7 d-flex align-items-center justify-content-center bg-white p-4 scrollable-area" style="overflow-y: auto;">
-      <div class="w-100 px-lg-5" style="max-width: 650px;">
-        
-        <div class="mb-4">
-          <h2 class="fw-bold text-dark">Register</h2>
-          <p class="text-muted small">Please fill in the information below</p>
+  <div class="register-page__content">
+    <div class="register-page__card">
+      <header class="register-page__intro">
+        <span class="rh-badge">Create account</span>
+        <h2>Register</h2>
+        <p>Enter your details below. Every field is required.</p>
+      </header>
+
+      <form #regForm="ngForm" novalidate (ngSubmit)="register()" class="register-form">
+        <div class="register-form__grid">
+          <div class="register-form__field">
+            <label for="register-first-name">First name</label>
+            <input id="register-first-name" class="rh-input" placeholder="First name" name="firstName"
+              autocomplete="given-name" required #firstName="ngModel" [(ngModel)]="registerData.firstName"
+              [class.register-form__input--invalid]="firstName.invalid && firstName.touched" />
+            <p class="register-form__error" *ngIf="firstName.invalid && firstName.touched">First name is required.</p>
+          </div>
+
+          <div class="register-form__field">
+            <label for="register-last-name">Last name</label>
+            <input id="register-last-name" class="rh-input" placeholder="Last name" name="lastName"
+              autocomplete="family-name" required #lastName="ngModel" [(ngModel)]="registerData.lastName"
+              [class.register-form__input--invalid]="lastName.invalid && lastName.touched" />
+            <p class="register-form__error" *ngIf="lastName.invalid && lastName.touched">Last name is required.</p>
+          </div>
         </div>
 
-        <form #regForm="ngForm" novalidate>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-secondary">First Name</label>
-              <input class="form-control bg-light" placeholder="First Name" name="firstName"
-                     required #firstName="ngModel" [(ngModel)]="registerData.firstName"
-                     [class.is-invalid]="firstName.invalid && firstName.touched">
-              <div class="invalid-feedback">First name is required.</div>
-            </div>
+        <div class="register-form__field">
+          <label for="register-email">Email address</label>
+          <input id="register-email" class="rh-input" placeholder="name@example.com" type="email" name="email"
+            autocomplete="email" required email #email="ngModel" [(ngModel)]="registerData.email"
+            [class.register-form__input--invalid]="email.invalid && email.touched" />
+          <p class="register-form__error" *ngIf="email.invalid && email.touched">Enter a valid email address.</p>
+        </div>
 
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-secondary">Last Name</label>
-              <input class="form-control bg-light" placeholder="Last Name" name="lastName"
-                     required #lastName="ngModel" [(ngModel)]="registerData.lastName"
-                     [class.is-invalid]="lastName.invalid && lastName.touched">
-              <div class="invalid-feedback">Last name is required.</div>
-            </div>
+        <div class="register-form__field">
+          <label for="register-address">Address</label>
+          <input id="register-address" class="rh-input" placeholder="City, country" name="address"
+            autocomplete="street-address" required #address="ngModel" [(ngModel)]="registerData.address"
+            [class.register-form__input--invalid]="address.invalid && address.touched" />
+          <p class="register-form__error" *ngIf="address.invalid && address.touched">Address is required.</p>
+        </div>
+
+        <div class="register-form__field">
+          <label for="register-phone">Phone number</label>
+          <input id="register-phone" class="rh-input" placeholder="01012345678" type="tel" name="phoneNumber"
+            autocomplete="tel" inputmode="tel" required #phone="ngModel" [(ngModel)]="registerData.phoneNumber"
+            [class.register-form__input--invalid]="phone.invalid && phone.touched" />
+          <p class="register-form__error" *ngIf="phone.invalid && phone.touched">Phone number is required.</p>
+        </div>
+
+        <div class="register-form__grid">
+          <div class="register-form__field">
+            <label for="register-password">Password</label>
+            <input id="register-password" class="rh-input" placeholder="At least 8 characters" type="password"
+              name="password" autocomplete="new-password" required minlength="8" #password="ngModel"
+              [(ngModel)]="registerData.password"
+              [class.register-form__input--invalid]="password.invalid && password.touched" />
+            <p class="register-form__error" *ngIf="password.invalid && password.touched">Use at least 8 characters.</p>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-secondary">Email Address</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
-              <input class="form-control bg-light border-start-0" placeholder="name@example.com" type="email" name="email"
-                     required email #email="ngModel" [(ngModel)]="registerData.email"
-                     [class.is-invalid]="email.invalid && email.touched">
-              <div class="invalid-feedback">Please enter a valid email address.</div>
-            </div>
+          <div class="register-form__field">
+            <label for="register-confirm-password">Confirm password</label>
+            <input id="register-confirm-password" class="rh-input" placeholder="Repeat your password" type="password"
+              name="confirmPassword" autocomplete="new-password" required #confirmPwd="ngModel"
+              [(ngModel)]="confirmPassword"
+              [class.register-form__input--invalid]="confirmPwd.touched && confirmPassword !== registerData.password" />
+            <p class="register-form__error" *ngIf="confirmPwd.touched && confirmPassword !== registerData.password">Passwords do not match.</p>
           </div>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-secondary">Address</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text bg-light border-end-0"><i class="bi bi-geo-alt"></i></span>
-              <input class="form-control bg-light border-start-0" placeholder="City, Country" name="address"
-                     required #address="ngModel" [(ngModel)]="registerData.address"
-                     [class.is-invalid]="address.invalid && address.touched">
-              <div class="invalid-feedback">Address is required.</div>
-            </div>
-          </div>
+        <div class="register-form__alert register-form__alert--error" *ngIf="errorMessage" role="alert">
+          <i class="bi bi-exclamation-circle"></i><span>{{ errorMessage }}</span>
+        </div>
+        <div class="register-form__alert register-form__alert--success" *ngIf="successMessage" role="status">
+          <i class="bi bi-check-circle"></i><span>{{ successMessage }}</span>
+        </div>
 
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-secondary">Phone Number</label>
-            <div class="input-group has-validation">
-              <span class="input-group-text bg-light border-end-0"><i class="bi bi-telephone"></i></span>
-              <input class="form-control bg-light border-start-0" placeholder="01012345678" name="phoneNumber"
-                     required #phone="ngModel" [(ngModel)]="registerData.phoneNumber"
-                     [class.is-invalid]="phone.invalid && phone.touched">
-              <div class="invalid-feedback">Phone number is required.</div>
-            </div>
-          </div>
+        <button class="rh-button rh-button--primary register-form__submit" type="submit"
+          [disabled]="regForm.invalid || confirmPassword !== registerData.password">Create Account</button>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-secondary">Password</label>
-              <input class="form-control bg-light" placeholder="••••••••" type="password" name="password"
-                     required minlength="8" #password="ngModel" [(ngModel)]="registerData.password"
-                     [class.is-invalid]="password.invalid && password.touched">
-              <div class="invalid-feedback">Min 8 characters.</div>
-            </div>
-
-            <div class="col-md-6 mb-3">
-              <label class="form-label small fw-bold text-secondary">Confirm Password</label>
-              <input class="form-control bg-light" placeholder="••••••••" type="password" name="confirmPassword"
-                     required #confirmPwd="ngModel" [(ngModel)]="confirmPassword"
-                     [class.is-invalid]="confirmPwd.touched && confirmPassword !== registerData.password">
-              <div class="invalid-feedback">Passwords do not match.</div>
-            </div>
-          </div>
-
-          <div class="alert alert-danger py-2 small border-0" *ngIf="errorMessage">
-            <i class="bi bi-x-circle me-2"></i> {{ errorMessage }}
-          </div>
-          <div class="alert alert-success py-2 small border-0" *ngIf="successMessage">
-            <i class="bi bi-check-circle me-2"></i> {{ successMessage }}
-          </div>
-
-          <button class="btn btn-primary w-100 py-3 fw-bold shadow-sm mt-3" 
-                  [disabled]="regForm.invalid || (confirmPassword !== registerData.password)"
-                  (click)="register()">
-            Create Account
-          </button>
-
-          <p class="text-center mt-4 small text-muted">
-            Already have an account? <a routerLink="/login" class="fw-bold text-decoration-none">Login</a>
-          </p>
-        </form>
-      </div>
+        <p class="register-form__login">Already have an account? <a routerLink="/login">Login</a></p>
+      </form>
     </div>
-
   </div>
-</div>
+</section>

@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { resolveCatalogThumbnailUrl, productPlaceholderImage } from '../../../core/utils/image-url';
+import {
+  resolveCatalogThumbnailUrl,
+  resolveCatalogResponsiveThumbnailUrl,
+  productPlaceholderImage,
+  resolveImageUrl,
+} from '../../../core/utils/image-url';
 import { ProductCard as CatalogProductCard } from '../../models/product.models';
 import { ImageFallbackDirective } from '../../directives/image-fallback.directive';
 import { EgpPricePipe } from '../../pipes/egp-price.pipe';
@@ -18,6 +23,8 @@ export class ProductCardComponent {
   @Input() priority = false;
 
   readonly fallbackImage = productPlaceholderImage;
+  readonly canHover =
+    typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   get productRoute(): (string | number)[] {
     if (this.product.slug) {
@@ -31,8 +38,28 @@ export class ProductCardComponent {
     return resolveCatalogThumbnailUrl(this.product.imageUrls[0]);
   }
 
+  get primaryImageSrcset(): string {
+    return `${resolveCatalogResponsiveThumbnailUrl(this.product.imageUrls[0])} 384w, ${this.primaryImage} 512w`;
+  }
+
   get secondaryImage(): string | null {
-    return this.product.imageUrls.length > 1 ? resolveCatalogThumbnailUrl(this.product.imageUrls[1]) : null;
+    return this.canHover && this.product.imageUrls.length > 1
+      ? resolveCatalogThumbnailUrl(this.product.imageUrls[1])
+      : null;
+  }
+
+  get secondaryImageSrcset(): string | null {
+    return this.secondaryImage
+      ? `${resolveCatalogResponsiveThumbnailUrl(this.product.imageUrls[1])} 384w, ${this.secondaryImage} 512w`
+      : null;
+  }
+
+  get primaryImageFallbacks(): readonly string[] {
+    return [resolveImageUrl(this.product.imageUrls[0]), this.fallbackImage];
+  }
+
+  get secondaryImageFallbacks(): readonly string[] {
+    return [resolveImageUrl(this.product.imageUrls[1]), this.fallbackImage];
   }
 
   get hasCompareAtPrice(): boolean {

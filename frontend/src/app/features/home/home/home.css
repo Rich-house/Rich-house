@@ -20,9 +20,17 @@
 }
 
 .home-hero__media,
+.home-hero__picture,
 .home-hero__video {
   position: absolute;
   inset: 0;
+}
+
+.home-hero__picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 60% center;
 }
 
 .home-hero__media::after {
@@ -41,8 +49,13 @@
   object-position: 60% center;
   z-index: 0;
   display: block;
-  opacity: 1;
+  opacity: 0;
   background-color: #0f0f0f;
+  transition: opacity 420ms ease;
+}
+
+.home-hero__video.is-playing {
+  opacity: 1;
 }
 
 .home-hero__content {
@@ -110,11 +123,13 @@
 }
 
 .home-categories__card {
+  position: relative;
   display: grid;
   overflow: hidden;
-  color: inherit;
+  min-height: 22rem;
+  color: var(--rh-color-ivory-50);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.82);
+  background: var(--rh-color-charcoal-900);
   transition:
     transform var(--rh-transition-base),
     box-shadow var(--rh-transition-base),
@@ -123,13 +138,14 @@
 
 .home-categories__card:hover,
 .home-categories__card:focus-visible {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: var(--rh-shadow-md);
   border-color: rgba(180, 144, 85, 0.22);
 }
 
 .home-categories__image-wrap {
-  aspect-ratio: 5 / 6;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: linear-gradient(180deg, #f7f1eb 0%, #ebe1d6 100%);
 }
@@ -138,25 +154,39 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 500ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 
 .home-categories__content {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--rh-space-3);
-  padding: 1.05rem 1.15rem 1.2rem;
+  margin-top: auto;
+  padding: 5rem 1.25rem 1.35rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(13, 12, 11, 0.76) 72%, rgba(13, 12, 11, 0.9) 100%);
 }
 
 .home-categories__content h3 {
-  font-size: 1.22rem;
+  color: var(--rh-color-ivory-50);
+  font-size: clamp(1.35rem, 1.15rem + 0.4vw, 1.62rem);
+  letter-spacing: -0.01em;
 }
 
 .home-categories__content span {
-  color: var(--rh-color-text-muted);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-categories__card:hover .home-categories__image-wrap img,
+  .home-categories__card:focus-visible .home-categories__image-wrap img {
+    transform: scale(1.035);
+  }
 }
 
 .home-products-grid {
@@ -188,12 +218,21 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
   gap: var(--rh-space-8);
   align-items: center;
-  padding: clamp(var(--rh-space-5), 5vw, var(--rh-space-8));
+  padding: clamp(var(--rh-space-5), 5vw, var(--rh-space-10));
+  background:
+    radial-gradient(circle at 15% 10%, rgba(180, 144, 85, 0.12), transparent 28%),
+    rgba(255, 255, 255, 0.74);
 }
 
 .home-editorial__content {
   display: grid;
   gap: var(--rh-space-4);
+}
+
+.home-editorial__content h2 {
+  max-width: 16ch;
+  font-size: clamp(2rem, 1.52rem + 1.25vw, 3rem);
+  line-height: 1.04;
 }
 
 .home-editorial__content p,
@@ -211,14 +250,41 @@
 }
 
 .home-benefits {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .home-benefits__card {
+  position: relative;
   display: grid;
   gap: var(--rh-space-4);
-  padding: var(--rh-space-5);
-  background: rgba(255, 255, 255, 0.78);
+  min-height: 16rem;
+  align-content: start;
+  padding: clamp(var(--rh-space-5), 2.5vw, var(--rh-space-6));
+  background: rgba(255, 255, 255, 0.7);
+  transition:
+    transform var(--rh-transition-base),
+    border-color var(--rh-transition-base),
+    box-shadow var(--rh-transition-base);
+}
+
+.home-benefits__card::after {
+  content: '';
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  width: 2.25rem;
+  height: 1px;
+  background: rgba(180, 144, 85, 0.55);
+}
+
+.home-benefits__card h3 {
+  font-size: clamp(1.45rem, 1.28rem + 0.35vw, 1.7rem);
+}
+
+.home-benefits__card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(180, 144, 85, 0.25);
+  box-shadow: var(--rh-shadow-md);
 }
 
 .home-benefits__icon {
@@ -233,10 +299,81 @@
   font-size: 1.2rem;
 }
 
+.home-assistance-section {
+  padding-top: 0;
+}
+
+.home-assistance {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: clamp(var(--rh-space-6), 5vw, var(--rh-space-10));
+  overflow: hidden;
+  padding: clamp(var(--rh-space-6), 5vw, var(--rh-space-10));
+  border-radius: var(--rh-radius-xl);
+  background:
+    linear-gradient(90deg, var(--rh-color-brand-500) 0 3px, transparent 3px),
+    radial-gradient(circle at 88% 12%, rgba(241, 126, 1, 0.09), transparent 28%),
+    linear-gradient(125deg, rgba(255, 255, 255, 0.82) 0%, rgba(240, 231, 221, 0.94) 100%);
+  color: var(--rh-color-charcoal-950);
+  box-shadow: var(--rh-shadow-sm);
+}
+
+.home-assistance__copy {
+  display: grid;
+  gap: var(--rh-space-3);
+  max-width: 44rem;
+}
+
+.home-assistance .rh-eyebrow {
+  color: var(--rh-color-text-muted);
+}
+
+.home-assistance__copy h2 {
+  max-width: 13ch;
+  color: var(--rh-color-charcoal-950);
+  font-size: clamp(2.2rem, 1.7rem + 1.55vw, 3.5rem);
+  line-height: 1;
+}
+
+.home-assistance__copy p {
+  max-width: 40rem;
+  color: var(--rh-color-text-muted);
+  line-height: 1.7;
+}
+
+.home-assistance__actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: var(--rh-space-3);
+}
+
+.home-assistance__primary {
+  background: var(--rh-color-charcoal-950);
+  color: var(--rh-color-ivory-50);
+}
+
+.home-assistance__primary:hover {
+  background: #2a2722;
+  box-shadow: 0 12px 24px rgba(18, 18, 18, 0.12);
+}
+
+.home-assistance__secondary {
+  border-color: var(--rh-color-border-strong);
+  color: var(--rh-color-charcoal-950);
+}
+
+.home-assistance__secondary:hover {
+  border-color: rgba(241, 126, 1, 0.35);
+  background: rgba(255, 255, 255, 0.58);
+}
+
 .home-social {
   display: grid;
   gap: var(--rh-space-6);
   padding: clamp(var(--rh-space-5), 5vw, var(--rh-space-8));
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .home-social__copy {
@@ -301,8 +438,7 @@
 
 @media (max-width: 80rem) {
   .home-categories,
-  .home-products-grid,
-  .home-benefits {
+  .home-products-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -326,22 +462,35 @@
     align-items: start;
     flex-direction: column;
   }
+
+  .home-assistance {
+    align-items: start;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 48rem) {
+  .home-hero {
+    padding-top: 0.75rem;
+  }
+
+  .home-hero__picture img {
+    object-position: center 34%;
+  }
+
   .home-hero__video {
     object-position: 63% center;
   }
 
   .home-hero__shell {
-    min-height: 32.5rem;
+    min-height: 30rem;
     padding: 1.25rem;
     border-radius: 1rem;
   }
 
   .home-hero__content {
-    min-height: 27rem;
-    padding-top: 2rem;
+    min-height: 25rem;
+    padding-top: 1.5rem;
   }
 
   .home-hero__content h1 {
@@ -361,7 +510,58 @@
 
   .home-categories,
   .home-products-grid,
-  .home-benefits,
+  .home-skeleton-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .home-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .home-benefits__card {
+    min-height: 0;
+  }
+
+  .home-categories__content {
+    align-items: start;
+    padding: 3.5rem 0.9rem 1rem;
+  }
+
+  .home-categories__content h3 {
+    font-size: clamp(1.08rem, 0.86rem + 1.1vw, 1.25rem);
+  }
+
+  .home-categories__content span {
+    display: none;
+  }
+
+  .home-skeleton-grid .home-skeleton {
+    height: 14rem;
+  }
+
+  .home-categories__card {
+    min-height: clamp(15rem, 68vw, 18rem);
+  }
+
+  .home-assistance {
+    padding: 1.5rem;
+    border-radius: var(--rh-radius-lg);
+  }
+
+  .home-assistance__copy h2 {
+    font-size: clamp(2.05rem, 1.5rem + 2.8vw, 2.55rem);
+  }
+
+  .home-assistance__actions,
+  .home-assistance__actions .rh-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 21rem) {
+  .home-categories,
+  .home-products-grid,
   .home-skeleton-grid {
     grid-template-columns: 1fr;
   }

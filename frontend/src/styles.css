@@ -108,6 +108,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
@@ -121,6 +122,7 @@ body {
     linear-gradient(180deg, var(--rh-color-ivory-50) 0%, #f2ebe2 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 img,
@@ -198,7 +200,7 @@ main {
   font-size: 0.6875rem;
   font-weight: var(--rh-font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.17em;
   color: var(--rh-color-text-muted);
 }
 
@@ -211,19 +213,22 @@ main {
 
 .rh-section-heading {
   display: grid;
-  gap: var(--rh-space-3);
+  gap: 0.85rem;
   margin-bottom: clamp(var(--rh-space-5), 4vw, var(--rh-space-8));
 }
 
 .rh-section-heading h2 {
-  font-size: var(--rh-font-size-xl);
-  max-width: 18ch;
+  font-size: clamp(2.15rem, 1.66rem + 1.45vw, 3.15rem);
+  max-width: 17ch;
+  line-height: 1.02;
+  text-wrap: balance;
 }
 
 .rh-section-heading p {
   max-width: 40rem;
   color: var(--rh-color-text-muted);
-  font-size: 1rem;
+  font-size: 0.98rem;
+  line-height: 1.72;
 }
 
 .rh-location-grid {
@@ -250,7 +255,7 @@ main {
   min-height: var(--rh-button-height);
   padding: 0.75rem 1.3rem;
   border: 1px solid transparent;
-  border-radius: var(--rh-control-radius);
+  border-radius: 0.65rem;
   font-size: 0.875rem;
   font-weight: var(--rh-font-weight-semibold);
   letter-spacing: 0.01em;
@@ -490,12 +495,39 @@ main {
 }
 
 @media (max-width: 48rem) {
+  :root {
+    --rh-font-size-xl: clamp(1.75rem, 1.48rem + 1.4vw, 2.1rem);
+    --rh-font-size-2xl: clamp(2.35rem, 1.95rem + 2vw, 2.8rem);
+  }
+
+  .rh-container,
+  .rh-container--wide,
+  .rh-container--product {
+    width: min(100% - 1.5rem, var(--rh-container-2xl));
+  }
+
   .rh-location-grid {
     grid-template-columns: 1fr;
   }
 
   .rh-page-section {
-    padding-block: clamp(var(--rh-space-6), 10vw, var(--rh-space-10));
+    padding-block: clamp(var(--rh-space-6), 8vw, var(--rh-space-8));
+  }
+
+  .rh-section-heading {
+    gap: 0.7rem;
+    margin-bottom: var(--rh-space-5);
+  }
+
+  .rh-section-heading h2 {
+    max-width: 18ch;
+    font-size: clamp(1.9rem, 1.52rem + 1.8vw, 2.25rem);
+    line-height: 1.04;
+  }
+
+  .rh-section-heading p {
+    font-size: 0.9375rem;
+    line-height: 1.65;
   }
 
   .rh-brand-logo--header {
@@ -511,6 +543,9 @@ main {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

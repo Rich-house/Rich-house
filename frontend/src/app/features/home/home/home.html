@@ -3,14 +3,30 @@
     <div class="rh-container rh-container--wide">
       <div class="home-hero__shell">
         <div class="home-hero__media" aria-hidden="true">
+          <picture class="home-hero__picture">
+            <source
+              media="(max-width: 48rem)"
+              [srcset]="heroMobilePosterSrcset"
+              sizes="100vw" />
+            <img
+              [src]="heroPosterUrl"
+              alt=""
+              width="1920"
+              height="1080"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async" />
+          </picture>
           <video
+            *ngIf="heroVideoEnabled"
             #heroVideo
             class="home-hero__video"
+            [class.is-playing]="heroMediaState === 'playing'"
             autoplay
             muted
             loop
             playsinline
-            preload="auto"
+            preload="metadata"
             [attr.src]="heroVideoMp4Url"
             [attr.poster]="heroPosterUrl"
             (loadeddata)="onHeroVideoLoaded()"
@@ -48,24 +64,27 @@
             <span class="rh-eyebrow">Categories</span>
             <h2>Build a stronger wardrobe by occasion, not clutter.</h2>
             <p>
-              Explore the Rich House edit through the categories already available in the live
-              catalog.
+              Move from considered tailoring to polished everyday pieces through a focused edit.
             </p>
           </div>
 
           <div class="home-categories" *ngIf="featuredCategories.length > 0; else categoriesStateTemplate">
             <a
               class="home-categories__card rh-surface-card"
-              *ngFor="let category of featuredCategories; trackBy: trackById; let index = index"
+              *ngFor="let category of featuredCategories; trackBy: trackById"
               [routerLink]="category.slug ? ['/shop', category.slug] : ['/shop']">
               <div class="home-categories__image-wrap">
                 <img
                   [src]="resolveCategoryImage(category.imageUrl)"
+                  [attr.srcset]="categoryImageSrcset(category.imageUrl)"
+                  sizes="(max-width: 48rem) calc(50vw - 1.5rem), (max-width: 80rem) calc(25vw - 2rem), 18rem"
                   [alt]="category.name + ' category image'"
-                  [loading]="index < 2 ? 'eager' : 'lazy'"
-                  [attr.fetchpriority]="index < 2 ? 'high' : 'auto'"
+                  width="640"
+                  height="768"
+                  loading="lazy"
+                  fetchpriority="low"
                   decoding="async"
-                  [appImageFallback]="fallbackImage" />
+                  [appImageFallback]="categoryImageFallbacks(category.imageUrl)" />
               </div>
               <div class="home-categories__content">
                 <h3>{{ category.name }}</h3>
@@ -98,16 +117,13 @@
           <div class="rh-section-heading">
             <span class="rh-eyebrow">New Arrivals</span>
             <h2>Fresh additions for sharper everyday dressing.</h2>
-            <p>
-              These pieces are surfaced from real Rich House catalog flags, not placeholder content.
-            </p>
+            <p>Discover the latest pieces selected for a composed, confident wardrobe.</p>
           </div>
 
           <div class="home-products-grid" *ngIf="newArrivals.length > 0; else noNewArrivals">
             <app-product-card
-              *ngFor="let product of newArrivals; trackBy: trackById; let first = first"
-              [product]="product"
-              [priority]="first"></app-product-card>
+              *ngFor="let product of newArrivals; trackBy: trackById"
+              [product]="product"></app-product-card>
           </div>
 
           <ng-template #noNewArrivals>
@@ -136,7 +152,7 @@
           <div class="rh-section-heading">
             <span class="rh-eyebrow">Best Sellers</span>
             <h2>Pieces customers return to when polish matters.</h2>
-            <p>Displayed only when real products are flagged as best sellers in the catalog.</p>
+            <p>Trusted choices for workdays, occasions, and everything in between.</p>
           </div>
 
           <div class="home-products-grid" *ngIf="hasBestSellers; else bestSellersStateTemplate">
@@ -186,10 +202,7 @@
           <div class="rh-section-heading">
             <span class="rh-eyebrow">Featured Products</span>
             <h2>A focused edit of tailoring, layering, and occasion-ready essentials.</h2>
-            <p>
-              Built from the live catalog so the homepage never drifts away from what Rich House can
-              actually sell.
-            </p>
+            <p>Considered pieces chosen to make building a refined wardrobe feel effortless.</p>
           </div>
 
           <div class="home-products-grid" *ngIf="featuredProducts.length > 0; else featuredStateTemplate">
@@ -249,8 +262,9 @@
       <section class="rh-page-section rh-deferred-section">
         <div class="rh-container rh-container--wide">
           <div class="rh-section-heading">
-            <span class="rh-eyebrow">Store Benefits</span>
-            <h2>Service copy that can evolve later without changing the homepage structure.</h2>
+            <span class="rh-eyebrow">Rich House Experience</span>
+            <h2>Thoughtful support for finding the right look.</h2>
+            <p>From first browse to final choice, the details are designed to make dressing well feel simpler.</p>
           </div>
 
           <div class="home-benefits">
@@ -265,16 +279,41 @@
         </div>
       </section>
 
+      <section class="rh-page-section rh-deferred-section home-assistance-section">
+        <div class="rh-container rh-container--wide">
+          <div class="home-assistance">
+            <div class="home-assistance__copy">
+              <span class="rh-eyebrow">Personal Assistance</span>
+              <h2>Need help choosing your look?</h2>
+              <p>
+                Speak with the Rich House team about sizing, availability, or arranging fitting
+                assistance for the pieces you are considering.
+              </p>
+            </div>
+
+            <div class="home-assistance__actions">
+              <a
+                *ngIf="whatsAppUrl"
+                class="rh-button home-assistance__primary"
+                [href]="whatsAppUrl"
+                target="_blank"
+                rel="noreferrer noopener">
+                <i class="bi bi-whatsapp"></i>
+                Ask on WhatsApp
+              </a>
+              <a class="rh-button home-assistance__secondary" routerLink="/contact">Contact Rich House</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="rh-page-section rh-deferred-section">
         <div class="rh-container">
           <div class="home-social rh-surface-card">
             <div class="home-social__copy">
               <span class="rh-eyebrow">Follow Rich House</span>
               <h2>Stay close to the latest arrivals and styling direction.</h2>
-              <p>
-                Social touchpoints are centralized, production-safe, and ready to move into site
-                settings later without rewriting the UI.
-              </p>
+              <p>Follow the collection, new arrivals, and considered ways to wear each piece.</p>
             </div>
 
             <div class="home-social__cards">
@@ -291,18 +330,6 @@
                 </div>
               </a>
 
-              <a
-                class="home-social__card"
-                *ngIf="whatsAppUrl"
-                [href]="whatsAppUrl"
-                target="_blank"
-                rel="noreferrer noopener">
-                <i class="bi bi-whatsapp"></i>
-                <div>
-                  <strong>WhatsApp</strong>
-                  <p>Reach the Rich House team directly through the configured messaging line.</p>
-                </div>
-              </a>
             </div>
           </div>
         </div>

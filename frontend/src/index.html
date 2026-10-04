@@ -45,6 +45,35 @@
     <link rel="apple-touch-icon" sizes="192x192" href="assets/brand/rich-house-icon-192.png?v=5" />
     <link rel="canonical" href="https://www.richhouseeg.com/" />
     <link rel="manifest" href="manifest.webmanifest?v=4" />
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/manrope-latin-variable.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/cormorant-garamond-latin-variable.woff2" crossorigin />
+    <script>
+      (() => {
+        const path = window.location.pathname.replace(/\/+$/, '') || '/';
+        if (path !== '/' && path !== '/home' && path !== '/about') return;
+
+        const mobile = window.matchMedia('(max-width: 48rem)').matches;
+        const preload = document.createElement('link');
+        preload.rel = 'preload';
+        preload.as = 'image';
+        preload.fetchPriority = 'high';
+        if (mobile) {
+          preload.href = 'assets/hero/rich-house-suit-hero-mobile-820.webp?v=20261004';
+          preload.imageSrcset =
+            'assets/hero/rich-house-suit-hero-mobile-820.webp?v=20261004 820w, assets/hero/rich-house-suit-hero-mobile.webp?v=20260729 1080w';
+          preload.imageSizes = '100vw';
+        } else {
+          preload.href = 'assets/hero/rich-house-suit-hero-poster.webp?v=20260729';
+        }
+        document.head.appendChild(preload);
+      })();
+    </script>
+    <style>
+      .rh-boot-shell{height:94px;background:#fcf9f5;color:#211f1b;font-family:Georgia,serif}
+      .rh-boot-shell__notice{height:27px;background:#171614}
+      .rh-boot-shell__brand{height:67px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid rgba(25,22,19,.1);font-size:21px}
+      .rh-boot-shell__mark{color:#f17e01;font:600 18px Arial,sans-serif}
+    </style>
     <script id="rich-house-structured-data" type="application/ld+json">
       [
         {
@@ -106,6 +135,14 @@
     </script>
   </head>
   <body>
-    <app-root></app-root>
+    <app-root>
+      <div class="rh-boot-shell" aria-hidden="true">
+        <div class="rh-boot-shell__notice"></div>
+        <div class="rh-boot-shell__brand">
+          <span class="rh-boot-shell__mark">RH</span>
+          <span>Rich House</span>
+        </div>
+      </div>
+    </app-root>
   </body>
 </html>

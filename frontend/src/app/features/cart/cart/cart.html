@@ -1,7 +1,8 @@
-<div class="container py-5 cart-page">
-  <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
+<div class="container cart-page">
+  <div class="cart-page__header d-flex justify-content-between align-items-end mb-4 border-bottom pb-3">
     <div>
-      <h2 class="fw-bold m-0 text-uppercase tracking-tight">Shopping Bag</h2>
+      <span class="rh-eyebrow">Your selection</span>
+      <h1 class="m-0">Shopping Bag</h1>
       <p class="text-muted small mb-0" *ngIf="cartData?.items?.length">
         You have {{ cartData?.totalCount }} items in your cart
       </p>
@@ -17,24 +18,30 @@
   </div>
 
   <ng-template #content>
-    <div class="row g-4" *ngIf="cartData as cart; else emptyCart">
+    <ng-container *ngIf="cartData as cart">
+    <div class="row g-4" *ngIf="cart.items.length > 0; else emptyCart">
       <div class="col-lg-8">
-        <div
-          class="card border-0 shadow-sm rounded-4 mb-3 overflow-hidden"
+        <article
+          class="cart-page__item card border-0 mb-3 overflow-hidden"
           *ngFor="let item of cart.items; trackBy: trackByCartItem"
         >
           <div class="card-body p-0">
-            <div class="row g-0 align-items-center">
-              <div class="col-3 col-md-2">
+            <div class="cart-page__item-row row g-0 align-items-center">
+              <div class="cart-page__item-media col-3 col-md-2">
                 <img
                   [src]="resolveImage(item.productImage)"
+                  [alt]="item.productName"
+                  width="160"
+                  height="200"
+                  loading="lazy"
+                  decoding="async"
                   class="img-fluid rounded-3 shadow-sm"
                   style="height: 120px; width: 100%; object-fit: cover"
-                  [appImageFallback]="fallbackImage"
+                  [appImageFallback]="imageFallbacks(item.productImage)"
                 />
               </div>
 
-              <div class="col-5 col-md-4 ps-3 ps-md-4">
+              <div class="cart-page__item-copy col-5 col-md-4 ps-3 ps-md-4">
                 <h6 class="fw-bold mb-1 text-truncate">{{ item.productName }}</h6>
 
                 <p class="text-muted small mb-2" *ngIf="item.size">
@@ -49,7 +56,7 @@
 
                 <div class="fw-bold cart-page__price">{{ item.unitPrice | egpPrice }}</div>
               </div>
-              <div class="col-2 text-center">
+              <div class="cart-page__quantity col-2 text-center">
                 <span class="text-muted d-block small mb-2">Qty</span>
                 <div class="d-flex align-items-center justify-content-center gap-2">
                   <button
@@ -71,7 +78,7 @@
                 </div>
               </div>
 
-              <div class="col-2 text-center">
+              <div class="cart-page__remove-wrap col-2 text-center">
                 <button
                   class="cart-page__remove"
                   title="Remove Item"
@@ -82,12 +89,13 @@
               </div>
             </div>
           </div>
-        </div>
+        </article>
       </div>
 
       <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px">
-          <h5 class="fw-bold mb-4">Order Summary</h5>
+        <aside class="cart-page__summary card border-0 p-4 sticky-top" style="top: 100px">
+          <span class="rh-eyebrow mb-2">Your order</span>
+          <h2 class="mb-4">Order Summary</h2>
 
           <div class="d-flex justify-content-between mb-3">
             <span class="text-muted">Subtotal</span>
@@ -115,11 +123,12 @@
             class="rh-button rh-button--primary cart-page__checkout"
             [routerLink]="['/create-order']"
           >
-            PROCEED TO CHECKOUT
+            Proceed to Checkout
           </a>
-        </div>
+        </aside>
       </div>
     </div>
+    </ng-container>
   </ng-template>
 
   <ng-template #emptyCart>
@@ -130,7 +139,7 @@
       <h3 class="fw-bold">Your bag is empty</h3>
       <p class="text-muted mb-4">Looks like you haven't added anything to your bag yet.</p>
       <a class="rh-button rh-button--primary cart-page__checkout" routerLink="/shop">
-        START SHOPPING
+        Start Shopping
       </a>
     </div>
   </ng-template>

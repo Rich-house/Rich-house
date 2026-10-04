@@ -48,6 +48,50 @@ export const resolveCatalogThumbnailUrl = (path: string | null | undefined): str
     return productPlaceholderImage;
   }
 
-  const thumbnailPath = path.replace('/catalog/products/', '/catalog/thumbnails/');
+  const thumbnailPath = path
+    .replace('/catalog/products/', '/catalog/thumbnails/')
+    .replace(/\/images\/(products|categories)\/([^/?#]+)\.(?:jpe?g|png|webp)([?#].*)?$/i, '/images/$1/thumbnails/$2.webp$3');
   return resolveImageUrl(thumbnailPath);
+};
+
+export const resolveCatalogResponsiveThumbnailUrl = (
+  path: string | null | undefined,
+): string => {
+  if (!path) {
+    return productPlaceholderImage;
+  }
+
+  const responsivePath = path
+    .replace(/\/catalog\/(?:products|thumbnails)\//i, '/catalog/responsive/384/')
+    .replace(
+      /\/images\/(products|categories)\/(?:thumbnails\/)?([^/?#]+)\.(?:jpe?g|png|webp)([?#].*)?$/i,
+      '/images/$1/responsive/384/$2.webp$3',
+    );
+  return resolveImageUrl(responsivePath);
+};
+
+export const resolveOptimizedProductImageUrl = (path: string | null | undefined): string => {
+  if (!path) {
+    return productPlaceholderImage;
+  }
+
+  const optimizedPath = path.replace(
+    /\/images\/products\/([^/?#]+)\.(?:jpe?g|png|webp)([?#].*)?$/i,
+    '/images/products/optimized/$1.webp$2',
+  );
+  return resolveImageUrl(optimizedPath);
+};
+
+export const resolveResponsiveProductImageUrl = (
+  path: string | null | undefined,
+): string => {
+  if (!path) {
+    return productPlaceholderImage;
+  }
+
+  const responsivePath = path.replace(
+    /\/images\/products\/(?:optimized\/)?([^/?#]+)\.(?:jpe?g|png|webp)([?#].*)?$/i,
+    '/images/products/responsive/720/$1.webp$2',
+  );
+  return resolveImageUrl(responsivePath);
 };

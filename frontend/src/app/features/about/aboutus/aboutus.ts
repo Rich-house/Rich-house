@@ -1,25 +1,16 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  inject,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ProductsService } from '../../../core/services/product';
 import { SeoService } from '../../../core/services/seo.service';
-import { richHouseBrand, richHouseStoreLocations } from '../../../core/config/site-settings.config';
+import {
+  richHouseBrand,
+  richHouseStoreLocations,
+} from '../../../core/config/site-settings.config';
 import {
   productPlaceholderImage,
-  resolveCatalogThumbnailUrl,
   resolveImageUrl,
+  resolveResponsiveProductImageUrl,
 } from '../../../core/utils/image-url';
-import { CategoryItem } from '../../../shared/models/category.models';
-import { ProductCard } from '../../../shared/models/product.models';
 import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 
 @Component({
@@ -30,81 +21,79 @@ import { ImageFallbackDirective } from '../../../shared/directives/image-fallbac
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Aboutus {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly productsService = inject(ProductsService);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly seoService = inject(SeoService);
 
-  readonly brand = richHouseBrand;
   readonly fallbackImage = productPlaceholderImage;
-  readonly storeLocations = richHouseStoreLocations;
-  readonly principles = [
-    'Timeless menswear with a modern point of view.',
-    'Clearer shopping journeys built around fit, occasion, and confidence.',
-    'Product presentation shaped for polish rather than marketplace noise.',
+  readonly heroImageUrl = 'assets/hero/rich-house-suit-hero-poster.webp';
+  readonly heroMobileImageSrcset =
+    'assets/hero/rich-house-suit-hero-mobile-820.webp?v=20261004 820w, ' +
+    'assets/hero/rich-house-suit-hero-mobile.webp?v=20260729 1080w';
+  readonly storyImageUrl = resolveImageUrl(
+    '/images/products/optimized/beige-three-piece-suit-with-contrast-waistcoat-f11841b1ae8d4e21ac1ad9d2bfd844f3.webp',
+  );
+  readonly storyImageSrcset =
+    `${resolveResponsiveProductImageUrl('/images/products/optimized/beige-three-piece-suit-with-contrast-waistcoat-f11841b1ae8d4e21ac1ad9d2bfd844f3.webp')} 720w, ` +
+    `${this.storyImageUrl} 1024w`;
+  readonly experienceImageUrl = resolveImageUrl(
+    '/images/products/optimized/black-contrast-trim-three-piece-tuxedo-e6feccff96454f27af795ec9ecec0f4a.webp',
+  );
+  readonly experienceImageSrcset =
+    `${resolveResponsiveProductImageUrl('/images/products/optimized/black-contrast-trim-three-piece-tuxedo-e6feccff96454f27af795ec9ecec0f4a.webp')} 720w, ` +
+    `${this.experienceImageUrl} 1024w`;
+
+  readonly values = [
+    {
+      number: '01',
+      title: 'Craft',
+      copy: 'Refined construction and close attention to the details that give tailoring its presence.',
+    },
+    {
+      number: '02',
+      title: 'Fit',
+      copy: 'Confident, considered proportions that make formal and everyday dressing feel composed.',
+    },
+    {
+      number: '03',
+      title: 'Versatility',
+      copy: 'Menswear that moves naturally from work and celebrations to elevated everyday occasions.',
+    },
+    {
+      number: '04',
+      title: 'Service',
+      copy: 'Personal assistance through Rich House stores and the existing WhatsApp contact experience.',
+    },
   ] as const;
 
-  readonly storySections = [
-    {
-      title: 'Timeless, not theatrical',
-      copy: 'Rich House focuses on menswear that feels composed across work, ceremony, and elevated everyday dressing. The emphasis is on balance, material presence, and confidence rather than excess.',
-    },
-    {
-      title: 'Built for real wardrobes',
-      copy: 'The catalog is organized to help customers discover tailoring, layering, and refined essentials without the clutter of a broad generic marketplace.',
-    },
-    {
-      title: 'Ready to evolve',
-      copy: 'This brand story is intentionally structured so the Rich House team can refine it later from site settings or the admin experience without reworking the page layout.',
-    },
-  ] as const;
-
-  heroProduct: ProductCard | null = null;
-  featuredCategories: CategoryItem[] = [];
+  readonly storeLocations = richHouseStoreLocations.map((location, index) => ({
+    ...location,
+    imageUrl:
+      index === 0
+        ? 'assets/about/rich-house-storefront-wide.webp'
+        : 'assets/about/rich-house-storefront-portrait.webp',
+    imageWidth: index === 0 ? 1600 : 1100,
+    imageHeight: index === 0 ? 739 : 1528,
+    imageAlt: `${location.name} Rich House storefront`,
+  }));
 
   constructor() {
-    forkJoin({
-      heroProduct: this.productsService
-        .getCatalog({ page: 1, pageSize: 1, sort: 'featured' })
-        .pipe(map((response) => response.items[0] ?? null)),
-      categories: this.productsService.getCategories(),
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (data) => {
-          this.heroProduct = data.heroProduct;
-          this.featuredCategories = data.categories.slice(0, 3);
-          this.seoService.setPageSeo({
-            title: `About | ${richHouseBrand.name}`,
-            description:
-              'Learn about the Rich House menswear brand, its visual direction, and its approach to modern formalwear.',
-            keywords: [
-              richHouseBrand.name,
-              'about',
-              'menswear brand',
-              'formalwear',
-              'tailoring',
-            ],
-            breadcrumbs: [
-              { name: 'Home', path: '/' },
-              { name: 'About', path: '/about' },
-            ],
-            image: data.heroProduct?.imageUrls[0] ?? null,
-          });
-          this.cdr.markForCheck();
-        },
-      });
-  }
-
-  get heroImageUrl(): string {
-    return resolveImageUrl(this.heroProduct?.imageUrls[0]);
-  }
-
-  resolveCategoryImage(path: string | null): string {
-    return resolveCatalogThumbnailUrl(path);
-  }
-
-  trackById(_index: number, item: { id: number }): number {
-    return item.id;
+    this.seoService.setPageSeo({
+      title: `About | ${richHouseBrand.name}`,
+      description:
+        'Discover Rich House, an Egyptian menswear brand focused on refined tailoring, confident fit, occasionwear, and elevated everyday dressing.',
+      keywords: [
+        richHouseBrand.name,
+        'Rich House Egypt',
+        'about',
+        'Egyptian menswear',
+        'formalwear',
+        'tailoring',
+        'suits',
+      ],
+      breadcrumbs: [
+        { name: 'Home', path: '/' },
+        { name: 'About', path: '/about' },
+      ],
+      image: this.heroImageUrl,
+    });
   }
 }

@@ -128,7 +128,7 @@
           <app-product-card
             *ngFor="let product of products; trackBy: trackById; let index = index"
             [product]="product"
-            [priority]="index < 4"></app-product-card>
+            [priority]="index < 2"></app-product-card>
         </div>
 
         <div class="rh-empty-state" *ngIf="!loading && !errorMessage && products.length === 0">

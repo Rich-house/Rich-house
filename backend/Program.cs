@@ -112,7 +112,17 @@ if (useHttpsRedirection)
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+    {
+        if (context.Context.Request.Path.StartsWithSegments("/images")
+            || context.Context.Request.Path.StartsWithSegments("/catalog"))
+        {
+            context.Context.Response.Headers.CacheControl = "public,max-age=31536000,immutable";
+        }
+    }
+});
 
 if (app.Environment.IsDevelopment())
 {
