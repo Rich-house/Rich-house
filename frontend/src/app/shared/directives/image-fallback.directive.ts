@@ -28,6 +28,7 @@ export class ImageFallbackDirective {
       const absoluteCandidateUrl = new URL(candidate, document.baseURI).href;
       if (!this.attemptedUrls.has(absoluteCandidateUrl)) {
         this.attemptedUrls.add(absoluteCandidateUrl);
+        target.removeAttribute('srcset');
         target.src = candidate;
         return;
       }
