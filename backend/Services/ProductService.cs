@@ -162,7 +162,9 @@ public class ProductService(
 
         var product = new Product();
         MapProductFields(product, dto);
-        product.Slug = await BuildUniqueSlugAsync(dto.Slug, dto.Name, null, cancellationToken);
+        product.Slug = dto.FailOnDuplicateNameOrSlug
+            ? await BuildStrictCreateSlugAsync(dto.Slug, dto.Name, cancellationToken)
+            : await BuildUniqueSlugAsync(dto.Slug, dto.Name, null, cancellationToken);
         product.CreatedAt = DateTimeOffset.UtcNow;
         product.UpdatedAt = product.CreatedAt;
 
@@ -752,6 +754,34 @@ public class ProductService(
         return slug;
     }
 
+    private async Task<string> BuildStrictCreateSlugAsync(
+        string? requestedSlug,
+        string name,
+        CancellationToken cancellationToken)
+    {
+        var slug = SlugUtility.GenerateSlug(requestedSlug) switch
+        {
+            { Length: > 0 } generatedSlug => generatedSlug,
+            _ => SlugUtility.GenerateSlug(name)
+        };
+
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            throw new InvalidOperationException("A valid product slug could not be generated.");
+        }
+
+        var normalizedName = name.Trim();
+        var duplicateExists = await _context.Products
+            .IgnoreQueryFilters()
+            .AnyAsync(product => product.Name == normalizedName || product.Slug == slug, cancellationToken);
+        if (duplicateExists)
+        {
+            throw new InvalidOperationException("A product with the same name or slug already exists.");
+        }
+
+        return slug;
+    }
+
     private static void MapProductFields(Product product, UpsertProductDto dto)
     {
         product.Name = dto.Name.Trim();
@@ -847,7 +877,15 @@ public class ProductService(
 
         foreach (var file in dto.Images)
         {
-            savedImages.Add(await _imageStorage.SaveImageAsync(file, "products", filePrefix, cancellationToken));
+            try
+            {
+                savedImages.Add(await _imageStorage.SaveProductImageAsync(file, filePrefix, cancellationToken));
+            }
+            catch
+            {
+                CleanupSavedImages(savedImages);
+                throw;
+            }
         }
 
         return savedImages;
@@ -965,14 +1003,11 @@ public class ProductService(
         }
     }
 
-    private static void CleanupSavedImages(IEnumerable<StoredImageFile> savedImages)
+    private void CleanupSavedImages(IEnumerable<StoredImageFile> savedImages)
     {
         foreach (var image in savedImages)
         {
-            if (File.Exists(image.AbsolutePath))
-            {
-                File.Delete(image.AbsolutePath);
-            }
+            _imageStorage.DeleteIfExists(image.RelativePath);
         }
     }
 

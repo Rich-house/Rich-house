@@ -80,4 +80,5 @@ public sealed class UpsertProductDto
     public List<string> ImageOrder { get; set; } = [];
     public string? MainImageReference { get; set; }
     public List<IFormFile> Images { get; set; } = [];
+    public bool FailOnDuplicateNameOrSlug { get; set; }
 }

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Example Three-Piece Suit",
+    "category": "Suits",
+    "price": 6199,
+    "stockQuantity": 20,
+    "description": "Example description to replace before importing.",
+    "sizes": ["44", "46", "48", "50", "52", "54", "56"],
+    "colors": [],
+    "images": [
+      {
+        "path": "./images/example-suit-front.jpg",
+        "isMain": true,
+        "order": 0
+      },
+      {
+        "path": "./images/example-suit-detail.jpg",
+        "order": 1
+      }
+    ],
+    "status": "Draft",
+    "isActive": true,
+    "isFeatured": false,
+    "isBestSeller": false,
+    "isNewArrival": false
+  }
+]

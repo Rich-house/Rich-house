@@ -9,6 +9,12 @@ frontend/.cache/
 backend/bin/
 backend/obj/
 backend/Logs/
+tests/**/bin/
+tests/**/obj/
+
+# Python tooling
+__pycache__/
+*.py[cod]
 
 # Runtime
 logs/
